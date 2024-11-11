@@ -1,0 +1,39 @@
+Name     MIDI80-Decoder ;
+PartNo   00 ;
+Date     09.11.2024 ;
+Revision 01 ;
+Designer Michael Wessel / LambdaMikel ;
+Company  Home ;
+Assembly None ;
+Location  ;
+Device   G16V8 ;
+
+PIN 9  = IOIN ; 
+PIN 11 = IOOUT ; 
+
+PIN 18 = READ1 ;
+PIN 19 = READ2 ; 
+PIN 17 = READ_1OR2 ; 
+PIN 12 = READ_LATCH ; 
+PIN 15 = WRITE ; 
+
+PIN  1 = A0 ; 
+PIN  2 = A1 ; 
+PIN  3 = A2 ; 
+PIN  4 = A3 ; 
+PIN  5 = A4 ; 
+PIN  6 = A5 ; 
+PIN  7 = A6 ; 
+PIN  8 = A7 ; 
+
+// Let's use 8 and 9 for now... 
+MIDI1 = !A0 & !A1 & !A2 & A3 & !A4 & !A5 & !A6 & !A7 ; 
+MIDI2 =  A0 & !A1 & !A2 & A3 & !A4 & !A5 & !A6 & !A7 ; 
+
+WRITE = MIDI1 & ! IOOUT ; 
+R1 =  MIDI1 & ! IOIN ; 
+R2 =  MIDI2 & ! IOIN ; 
+READ1 = R1; 
+READ2 = R2; 
+READ_1OR2 = !(( R1 # R2 ) & READ_LATCH ) ; 
+

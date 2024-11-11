@@ -1,0 +1,61 @@
+Name     MIDI80-Decoder ;
+PartNo   00 ;
+Date     09.11.2024 ;
+Revision 01 ;
+Designer Michael Wessel / LambdaMikel ;
+Company  Home ;
+Assembly None ;
+Location  ;
+Device   G16V8 ;
+
+PIN 9  = M3IN ; 
+PIN 11 = M3OUT ; 
+
+PIN 18 = READ1 ;
+PIN 19 = READ2 ; 
+PIN 17 = READ_1OR2 ;
+PIN 15 = WRITE ;
+PIN 14 = IOREQ ; 
+PIN 13 = EXTIOSEL ; 
+
+PIN 12 = READ_LATCH ; 
+
+PIN 16 = TEST ; 
+
+PIN  1 = A0 ; 
+PIN  2 = A1 ; 
+PIN  3 = A2 ; 
+PIN  4 = A3 ; 
+PIN  5 = A4 ; 
+PIN  6 = A5 ; 
+PIN  7 = A6 ; 
+PIN  8 = A7 ; 
+
+// Let's use 8 and 9 for now... 
+MIDI1 = !A0 & !A1 & !A2 & A3 & !A4 & !A5 & !A6 & !A7 ; 
+MIDI2 =  A0 & !A1 & !A2 & A3 & !A4 & !A5 & !A6 & !A7 ; 
+
+// Port 11
+TALKER80 = A0 & A1 & !A2 & A3 & !A4 & !A5 & !A6 & !A7 ;  
+
+WRITE = MIDI1  & ! M3OUT & ! IOREQ ; 
+R1 =  MIDI1    & ! M3IN  & ! IOREQ ; 
+R2 =  MIDI2    & ! M3IN  & ! IOREQ ; 
+RT =  TALKER80 & ! M3IN  & ! IOREQ ; 
+
+READ1 = R1; 
+READ2 = R2;
+
+// this is the correcter equation, but gives a WINCUPL error: 
+//READ_1OR2 = !(( R1 # R2 ) & READ_LATCH ) ; 
+// so we use this instead - this is good enough: 
+
+READ_1OR2 = !( R1 # R2 ) ; 
+READ_1OR2ORTALKER = !( R1 # R2 # RT ); 
+// EXTIOSEL =  !( R1 # R2 ) ; 
+// EXTIOSEL = READ_1OR2 ; 
+EXTIOSEL = READ_1OR2ORTALKER ;
+
+TEST = WRITE ; 
+
+
