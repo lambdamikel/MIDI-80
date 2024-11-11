@@ -26,13 +26,13 @@
 
 TRS-80 Model with Expansion Interface, MIDI/80, and Orchestra 85 replica: 
 
-![MIDI/80 Model 1](pics/midi80-1.jpg)
-![MIDI/80 and Microkorg](pics/microkorg.jpg) 
+![MIDI/80 Model 1](pics/midi80-1.JPG)
+![MIDI/80 and Microkorg](pics/microkorg.JPG) 
 
 TRS-80 Model III with MIDI/80 and FreHD HD emulator connected to the
 MIDI/80 expansion port pass-through edge connector:
 
-![MIDI/80 Model III](pics/midi80-3.jpg) 
+![MIDI/80 Model III](pics/midi80-3.JPG) 
 
 MIDI/80 on a TRS-80 Model 4 with [TRS-IO++](https://youtu.be/tV7D6_IFSac): 
 
@@ -155,7 +155,7 @@ the console, to the top. Connect additional external hardware such as
 your FreHD directly to MIDI/80's pass-through expansion port edge
 connector, as shown in this picture:
 
-![MIDI/80 Model III b](pics/midi80-3b.jpg) 
+![MIDI/80 Model III b](pics/midi80-3b.JPG) 
 
 *Moreover, it is important that expansion cards connected to MIDI/80's
 pass-through connector use a fully connected 50pin ribbon cable!* This
