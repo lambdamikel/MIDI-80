@@ -11,7 +11,7 @@
 ### November 2024 
 
 - This Github goes online. Firmware, Gerbers, and sources released to the public.
-- The first beta tests were a success! Both J�rgen as well as Joel have successfully used MIDI/80 with their TRS-80s. 
+- The first beta tests were a success! Both Jürgen and Joel have successfully used MIDI/80 with their TRS-80s. 
 
 ### October 2024
 
