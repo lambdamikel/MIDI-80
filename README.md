@@ -456,7 +456,7 @@ image into HFE format using [HxC](https://hxc2001.com/).
 
 ## MIDI/80 Programming
 
-Have a look at the [LBASIC demo programs on the DSK images](trs-80/model-3/), and the [`DRUMS/CMD` assembly program.](trs-80/zmac/drums.asm). 
+Have a look at the [LBASIC demo programs on the DSK images](trs-80/model-3/), and the [`DRUMS/CMD` assembly program.](trs-80/zmac/drums.asm)
 
 ## MIDI/80 Hardware
 

@@ -1,10 +1,3 @@
-; hello_ldos5
-;   The TRS-80 says hello using the screen
-; Reference Document:
-;   LDOS Version 5.1: The TRS-80 Operating System Model I and III
-;
-; zmac hello_ldos5.asm
-; trs80gp -ld zout/hello_ldos5.cmd
   org $7000
 
 @DSPLY	equ	$4467 ; pg 6-66
