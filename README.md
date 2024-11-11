@@ -313,7 +313,7 @@ standalone demos. See below for info on how to make your own songs for
 MIDI/80.  The software is under development, and there might be
 frequent or infrequent updates in the future.
 
-The programs on the [`MIDI80.DSK`](), [`MIDI80_DSK.HFE`] Model III disk images are:
+The programs on the [`MIDI80.DSK`](trs-80/model-3/dsk/MIDI.DSK), [`MIDI80_DSK.HFE`](trs-80/model-3/hfe/MIDI_DSK.hfe) Model III disk images are:
 
 - `ALF/CMD`, `TOCCATA/CMD`: MIDI Demo songs; playback of complex GM data-    from TRS-80 RAM. 
 
