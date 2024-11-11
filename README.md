@@ -368,7 +368,7 @@ scanning and self-modifying key handler code.
   switch settings (1 and 2).
 
 
-There is also some software that was written be [George Phillips]()
+There is also some software that was written by [George Phillips]()
 that requires an Orchestra 85 (Model 1) or Orchestra 90 (Model III,
 Model 4) soundcard: 
 
@@ -401,7 +401,7 @@ fit about ... KBs of song data into memory.
 
 In order to create your own `MYSONG/CMD` file, proceed as follows. 
 
-1. Edit the [`CANYON.ASM`](trs-80/canyon.asm) Zmac assembly program as a blueprint. First, make a copy, give it a reasonable name, e.g., 
+1. Edit the [`CANYON.ASM`](trs-80/zmac/canyon.asm) Zmac assembly program as a blueprint. First, make a copy, give it a reasonable name, e.g., 
   `MYSONG.ASM`. 
 
     Then, change the line
