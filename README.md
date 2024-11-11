@@ -408,7 +408,7 @@ In order to create your own `MYSONG/CMD` file, proceed as follows.
    
        `title2		defb  '    CANYON.MID', ENTER` 
 
-       by replacing `CANYON.MID` with your song title, e.g., `MYSONG.MID` 
+      by replacing `CANYON.MID` with your song title, e.g., `MYSONG.MID` 
 
 2. Include as many of the the generated `.BIN` fragments of your 
    song as possible by replacing the following lines
