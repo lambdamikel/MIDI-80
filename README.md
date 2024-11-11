@@ -80,7 +80,7 @@ MIDI/80 offers:
 
 - DIY friendly: only thru-hole and off-the-shelf components are used.
 
-- Inexpensive: MIDI/80 can be assembler for ~35 USD. The most significant
+- Inexpensive: MIDI/80 can be assembled for ~35 USD. The most significant
   cost factor is the Waveblaster module, if required. If you already
   own an external MIDI expander such as the Roland Sound Canvas or similar,
   no Waveblaster plugin module is required.
