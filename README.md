@@ -490,6 +490,7 @@ Waveblaster module; add another ~40 USD for the S2, but prices vary).
 - 74LS374 + DIP socket 
 - 5 (5mm) LEDs of your liking and matching current limiting resitors (1 or 2 kOhm)
 - 4-position DIP switch 
+- **C1** in the schematics (and on the PCB) is actually not a capacitor, but a cable / wire bridge
 - [L Type Mounting Feet](https://www.amazon.com/gp/product/B07DHHS1Q8)
 - [Standard 5V DV power plug jack (5.5x2.1mm socket)](https://www.amazon.com/gp/product/B081DYQSC9/)
 - [Standard 5V "wall wart" external power supply (center positive)](https://www.amazon.com/gp/product/B08722QC75)
