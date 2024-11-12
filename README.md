@@ -24,10 +24,11 @@
 
 **MIDI/80 is a MIDI Sound & MIDI Interface card for the TRS-80 Model 1, III, and 4.**
 
+![MIDI/80 Model 1](pics/midi80.JPG)
+
 TRS-80 Model with Expansion Interface, MIDI/80, and Orchestra 85 replica: 
 
 ![MIDI/80 Model 1](pics/midi80-1.JPG)
-![MIDI/80 and Microkorg](pics/microkorg.JPG) 
 
 TRS-80 Model III with MIDI/80 and FreHD HD emulator connected to the
 MIDI/80 expansion port pass-through edge connector:
@@ -129,8 +130,11 @@ You can get a better understanding of MIDI/80's capabilities and features by wat
 
 ## Overview & Usage 
 
-Connect the IDC box header at the bottom to your TRS-80 Model. Use
-the pass-through edge connector to connect other hardware (e.g., the
+Connect the IDC box header at the bottom to your TRS-80 Model.
+
+![IDC Box Header Connector](pics/idc-connector.JPG)
+
+Use the pass-through edge connector to connect other hardware (e.g., the
 Model 1 Expansion Interface, or a FreHD) to MIDI/80.
 
 MIDI/80 requires a dedicated external 5V standard center-positive "wall wart"
