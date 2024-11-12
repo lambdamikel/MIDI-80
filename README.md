@@ -377,9 +377,9 @@ that requires an Orchestra 85 (Model 1) or Orchestra 90 (Model III,
 Model 4) soundcard: 
 
 - `MIDORCM/CMD`: With this program you can play your Orchestra (85, 90)  interactively via a MIDI keyboard connected to MIDI/80's MIDI IN
-socket. It is monophonic. The program is somewhat picky as it requires
+socket. It is monophonic. The program is somewhat "picky" as it requires
 a proper MIDI NOTE OFF message to turn of a note. Note that some
-keyboard instead choose to send a MIDI NOTE ON message with velocity
+MIDI keyboards choose to send a MIDI NOTE ON message with velocity
 (= "volume") 0 instead. Also, key roll-over is not implemented yet.
 
 - `STORCH/CMD`: Allows you to play the Orchestra (85, 90) soundcard
