@@ -44,30 +44,30 @@ MIDI/80 on a TRS-80 Model 4 with [TRS-IO++](https://youtu.be/tV7D6_IFSac):
 MIDI/80 offers: 
 
 - A powerful and sonically impressive, versatile General MIDI (GM)
-  sound card for the TRS-80 Model 1, III, and 4.
+  sound & MIDI interface card for the TRS-80 Model 1, III, and 4. 
 
   GM sound is either produced by a Waveblaster-compatible soundmodule
-  that plugs onto MIDI/80's Waveblaster header or via a GM expander
-  such as the Roland Sound Canvas SC-55 or Roland MT-32, conntected
+  that plugs onto MIDI/80's Waveblaster header, or via a GM expander
+  (such as the Roland Sound Canvas SC-55 or Roland MT-32) conntected
   to MIDI/80's MIDI OUT DIN socket. MIDI data can be sent to
   either or both of these devices. Both the Waveblaster module as well
   as the MIDI DIN sockets are optional, but in order to act as a soundcard,
   either of these options need to be present. 
 
-- Standard MIDI IN & MIDI OUT DIN sockets (optional) turning your
+- Standard MIDI IN & MIDI OUT DIN sockets (optional) turn your
   TRS-80 into a powerful MIDI processor. You can connect a standard
   MIDI keyboard to the MIDI IN DIN socket, and record MIDI messages
   with the TRS-80 into memory. MIDI messages can also be played back
   from the TRS-80 memory. The MIDI data recording is fast enough to
   allow for the real-time recording of entire multi-track complex
-  GM songs, i.e., from a PC playing back a .MID MIDI file via
+  GM songs, i.e., from a PC playing back a `.MID` MIDI file via
   [MIDIBAR](http://www.midiox.com/).
 
 - Stand-alone mode: equipped with a [Waveblaster sound module](https://www.serdashop.com/RetroSoundcards), 
   MIDI/80 is also a "headless" GM expander, not unlike the Roland 
   Sound Canvas SC-55 (without display though). The MIDI/80 firmware
   provides a standalone MIDI mode - this mode is enabled
-  by putting DIP Switch 3 into "ON" position. No TRS-80 is required
+  by putting DIP Switch `3` into "ON" position. No TRS-80 is required
   in this standalone mode, only a 5 V power supply and an external
   amplifier. 
 
