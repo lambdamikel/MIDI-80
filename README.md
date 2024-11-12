@@ -299,7 +299,7 @@ three additional glue logic support chips in order to meet the
 strict bus timing constraints of the TRS-80 with a "not quite 
 fast enough" microcontroller such as the BluePill @ 72 MHz: 
 
-- A **GAL16V8** is primarily used as an address decoder for IO ports 8 and 9. It notifies the BluePill and triggers the appropriate ISRs. It also implements some glue logic for driving the other two support chips. 
+- A **GAL16V8** is primarily used as an address decoder for IO ports `8` and `9`. It notifies the BluePill and triggers the appropriate ISRs. It also implements some glue logic for driving the other two support chips. 
 - A **74LS244** is used to decouple TRS-80 databus read requests from the BluePill databus. 
 - A **74LS374** is used to decouple TRS-80 databus write requests from the BluePill databus. 
 
