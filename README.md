@@ -257,7 +257,7 @@ On all systems, *LDOS 5.3.1* is the default operating system for which
 the software is developed. Model 4 users must configure their machine
 via `SYSTEM (SLOW)` for MIDI/80.
 
-The MIDI/80 programming examples in BASIC are writting in LBASIC (LDOS
+The MIDI/80 programming examples in BASIC are written in LBASIC (LDOS
 BASIC) and are not guaranteed to work with the other BASIC dialects.
 
 All other programs are written in Z80 assembly using George Phillips'
@@ -390,7 +390,7 @@ keyboard instead choose to send a MIDI NOTE ON message with velocity
   
 ### Creating Your Own Songs for MIDI/80 Playback 
 
-Use the `.MID` to `.BIN` file converter. The converter is writting 
+Use the `.MID` to `.BIN` file converter. The converter is written  
 in Python, and [provided as a Windows executable here.](converter/)
 
 ![MID Converter 1](pics/converter1.png)
