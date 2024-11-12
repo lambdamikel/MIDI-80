@@ -401,7 +401,7 @@ There are [a few MIDI files here you can start with](midi/).
 
 The converter will convert a MIDI `.MID` file into a set of 
 16 KB `.BIN` fragments. A fully expanded Model 1 allows you to 
-fit about ... KBs of song data into memory. 
+fit about ~43 KBs of song data into memory. 
 
 In order to create your own `MYSONG/CMD` file, proceed as follows. 
 
