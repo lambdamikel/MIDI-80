@@ -265,30 +265,30 @@ Zmac assembler and `trs80gp` emulator as development toolchain.
 
 ## Theory of Operation
 
-MIDI/80 implements a FIFO queue for MIDI messages received over the
-MIDI IN DIN socket. Incoming MIDI bytes are buffered by the
-BluePill. The status of this buffer can be queried by reading from IO
-port 9 - a 1 indicates MIDI bytes are queued for retrieval from the
-buffer, and a 0 indicates an empty buffer. MIDI bytes can then be
-retrieved from the FIFO by reading from IO port 8.
+MIDI/80 implements a FIFO queue with a capacity of 256
+bytes for buffering incoming MIDI messages which are received over the
+MIDI IN DIN socket. The status of this buffer can be queried by reading from IO
+port `9` - a `1` indicates MIDI bytes are queued for retrieval from the
+buffer, and a `0` indicates an empty buffer. MIDI bytes can then be
+retrieved from the FIFO by reading from IO port `8`.
 
-If the standalone mode is turned on, i.e., DIP switch 3 is set to on,
+If the standalone mode is turned on, i.e., DIP switch `3` is set to on,
 then all MIDI data bytes received over MIDI IN are also automatically
 forwarded to the Waveblaster module. 
 
-If MIDI THRU is turned on, i.e., DIP switch 4 is set to on, then MIDI
+If MIDI THRU is turned on, i.e., DIP switch `4` is set to on, then MIDI
 data bytes received over MIDI IN are also automatically forwarded to
 the MIDI OUT DIN socket.
 
-MIDI data bytes received by MIDI/80 from the TRS-80 via port 8 will
-not be buffered, but, depending on the settings of DIP switches 1 and
-2, immediately be forwarded to either the Waveblaster pluging module,
+MIDI data bytes received by MIDI/80 from the TRS-80 via port `8` will
+not be buffered, but, depending on the settings of DIP switches `1` and
+`2`, immediately be forwarded to either the Waveblaster pluging module,
 and/or the MIDI OUT DIN socket, or both or none. Both routes can be
 turned on or off individually, and independendly of each other.
 
 MIDI/80 is implemented using 4 ISR (Interrupt Service Routines).
 There is a pair of ISRs for handling reads and write to TRS-80 IO port
-8, and one ISR for handling IO port 9 reads. Another ISR is
+8, and one ISR for handling IO port `9` reads. Another ISR is
 responsible for putting MIDI bytes received via the MIDI IN socket
 into the FIFO buffer. The MIDI ISR has priority over the ISRs serving
 the TRS-80 IO - the Z80 CPU may be put into WAIT state in case these
