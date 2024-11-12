@@ -319,7 +319,7 @@ frequent or infrequent updates in the future.
 
 The programs on the [`MIDI80.DSK`](trs-80/model-3/dsk/MIDI.DSK), [`MIDI80_DSK.HFE`](trs-80/model-3/hfe/MIDI_DSK.hfe) Model III disk images are:
 
-- `ALF/CMD`, `TOCCATA/CMD`: MIDI Demo songs; playback of complex GM data-    from TRS-80 RAM. 
+- `ALF/CMD`, `TOCCATA/CMD`: MIDI Demo songs; playback of complex GM data from TRS-80 RAM. 
 
   ![Alf Demo Song](pics/alf.gif)
 
