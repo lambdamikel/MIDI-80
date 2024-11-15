@@ -157,6 +157,11 @@ k_shift	equ	$388001
 
 main:
 
+	in  a,($ff)
+	or  a,$10 		; enable IO on Model III 
+	; and a,~$20 		; disable video wait states M III 
+	and a,~$40 		; slode mode M4 
+	out ($ec),a
 
 	ld	hl,data 
 	ld	de,tracks1
@@ -1192,7 +1197,7 @@ showbars:
 
 
 short_delay:
-    ld de,$0010
+    ld de,$00ff
 delloop: 
     dec de
     ld a,d

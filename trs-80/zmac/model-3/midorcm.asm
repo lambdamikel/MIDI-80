@@ -26,13 +26,9 @@ start:
 	ld	bc,title_len
 	ldir
 	
-	;in  a,($ff)
-	;or  a,$10 
-	;out ($ec),a	
-	
 	in  a,($ff)
 	or  a,$10
-	and a,~$20
+	and a,~($20 | $40) ; disable video wait states M3, and SLOW mode M4
 	out ($ec),a
 
 ; Status report but already in prime registers

@@ -38,16 +38,17 @@ vol2	byte 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 
 
 start:
 
+	in  a,($ff)
+	or  a,$10 		; enable IO on Model III 
+	; and a,~$20 		; disable video wait states M III 
+	and a,~$40 		; slode mode M4 
+	out ($ec),a
+
 	ld	hl,title
 	ld	de,$3c00
 	ld	bc,title_len
 	ldir
-
-	;in  a,($ff)
-	;or  a,$10
-	;and a,~$20
-	;out ($ec),a
-
+	
 	
 defstep	macro	n,stp
 step_&n	equ	stp
