@@ -12,7 +12,7 @@
 
 - MIDI/80 is *featured project* on Hackaday.com!
 
-![Hackaday features](pics/hackaday.jpg)
+![Hackaday features](pics/hackaday.png)
 
 - This Github goes online. Firmware, Gerbers, and sources released to the public.
 - The first beta tests were a success! Both Jürgen and Joel have successfully used MIDI/80 with their TRS-80s. 
