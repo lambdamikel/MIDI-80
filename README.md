@@ -3,7 +3,7 @@
 
 #### Hardware & Firmware: [Michael Wessel](https://www.michael-wessel.info/) 
 #### Z80 Wizardry and TRS-80 Zmac Assembler Advisor: [George Phillips](http://48k.ca/) 
-#### Beta Testers: [JÃ¼rgen Wich](https://homecomputerguy.de/en/) (Model 1 Version), [Joel Hilliard (Model III / 4 Version)](https://www.youtube.com/@joelhilliard8298)
+#### Beta Testers: [Jürgen Wich](https://homecomputerguy.de/en/) (Model 1 Version), [Joel Hilliard (Model III / 4 Version)](https://www.youtube.com/@joelhilliard8298)
 #### License: GPL 3
 
 ## News 
@@ -572,7 +572,7 @@ a possibilty in the aforementioned book.
 
 - [George Phillips](http://48k.ca/)
 
-- [JÃ¼rgen Wich](https://homecomputerguy.de/en/)
+- [Jürgen Wich](https://homecomputerguy.de/en/)
 
 - [Joel Hilliard](https://www.youtube.com/@joelhilliard8298)
  
