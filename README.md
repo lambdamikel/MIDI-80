@@ -10,6 +10,13 @@
 
 ### November 2024 
 
+- Jürgen Wich (the "Homecomputerguy.de") was one of the beta testers for
+the Model 1 version, and has just uploaded his review - thanks, Jürgen!
+
+![Homecomputerguy 1](pics/homecomputerguy1.png)
+
+https://homecomputerguy.de/en/2024/11/24/midi-80-trashy-spits-out-new-sounds/
+
 - MIDI/80 is *featured project* on Hackaday.com!
 
 ![Hackaday features](pics/hackaday.png)
