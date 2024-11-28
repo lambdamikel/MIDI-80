@@ -25,7 +25,7 @@ free: 	 ascii   'F'
 tracked: ascii   'T'
 
 
-title:	ascii   '***** MIDI/80 DRUM TRACKER V1.2 -- (C) 2024 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 DRUM TRACKER V1.3 -- (C) 2024 BY LAMBDAMIKEL *****'
 	ascii   'TRACK: 1 SPEED: -- VOL: 7F NOTE: 24 BARS: 8 STEP: 01 PAT: A S-F '
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '|...-...+...-...|...-...+...-...|...-...+...-...|...-...+...-...'
@@ -41,7 +41,6 @@ data:	ascii   '|...-...+...-...|...-...+...-...|...-...+...-...|...-...+...-...'
 	ascii   '|...-...+...-...|...-...+...-...|...-...+...-...|...-...+...-...'
 	ascii   '|...-...+...-...|...-...+...-...|...-...+...-...|...-...+...-...'
 	ascii   '|...-...+...-...|...-...+...-...|...-...+...-...|...-...+...-...'
-title_len equ $-title
 
 helpt:	ascii   '************************** HELP PAGE ***************************'
 	ascii   'CURSOR MOVEMENT       : A D W X                                 '
@@ -49,8 +48,9 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 	ascii   'JUMP TO BAR POS       : 1 2 3 4 5 6 7 8                         '
 	ascii   'CHANGE BAR COUNT      : B                                       '
 	ascii   'NEXT / PREV GRID POS  : ARROW-UP ARROW-DOWN                     '
-	ascii   'TOGGLE GRID POS       : SPACE                                   '
-	ascii   'TOGGLE GRID POS+SOUND : ENTER                                   '
+	ascii   'CLEAR GRID POS        : CLEAR                                   '
+	ascii   'SET   GRID POS        : SPACE                                   '
+	ascii   'SET   GRID POS & SOUND: ENTER                                   '
 	ascii   'PLAY & STOP           : P                                       '
 	ascii   'TOGGLE TRACKING       : T                                       '
 	ascii   'CHANGE PLAYBACK SPEED : N M , .                                 '
@@ -59,7 +59,6 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 	ascii   'LOAD & SAVE           : L S                                     '
 	ascii   'HELP                  : H                                       '
 	ascii   'QUIT                  : Q                                       '	
-help_len equ $-helpt
 
 
 lastcur	     byte	'.'
@@ -183,7 +182,7 @@ main2:
 
 	ld	hl,title
 	ld	de,$3c00
-	ld	bc,title_len
+	ld	bc,1024
 	ldir
 
 
@@ -195,7 +194,7 @@ main2:
 loop:
 	ld a, (status) ; stopped ? 
 	or a
-	jr z, nostep
+	jp z, nostep
 	
 	ld a, (delayc)
 	inc a
@@ -204,7 +203,7 @@ loop:
 	ld b, a
 	ld a, (tempo) 
 	cp b
-	jr nz, nostep
+	jp nz, nostep
 	
 	;;  inc note pointer
 	call nextnote
@@ -263,10 +262,10 @@ showtrackcur:
 	ld (hl), 127
 
 	call showcursor
+
 	jr scan 
 	
-	
-nostep:	
+nostep:
 
 	ld a,(blink)
 	inc a
@@ -282,29 +281,35 @@ cur1:
 	call showcursor
 		
 scan:
-		
-	;; keydown k_space 
-	;; jp	nz,setgrid 
+	
+	ld a, (track) 
+	or a
+	jr nz,scancont
 
-	;; keydown k_enter 
-	;; jp 	nz,setgridandsound
-
-	;; keydown k_a		
-	;; jp	nz,prevbar
-
-	;; keydown k_d
-	;; jp	nz,nextbar
+	;; here we only sample if the tracking is stopped!
 
 	call @KBD
-
 	cp 0
 	jp z,loop
 
-	cp ' '
+        cp ' ' ; space
 	jp z,setgrid 
 
-	cp 13 
+	cp 13 ; enter
 	jp z,setgridandsound
+
+	cp 31 ; clear 
+	jp z,erasegrid
+
+	jr scancont1
+
+scancont:
+
+	call @KBD
+	cp 0
+	jp z,loop
+
+scancont1:
 
 	cp 'Z' 
 	jp z,left
@@ -472,10 +477,18 @@ countticks:
 	jp cont 
 
 help:
+
+	ld	hl,$3c00
+	ld	de,$3c00+1
+	ld	bc,1024-1
+	ld	(hl),' '
+	ldir
+
 	ld	hl,helpt
 	ld	de,$3c00
-	ld	bc,help_len
+	ld	bc,1024 
 	ldir
+
 	call @KEY
 	
 	jp main2
@@ -685,9 +698,15 @@ restorecellx macro
 setgridx macro
         local setpos1
 	call memcursor
+	ld (hl),SETSYM 
+	ld hl,lastcur
+	ld (hl),SETSYM 
+	endm 
+
+erasegridx macro
+        local setpos1
+	call memcursor
 	ld a, (hl)
-	cp SETSYM
-	jp nz, setpos1
 	;;  erase
 	push hl
 	restorecellx 
@@ -695,13 +714,6 @@ setgridx macro
 	ld (hl),a
 	ld hl,lastcur
 	ld (hl),a 
-	jp cont
-setpos1:
-	ld (hl),SETSYM 
-	ld hl,lastcur
-	ld (hl),SETSYM 
-
-
 	endm 
 
 gettrackdrumx macro 
@@ -721,11 +733,33 @@ setgridandsound:
 	setgridx 
 
 	jp cont 
+
+setgridandsoundr:
+	
+	testsoundx
+	setgridx 
+
+	ret
 	
 setgrid:
 	
 	setgridx 
 	jp cont
+
+setgridr:
+	
+	setgridx 
+	ret
+
+erasegrid:
+	
+	erasegridx 
+	jp cont
+
+erasegridr:
+	
+	erasegridx 
+	ret 
 
 startstop:
 	ld a,(status)
@@ -898,8 +932,25 @@ nextnote0:
 	ld b, a
 	ld a, (quantpat)
 	and b
-	ld (trackpos),a	
+	ld (trackpos),a
 
+	;; sample keyboard here if (qtrackpos) = (trackpos)
+
+	cp b
+	jr nz, nextnote1
+
+	;; sample keyboard
+
+	keydown k_space 
+	call nz,setgridr
+
+	keydown k_enter 
+	call nz,setgridandsoundr
+
+	keydown k_clear
+	call nz,erasegridr
+	
+nextnote1:
 	bit 7,a
 	ret z
 	
@@ -959,7 +1010,7 @@ screenupdate:
 
 	ret
 
-showcursor:	
+showcursor:
 
 	ld hl,(lastcurpos)
 	ld a,(lastcur)

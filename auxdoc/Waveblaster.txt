@@ -1,0 +1,1025 @@
+From andrew.maclean@rose (andrew maclean) Wed Jan 26 16:20:50 1994
+Newsgroups: comp.sys.ibm.pc.soundcard
+From: andrew.maclean@rose.com (andrew maclean)
+Subject: SoundEngine / WB Doc(1/10
+Date: Mon, 24 Jan 1994 20:40:22 GMT
+Message-ID: <1994Jan24.204023.13097@rose.com>
+X-Gated-By: Usenet <==> RoseMail Gateway (v1.70)
+Organization: Rose Media Inc, Toronto, Ontario.
+Lines: 95
+
+<<***** Split Message. Part 1 Of 10 *****>>
+For all you WaveBlaster Owners, here is the EMU Docs on what it can and cannot
+do.  Got this off Compu$erve from the MIDI Forum.
+
+
+===============================================================================
+				    Proteus
+				  SoundEngine
+			      MIDI Specifications
+
+			      E-mu Systems, Inc.
+===============================================================================
+
+
+Proteus SoundEngine MIDI Specifications
+
+About this MIDI Specification
+
+This section of the manual is included to provide a complete
+MIDI specification for programmers or MIDI power users. Most of
+the Music Module's sound programming functions are only
+available via MIDI SysEx. The Edit One program by Opcode allows
+access to all of the synthesizer parameters.
+
+Dual MIDI Modes
+
+The SoundEngine Music Module incorporates two MIDI modes which
+affect the way the Music Module responds to incoming MIDI
+messages.
+
+Mode 1 - General MIDI Mode - F0 7E 00 09 01 F7
+
+The Music Module responds according to the General MIDI spec.
+On power-up, this mode is automatically invoked and both banks
+of General MIDI presets are loaded into RAM. General MIDI mode
+has several features that differ from Non-General MIDI mode.
+
+o Channel 10 is dedicated to drums. Incoming preset changes on
+  channel 10 are automatically routed to percussion presets
+  which are internally mapped at preset locations 129-192.
+  Preset numbers greater than #63 will be ignored on channel 10.
+
+o Voice channels are assigned to MIDI channels in the order:
+  10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16.
+  There are also default minimum voice channels assignments.
+  Channel 1:	  8 minimum voice channels
+  Channels 2-3:   4 minimum voice channels
+  Channels 4-9:   2 minimum voice channels
+  Channel 10:	  4 minimum voice channels
+  Channels 11-16: 0 minimum voice channels
+
+  These minimum channel numbers can be changed via System
+  Exclusive command, however the sum of voice channels cannot
+  exceed 32.
+
+o Channel Volumes and Expression Controller.
+  The Music Module powers up with all channel volumes set to
+  100 instead of the maximum of 127. This allows use of an
+  expression controller (on continuous controller channel 11)
+  to increase the volume of any given channel by up to 6dB.
+
+Mode 2 - Proteus Mode - F0 7E 00 09 02 F7
+
+In this mode, the Music Module behaves in a manner very similar
+to the Proteus line of sample players, with the addition of
+digital effects. (Proteus is E-mu's line of professional sound
+modules utilizing technology and architecture very similar to
+the Sound Engine Music Module.)
+
+o MIDI channel 10 is NOT reserved for drums. It acts the same
+  as any other MIDI channel.
+
+o Voice channels are assigned in a circular order with a voice
+  stealing algorithm based on the release of a channel's
+  volume envelope. There is no feature to assign a minimum
+  number of voice channels per MIDI channel.
+
+o Channel volumes default to 127 on power-up. There is no
+  expression controller.
+
+o Presets range from 000-192. A Program->Preset mapping
+  feature allows presets higher than 127 to be accessed over
+  MIDI.
+
+Received Channel Commands
+
+Channels number (n) = 0-15. Message bytes are represented in
+hex. All other numbers are decimal. Running status is
+supported. kk = keynumber, vv = velocity / value.
+
+
+<<***** Continued Next Message *****>>
+---
+   VbReader 2.01 #NR   A "program" is used to turn data into error messages.
+   RoseMail 2.50 : RoseNet<=>Usenet Gateway : Rose Media 416-733-2285
+
+From andrew.maclean@rose (andrew maclean) Wed Jan 26 16:21:03 1994
+Newsgroups: comp.sys.ibm.pc.soundcard
+From: andrew.maclean@rose.com (andrew maclean)
+Subject: SoundEngine / WB Doc(2/10
+Date: Mon, 24 Jan 1994 20:40:27 GMT
+Message-ID: <1994Jan24.204029.13158@rose.com>
+X-Gated-By: Usenet <==> RoseMail Gateway (v1.70)
+Organization: Rose Media Inc, Toronto, Ontario.
+Lines: 95
+
+<<***** Split Message. Part 2 Of 10 *****>>
+Command 	       Message	 Comments
+-----------------------------------------------------------------
+Note Off	       8n kk vv  rel. velocity ignored
+Note On 	       9n kk vv  velocity 0 = note off
+Key Aftertouch	       An kk vv  kk=0-127 vv=0-127
+Program Change	       Cn vv	 0-127
+Channel Aftertouch     Dn vv	 0-127
+Pitch Bend	       En ll mm  l=lsb, m=msb
+Realtime Controller    Bn cc vv  cc=0-31
+Footswitch	       Bn cc vv  cc=64-79, vv64=on
+Volume		       Bn 07 vv  0-127
+Pan		       Bn 0A vv  0=hard left, 127=hard right
+Effect A Amount        Bn 5B ee  ee=Effect A amount
+Effect B Amount        Bn 5D ee  ee=Effect B amount
+Reset All Controllers  Bn 79 00  ignored-omni mode
+All Notes Off	       Bn 7B 00  ignored-omni mode
+Omni Mode Off *+       Bn 7C 00  **
+Omni Mode On  *+       Bn 7D 00  **
+Mono Mode On  *+       Bn 7E 00  **
+Poly Mode On  *+       Bn 7F 00  **
+
+* Proteus Mode Only
+** forces all notes & controls off
++ Special Notes in Proteus Mode:
+
+>From Omni Mode	 Omni Off turns Poly On.
+
+>From Poly Mode	 Omni On turns Omni On; Mono On turns Mono On.
+
+>From Mono Mode	 Mono Off turns Poly On; Omni On turns Omni On.
+
+>From Multi Mode  Omni On turns Omni On; Omni Off or Mono Off turns
+		 Poly On; Mono On turns Mono On.
+
+All other changes have no effect.
+
+General Information For Sound Engine Music Module SysEx
+
+o Product ID for SoundEngine Music Module is 04.
+
+o Device ID is 00.
+
+o Parameter Number and Parameter Value are 2 bytes each.
+
+o Since MIDI data bytes cannot be greater than [7F] (127
+  decimal), the data values are "nibble-ized" to a 14-bit
+  signed 2's complement format.
+
+o There is only one edit buffer which is for the current
+  preset (the preset shown in the display). Only one preset at
+  a time can be edited via SysEx commands and changing the
+  current preset erases the edit buffer.
+
+MIDI SysEx commands
+
+For system exclusive commands, the following format is used:
+	 F0    system exclusive status byte
+	 18    E-mu ID byte
+	 04    product ID byte
+	 00    device ID byte
+	 cc    command byte
+	 ...   data bytes
+	 F7    EOX
+
+SysEx Editing
+
+Preset and setup parameters may be edited individually using
+system exclusive commands. The preset being edited is the
+active preset (the preset on the basic or global channel). The
+value of a given parameter may be changed by sending a
+parameter value command. The value of a parameter may be read
+by sending a parameter value request, to which the machine will
+respond by sending back the parameter value. Please note that
+there is only one edit buffer.
+
+Two MIDI bytes (lsb, msb) are required for each 14 bit data
+word. Bits 0-6 are sent first, followed by bits 7-13 in the
+next MIDI byte. All data words are signed 2's complement values
+with sign-extension out to the most significant bit (bit 13).
+This convention applies to all data words, regardless of the
+parameter's value range.
+
+Preset data may also be transmitted or received in a single
+block (one complete preset) using system exclusive commands. A
+preset data request may be issued by a host computer, to which
+the machine will respond by sending the data block for the
+requested preset. Conversely, the computer may send new preset
+data which will replace the specified preset.
+
+
+<<***** Continued Next Message *****>>
+---
+   VbReader 2.01 #NR   A "program" is used to turn data into error messages.
+   RoseMail 2.50 : RoseNet<=>Usenet Gateway : Rose Media 416-733-2285
+
+From andrew.maclean@rose (andrew maclean) Wed Jan 26 16:21:06 1994
+Newsgroups: comp.sys.ibm.pc.soundcard
+From: andrew.maclean@rose.com (andrew maclean)
+Subject: SoundEngine / WB Doc(3/10
+Date: Mon, 24 Jan 1994 20:40:34 GMT
+Message-ID: <1994Jan24.204035.13222@rose.com>
+X-Gated-By: Usenet <==> RoseMail Gateway (v1.70)
+Organization: Rose Media Inc, Toronto, Ontario.
+Lines: 95
+
+<<***** Split Message. Part 3 Of 10 *****>>
+The preset memory on the Music Module is volatile, meaning that
+any changes made to presets will be lost unless the data is
+saved to the host computer. The factory ROM presets are
+automatically downloaded into RAM at power-up.
+
+The editor package supplied with the Music Module contains a
+full-featured librarian which makes it easy to build a custom
+library of sounds.
+
+Warning: When transferring preset banks and tuning table data
+back and forth from the Music Module to a computer, the data
+should be recorded as you would a regular sequence. Sending the
+data in one huge chunk will clog the input buffer on the Music
+Module unless a time period of approximately 100mS is inserted
+between each preset.
+
+Received System Exclusive Commands
+
+Command 		 Message	      Comments
+-------------------------------------------------------------------------
+Preset Data Req.	 F0 18 04 00 00 ll    ll=preset # lsb,
+			    mm F7	      mm=preset # msb
+					      see note 6
+
+Preset Data		 F0 18 04 00 01 ll    cs=checksum
+			    mm ... cs F7
+
+Parameter Value Request  F0 18 04 00 02 pl    pl=parameter # lsb,
+			    pm F7	      pm=parameter #msb
+
+Parameter Value 	 F0 18 04 00 03 pl    pl=parameter # lsb,
+			    pm vl vm F7       pm=parameter # msb
+					      vl=value lsb, vm=value msb
+
+Tuning Table Request	 F0 18 04 00 04 F7    see note 7
+
+Tuning Table		 F0 18 04 00 05 ...   262 bytes
+			    ... F7
+
+Program Map Request	 F0 18 04 00 06 F7    see note 8
+
+Program Map Data	 F0 18 04 00 07 ...   262 bytes
+			    ... F7
+
+Master Setting Request	 F0 18 04 00 08 F7
+
+Version Request 	 F0 18 04 00 0A F7    see note 1
+
+Configuration Request	 F0 18 04 00 0C F7    see note 2
+
+Instrument List Request  F0 18 04 00 0E F7    see note 3
+
+Preset List Request	 F0 18 04 00 12 F7    see note 4
+
+Master Volume Set	 F0 18 04 00 14 vv    vv=Volume 0-127
+			    F7
+
+Master Volume Request	 F0 18 04 00 16 F7
+
+Front Panel Request	 F0 18 04 00 17 F7    see note 9
+
+Switch Press		 F0 18 04 00 19 0s    see note 9
+			    F7
+
+Current Bank Request	 F0 18 04 00 1A F7
+
+Bank Select		 F0 18 04 00 1B bb    bb = 0 or 1
+			    F7
+
+Option Status		 F0 18 04 00 1C oo    oo=option #
+			    F7		      see note 10
+
+Set Option Status	 F0 18 04 00 1D oo    oo=option #
+			    vv F7	      vv=status; 00=Off, 01=On
+					      see note 10
+
+Read Min Voices 	 F0 18 04 00 1E cc    cc=MIDI channel 0-15
+			    F7		      see note 10
+
+Set Min Voices		 F0 18 04 00 1F cc    cc=MIDI channel 0-15
+			    vv F7	      vv=minimum # of voices
+					      per channel
+					      see note 10
+
+Read Max Voices 	 F0 18 04 00 20 cc    cc=MIDI channel 0-15
+			    F7		      see note 10
+
+Set Max Voices		 F0 18 04 00 21 cc    cc=MIDI channel 0-15
+			    vv F7	      vv=maximum # of voices
+
+<<***** Continued Next Message *****>>
+---
+   VbReader 2.01 #NR   A "program" is used to turn data into error messages.
+   RoseMail 2.50 : RoseNet<=>Usenet Gateway : Rose Media 416-733-2285
+
+From andrew.maclean@rose (andrew maclean) Wed Jan 26 16:21:11 1994
+Newsgroups: comp.sys.ibm.pc.soundcard
+From: andrew.maclean@rose.com (andrew maclean)
+Subject: SoundEngine / WB Doc(4/10
+Date: Mon, 24 Jan 1994 20:40:40 GMT
+Message-ID: <1994Jan24.204041.13283@rose.com>
+X-Gated-By: Usenet <==> RoseMail Gateway (v1.70)
+Organization: Rose Media Inc, Toronto, Ontario.
+Lines: 95
+
+<<***** Split Message. Part 4 Of 10 *****>>
+					      per channel
+					      see note 10
+
+Save Edit Buffer	 F0 18 04 00 22 ll    see note 11
+			    mm F7
+
+System Reset		 F0 18 04 00 23 F7    resets system to power-up
+					      condition
+
+General MIDI On 	 F0 7E 00 09 01 F7    turns general MIDI On
+
+General MIDI Off	 F0 7E 00 09 02 F7    turns general MIDI Off
+
+Transmitted System Exclusive Commands
+
+Command 		 Message		    Comments
+-------------------------------------------------------------------------
+Preset Data		 F0 18 04 00 01 ll mm ...   cs=checksum
+			    cs F7
+
+Parameter Value 	 F0 18 04 00 03 pl pm vl    pl=parameter # lsb
+			    vm F7		    pm=parameter # msb
+						    vl=value lsb
+						    vm=value msb
+
+Tuning Table Data	 F0 18 04 00 05 ... ... F7  TT data=256 bytes
+
+Program Map Data	 F0 18 04 00 07 ... ... F7  see note 8
+  (Proteus Mode only)
+
+Version Data		 F0 18 04 00 0B 01 r1 r2    see note 1
+			    r3 F7
+
+Configuration Message	 F0 18 04 00 0D pl pm s1    see note 2
+			    l1 m1 s2 l2 m2 F7
+
+Instrument List 	 F0 18 04 00 0F  (14	    see note 3
+			   bytes/instrument) ... F7
+
+Preset List		 F0 18 04 00 13 (13	    see note 4
+			   bytes/preset) ... ... F7
+
+Master Volume		 F0 18 04 00 14 vv F7	    vv=Volume 0-127
+
+Front Panel Data	 F0 18 04 00 18 aa...aa cc  see note 9
+			    ll F7
+
+Current Bank Number	 F0 18 04 00 1B bb F7	    bb=bank # 0 or 1
+
+Option Status		 F0 18 04 00 1D oo vv F7    see note 10
+
+Min Voices		 F0 18 04 00 1F cc vv F7    see note 10
+
+Max Voices		 F0 18 04 00 21 cc vv F7    see note 10
+
+Notes
+
+Note 1 - Version Request
+
+This command allows identification of machine type and software
+revision. The Music Module ill respond to the request with the
+version data:
+
+F0 18 04 00 0B 01 r1 r2 r3 F7
+
+r1, r2, r3 = software revision # in ASCII (decimal point
+between r1 and r2).
+
+Note 2 - Configuration Message
+
+This MIDI command is used to identify the sound sets in a given
+Music Module. The configuration request command is:
+
+F0 18 04 00 0C F7
+
+The Music Module will respond to this command with the
+configuration message:
+
+F0 18 04 00 0D pl pm s1 l1 m1 s2 l2 m2 F7
+
+where pl and pm are the lsb and msb of the total number of
+presets, s1 and s2 are the ID numbers of the sound sets
+contained in this unit, and n1=l1, m1 and n2=l2, m2 represent
+the lsb and msb of the number of instruments in each sound set.
+If no expansion set is present, s2 will be 7F and n2 will be
+zero.
+
+Sound Engine General MIDI Sound Set = 5.
+
+
+<<***** Continued Next Message *****>>
+---
+   VbReader 2.01 #NR   A "program" is used to turn data into error messages.
+   RoseMail 2.50 : RoseNet<=>Usenet Gateway : Rose Media 416-733-2285
+
+From andrew.maclean@rose (andrew maclean) Wed Jan 26 16:21:14 1994
+Newsgroups: comp.sys.ibm.pc.soundcard
+From: andrew.maclean@rose.com (andrew maclean)
+Subject: SoundEngine / WB Doc(5/10
+Date: Mon, 24 Jan 1994 20:40:46 GMT
+Message-ID: <1994Jan24.204048.13344@rose.com>
+X-Gated-By: Usenet <==> RoseMail Gateway (v1.70)
+Organization: Rose Media Inc, Toronto, Ontario.
+Lines: 95
+
+<<***** Split Message. Part 5 Of 10 *****>>
+Note 3 - Instrument List
+
+This MIDI command allows external software to upload the
+instrument list as an array of ASCII strings. The instrument
+list request command is:
+
+F0 18 04 00 0E F7
+
+The Music Module will respond to this command with the
+instrument list message:
+
+F0 18 04 00 0F	(14 bytes/instrument) ... F7
+
+The instruments are transmitted in the same order they appear
+to the user of the music module. Note that a given instrument's
+position in this list may be different from its actual number
+within the sound set.
+
+    instrument entry:	   il im (11 ASCII bytes) 00
+
+Each instrument entry in the list consists of the actual
+instrument number (as defined in "Sound Sets" - see note 12) in
+lsb, msb format, followed by the instrument name (11 ASCII
+characters plus a zero terminator) for a total of 14 (decimal)
+bytes. The first instrument is #1 as displayed on the Music
+Module. The total number of instrument names is equal to
+(n1+n2) in the configuration message above.
+
+Note 4 - Preset List
+
+This MIDI command allows external software to upload all preset
+names as an array of ASCII strings. The preset list request
+command is:
+
+F0 18 04 00 12 F7
+
+The Music Module will respond to this command with the preset
+list message:
+
+F0 18 04 13 (13 bytes per preset) ... ... F7
+
+Each preset name is 12 ASCII characters, plus a zero
+terminator, for a total of 13 (decimal) bytes. The first preset
+is #0. The total number of preset names is equal to pp in the
+configuration message above.
+
+Note 6 - Preset Data Request
+
+Music Module presets are organized into ranges. Each range
+consists of 64 presets. The Music Module has three ranges of
+presets (0-191). Ranges may be requested using the preset
+request command and the appropriate preset code listed below.
+The two codes for ranges 0-63, 64-127 are functionally
+identical.
+
+	Preset Range   Preset Code MIDI Message
+	0-63	       1024	   F0 18 04 00 00 00 08 F7
+	64-127	       1024	   F0 18 04 00 00 01 08 F7
+	128-191        1026	   F0 18 04 00 00 02 08 F7
+	64-127	       -1	   F0 18 04 00 00 7F 7F F7
+	0-63	       -2	   F0 18 04 00 00 7E 7F F7
+
+Note 7 - Alternate Tuning
+
+The "user tuning table" allows any key to be tuned to an
+arbitrary pitch over an 8 octave range. If selected in the
+preset, an alternate tuning may be achieved by modifying the
+tuning values from the front panel or downloading a new table
+into the machine. The table consists of 128 words,
+corresponding to the MIDI key range. Each word is a pitch value
+expressed in 1/64 semitones, offset from key number 0 (c-2).
+Therefore, for equal temperament, each entry in the table would
+be equal to its key number times 64.
+
+Note 8 - Program Mapping (Proteus Mode Only)
+
+MIDI program changes will normally correspond to internal
+preset numbers 0-127. However, the user may "re-map" any MIDI
+program number, assigning it to an arbitrary internal preset.
+This feature allows any of the internal presets to be selected
+>from a MIDI keyboard controller.
+
+Note 9 - Front Panel Data
+
+The front panel request uploads the ASCII text data that would
+normally be displayed on the LCD of a standard Proteus. The
+request message is:
+
+F0 18 04 00 17 F7
+
+<<***** Continued Next Message *****>>
+---
+   VbReader 2.01 #NR   A "program" is used to turn data into error messages.
+   RoseMail 2.50 : RoseNet<=>Usenet Gateway : Rose Media 416-733-2285
+
+From andrew.maclean@rose (andrew maclean) Wed Jan 26 16:21:17 1994
+Newsgroups: comp.sys.ibm.pc.soundcard
+From: andrew.maclean@rose.com (andrew maclean)
+Subject: SoundEngine / WB Doc(6/10
+Date: Mon, 24 Jan 1994 20:40:52 GMT
+Message-ID: <1994Jan24.204053.13405@rose.com>
+X-Gated-By: Usenet <==> RoseMail Gateway (v1.70)
+Organization: Rose Media Inc, Toronto, Ontario.
+Lines: 95
+
+<<***** Split Message. Part 6 Of 10 *****>>
+
+The Sound Engine Music Module responds with:
+
+F0 18 04 00 18 aa...aa cc 0l F7
+
+Where aa=32 ASCII bytes representing the text on the screen,
+starting in the top left hand corner of the LCD and moving to
+the bottom right. cc=LCD cursor position (0 to 1F, 0=top left,
+10=bottom left, 1F=bottom right). If a cursor position is
+specified that exceeds 32, then the cursor will disappear from
+the screen. This condition is called "Cursor at Rest" and is
+used for a one way system dialog to the user.
+
+0l=LED status bits (1=on, 0=off)
+
+Bit 0	  Master LED
+Bit 1	  Edit LED
+Bit 2-3   Enter LED; 0=off, 1=on, 2=flashing
+Bit 4-7   Unused, always zero
+
+Switch Press command is:
+
+F0 18 04 00 19 0s F7, where s is the switch number defined
+below.
+
+0	  Master switch press and release
+1	  Edit switch press and release
+2	  Enter switch press and release
+3	  Rotary Encoder decrement by one
+4	  Cursor switch press and release
+5	  Rotary Encoder increment by one
+
+Note 10 - User Definable Options
+
+Several options can be enabled or disabled via SysEx messages.
+These options apply only to General MIDI mode. Upon exiting
+General MIDI mode options will be restored to default settings.
+
+Read Option Status   Reports the status of the selected option.
+
+Set Option Status    Turns the selected option Off or On.
+
+Read Minimum Voices  Reads the current minimum number of voices for
+		     the designated MIDI channel.
+
+Set Minimum Voices   Sets the minimum number of voices allocated to
+		     a given MIDI channel.
+
+Read Maximum Voices  Reads the current maximum number of voices for
+		     the designated MIDI channel.
+
+Set Maximum Voices   Sets the maximum number of voices allocated to
+		     a given MIDI channel.
+
+Option 0 - MPC Map (default on)
+
+All incoming MIDI data on channels 13-16 is ignored. This
+option maintains compatibility with the MPC extended model.
+
+Option 1 - MIDI Channel Prioritization (default on)
+
+This option enables and disables the General MIDI channel
+prioritization and minimum/maximum polyphony scheme. The
+default minimums are: Channel 1:8, channels 2-3:4, channels 4-
+9:2, channel 10:4, channels 11-16:0. The default maximums are
+all 32, except for the percussion channel which defaults to 16.
+When Off, channel priority reverts to a circular assignment
+mode.
+
+Option 2 - Exclusive Drums (default off)
+
+Exclusive Drums prevents percussion and instrument parts from
+ever stealing voices from each other. This works by limiting
+the non-percussion polyphony to 32-n, where n is the maximum
+polyphony assigned to the non-percussion channel. For example,
+if the maximum number of percussion voices is 8, there will be
+a maximum of 24 voices available for other instruments. When
+this option is selected, the individual maximum-voice settings
+for the non-percussion channels will not be in effect. Option 1
+must be turned on for this option to have any effect.
+
+Option 3 - Single Assign Drums (default off)
+
+This option causes new notes on the percussion channel to mute
+any of the currently sounding voice channels having the same
+MIDI note number. Option 1 must be turned on for this option to
+have any effect.
+
+Option 4 - Show Preset Plus One (default on)
+
+<<***** Continued Next Message *****>>
+---
+   VbReader 2.01 #NR   A "program" is used to turn data into error messages.
+   RoseMail 2.50 : RoseNet<=>Usenet Gateway : Rose Media 416-733-2285
+
+From andrew.maclean@rose (andrew maclean) Wed Jan 26 16:21:20 1994
+Newsgroups: comp.sys.ibm.pc.soundcard
+From: andrew.maclean@rose.com (andrew maclean)
+Subject: SoundEngine / WB Doc(7/10
+Date: Mon, 24 Jan 1994 20:40:58 GMT
+Message-ID: <1994Jan24.204059.13466@rose.com>
+X-Gated-By: Usenet <==> RoseMail Gateway (v1.70)
+Organization: Rose Media Inc, Toronto, Ontario.
+Lines: 95
+
+<<***** Split Message. Part 7 Of 10 *****>>
+
+Whenever a preset is displayed, an offset of one is added to
+the number. This means that the presets correspond to the
+General MIDI numbering scheme (1-128). With this option off,
+the numbering scheme becomes 0-127.
+
+Note 11 - Save Edit Buffer
+
+The Save Edit Buffer command causes the contents of the edit
+buffer to be sent to the designated preset number.
+
+Preset Data Format
+
+Preset data is transmitted and received using the following
+format: The standard system exclusive header is followed by the
+preset number (lsb, msb), a 14 bit word for each parameter
+value (lsb, msb) starting at parameter #0 and continuing
+upward, a one-byte checksum, and the end-of-exclusive byte
+(F7). The checksum is the modulo 128 sum of all the parameter
+value bytes; that is, all of the data bytes following the
+preset number and before the checksum.
+
+Preset Parameters
+
+Parameter#  Parameter Name			  Range
+
+0-11	    preset name (12 ASCII characters)	  32-127
+12-14	    preset link 1-3			  0-191
+15-18	    preset, link 1-3 low key		  0-127
+19-22	    preset, link 1-3 high key		  0-127
+23	    pri instrument			  0-255
+24	    pri sound start offset		  0-127
+25	    pri tuning (coarse) 		  -36 to +35
+26	    pri tuning (fine)			  -64 to +63
+27	    pri volume				  0-127
+28	    pri pan				  -7 to +7
+29	    pri delay				  0-127
+30	    pri low key 			  0-127
+31	    pri high key			  0-127
+32	    pri alt. volume attack		  0-99
+33	    pri alt. volume hold		  0-99
+34	    pri alt. volume decay		  0-99
+35	    pri alt. volume sustain		  0-99
+36	    pri alt. volume release		  0-99
+37	    pri alt. volume envelope on 	  0-1
+38	    pri solo mode			  0-1
+39	    pri chorus				  0-15
+40	    pri reverse sound			  0-1
+41	    sec instrument			  0-255
+42	    sec sound start offset		  0-127
+43	    sec tuning (coarse) 		  -36 to +35
+44	    sec tuning (fine)			  -64 to +63
+45	    sec volume				  0-127
+46	    sec pan				  -7 to +7
+47	    sec delay				  0-127
+48	    sec low key 			  0-127
+49	    sec high key			  0-127
+50	    sec alt. volume attack		  0-99
+51	    sec alt. volume hold		  0-99
+52	    sec alt. volume decay		  0-99
+53	    sec alt. volume sustain		  0-99
+54	    sec alt. volume release		  0-99
+55	    sec alt. volume envelope on 	  0-1
+56	    sec solo mode			  0-1
+57	    sec chorus				  0-15
+58	    sec reverse sound			  0-1
+59	    crossfade mode			  0-2
+60	    crossfade direction 		  0-1
+61	    crossfade balance			  0-127
+62	    crossfade amount			  0-255
+63	    switch point			  0-127
+64	    LFO 1 shape 			  0-4
+65	    LFO 1 rate				  0-127
+66	    LFO 1 delay 			  0-127
+67	    LFO 1 variation			  0-127
+68	    LFO 1 amount			  0-127
+69	    LFO 2 shape 			  0-4
+70	    LFO 2 rate				  0-127
+71	    LFO 2 delay 			  0-127
+72	    LFO 2 variation			  0-127
+73	    LFO 2 amount			  0-127
+74	    aux. envelope delay 		  0-127
+75	    aux. envelope attack		  0-99
+76	    aux. envelope hold			  0-99
+77	    aux. envelope decay 		  0-99
+78	    aux. envelope sustain		  0-99
+79	    aux. envelope release		  0-99
+80	    aux. envelope amount		  -128 to +127
+81-86	    key / vel source 1-6		  0-1
+
+<<***** Continued Next Message *****>>
+---
+   VbReader 2.01 #NR   A "program" is used to turn data into error messages.
+   RoseMail 2.50 : RoseNet<=>Usenet Gateway : Rose Media 416-733-2285
+
+From andrew.maclean@rose (andrew maclean) Wed Jan 26 16:21:24 1994
+Newsgroups: comp.sys.ibm.pc.soundcard
+From: andrew.maclean@rose.com (andrew maclean)
+Subject: SoundEngine / WB Doc(8/10
+Date: Mon, 24 Jan 1994 20:41:03 GMT
+Message-ID: <1994Jan24.204105.13530@rose.com>
+X-Gated-By: Usenet <==> RoseMail Gateway (v1.70)
+Organization: Rose Media Inc, Toronto, Ontario.
+Lines: 95
+
+<<***** Split Message. Part 8 Of 10 *****>>
+87-92	    key / vel dest 1-6			  0-33	     see note 13
+93-98	    key / vel amount 1-6		  -128 to +127
+99-106	    realtime source 1-8 		  0-9
+107-114     realtime dest 1-8			  0-24	     see note 13
+115-117     footswitch dest 1-3 		  0-10
+118-121     controller amount A-D		  -128 to +127
+122	    pressure amount			  0-127
+123	    pitch bend range			  0-13
+124	    velocity curve			  0-5
+125	    keyboard center			  0-127
+126	    effect routing			  0-3
+127	    keyboard tuning			  0-5
+
+Global / Setup Parameters
+
+Parameter#  Parameter Name			  Range
+
+256	    MIDI basic channel			  0-15
+257	    MIDI volume (basic channel) 	  0-127
+258	    MIDI pan (basic channel)		  -8 to +7
+	      A value of -8 = "P"
+	      The entire message to set pan to P =
+		  F0 18 04 00 03 02 02 78 7F F7
+259	    current preset (basic channel)	  0-383
+260	    master tune 			  -64 to +63
+261	    transpose				  -12 to +11
+262	    global pitch bend range		  0-12
+263	    global velocity curve		  0-4
+264	    MIDI mode				  0-3
+265	    MIDI overflow			  0-1
+266-269     controller A-D numbers		  0-31
+270-272     footswitch 1-3 numbers		  0-15
+273	    mode change enable			  0-1
+274	    device ID number			  0-15
+384-399     MIDI channel enable 		  0-1
+400-415     MIDI program change enable		  0-1
+416-431     FX bus select			  0-3
+512-639     MIDI program / preset map		  0-383
+1459-1474   effect assign (Ch. 1-16)		  0-3
+1475	    effect A type			  0-19
+1477-1486   effect A parameter values		  0-100
+1487	    effect B type			  0-5
+1489-1498   effect B parameter values		  0-100
+1499	    pan -> effect A amount		  0-14
+
+Note 12 - Sound Sets
+
+A Music Module sound set consists of sample data (sound ROMs),
+plus additional instrument data in the program ROMs. Each sound
+set has a unique ID number. The sound set for the Music Module
+is #5.
+
+It is necessary to include the sound set number as part of the
+instrument number when exchanging data. The complete instrument
+number contains two fields: bits 8-12 specify the sound set (0-
+31) and bits 0-7 specify the instrument within the sound set (0-
+255).
+
+  +----------------------------------------------------------------+
+  |  Instrument Bit Fields:					   |
+  |								   |
+  |  12 		    8	  7				   |
+  |  0								   |
+  |  <-- sound set -->	     <---------- instrument # ---------->  |
+  |	 (5 bits)			   (8 bits)		   |
+  +----------------------------------------------------------------+
+
+With any given sound set, the first instrument is #1 and #0
+selects "None".
+
+The "magic number" 1280 represents the start number for the
+standard Music Module instruments. To calculate the complete
+instrument number, follow the instructions below:
+
+SysEx Instr.No. = 1280 + Music Module Instr. No.
+
+Next you must convert the SysEx Instr. No. to a 14-bit MIDI
+number. See the information in the following pages.
+
+Example:
+
+Suppose we want to change the instrument to I002 Piano Pad.:
+1)  1280 + 2 = 1282
+2)  1282 / 128 = 10 r-2 = 10 (ignore remainder)
+3)  10 in Hex = 0A = msb
+4)  remainder 2 in Hex = 02 = lsb
+5)  SysEx Instrument Number = lsb  msb
+			      02   0A
+
+
+<<***** Continued Next Message *****>>
+---
+   VbReader 2.01 #NR   A "program" is used to turn data into error messages.
+   RoseMail 2.50 : RoseNet<=>Usenet Gateway : Rose Media 416-733-2285
+
+From andrew.maclean@rose (andrew maclean) Wed Jan 26 16:21:26 1994
+Newsgroups: comp.sys.ibm.pc.soundcard
+From: andrew.maclean@rose.com (andrew maclean)
+Subject: SoundEngine / WB Doc(9/10
+Date: Mon, 24 Jan 1994 20:41:09 GMT
+Message-ID: <1994Jan24.204110.13591@rose.com>
+X-Gated-By: Usenet <==> RoseMail Gateway (v1.70)
+Organization: Rose Media Inc, Toronto, Ontario.
+Lines: 95
+
+<<***** Split Message. Part 9 Of 10 *****>>
+The complete message number to change the primary instrument to #002:
+
+    F0 18 04 00 03 17 00 02 0A F7
+
+14-bit Signed 2's Complement Numbers
+
+If the data value is negative, you must first take the 2's
+complement of the number: In case of a 14-bit number, this is
+equivalent to adding 16384 to the original negative value. To
+fit the 7 bit MIDI protocol, numbers must be "nibble-ized".
+
+To get the 14-bit nibble-ized value (of a positive value or a
+2's complemented negative value):
+
+    msb = value DIV 128 (divide and ignore the remainder)
+    lsb = value MOD 128 (divide and use only the remainder)
+
+To go the other way (convert 14 bit signed 2's complement to a
+signed real number)
+
+    Raw Value = (msb*128)+lsb (gives you the unsigned raw value)
+    if Raw Value  8192 (8192 = 2^13)
+	then Signed Value = Raw Value - 16384 (16384 = 2^14)
+
+Example: To find the "nibble-ized" Hex value of -127:
+
+    1) -127 + 16384 = 16252
+    2) 16252 _ 128 = 126 r-124
+    3) 126 in Hex = 7E = msb
+    4) 124 in Hex = 7C = lsb
+    5) Parameter value would be transmitted as 7C 7E
+
+Example: To find the "nibble-ized" Hex value of parameter #257:
+
+    1) 257 / 128 = 2 r-1
+    2) 2 in Hex = 02 = msb
+    3) 1 in Hex = 01 = lsb
+    4) Parameter number would be transmitted as 01 02
+
+Note 13 - Patchcord Destinations
+
+The order in which patchcord destinations appear on the screen
+does not necessarily match the SysEx ordering.
+
+Key/Velocity Controllers
+
+MIDI value   Destination
+0	     Off
+1	     Pitch
+2	     Primary Pitch
+3	     Secondary Pitch
+4	     Volume
+5	     Primary Volume
+6	     Secondary Volume
+7	     Attack
+8	     Primary Attack
+9	     Secondary Attack
+10	     Decay
+11	     Primary Decay
+12	     Secondary Decay
+13	     Release
+14	     Primary Release
+15	     Secondary Release
+16	     Crossfade
+17	     LFO 1 Amount
+18	     LFO 1 Rate
+19	     LFO 2 Amount
+20	     LFO 2 Rate
+21	     Auxiliary Envelope Amount
+22	     Auxiliary Envelope Attack
+23	     Auxiliary Envelope Decay
+24	     Auxiliary Envelope Release
+25	     Sound Start
+26	     Primary Sound Start
+27	     Secondary Sound Start
+28	     Pan
+29	     Primary Pan
+30	     Secondary Pan
+31	     Tone
+32	     Primary Tone
+33	     Secondary Tone
+
+Realtime Controllers
+
+MIDI value   Destination
+0	     Off
+1	     Pitch
+2	     Primary Pitch
+3	     Secondary Pitch
+
+<<***** Continued Next Message *****>>
+---
+   VbReader 2.01 #NR   A "program" is used to turn data into error messages.
+   RoseMail 2.50 : RoseNet<=>Usenet Gateway : Rose Media 416-733-2285
+
+From andrew.maclean@rose (andrew maclean) Wed Jan 26 16:21:37 1994
+Newsgroups: comp.sys.ibm.pc.soundcard
+From: andrew.maclean@rose.com (andrew maclean)
+Subject: SoundEngine / WB Doc(10/1
+Date: Mon, 24 Jan 1994 20:41:15 GMT
+Message-ID: <1994Jan24.204117.13652@rose.com>
+X-Gated-By: Usenet <==> RoseMail Gateway (v1.70)
+Organization: Rose Media Inc, Toronto, Ontario.
+Lines: 60
+
+<<***** Split Message. Part 10 Of 10 *****>>
+4	     Volume
+5	     Primary Volume
+6	     Secondary Volume
+7	     Attack
+8	     Primary Attack
+9	     Secondary Attack
+10	     Decay
+11	     Primary Decay
+12	     Secondary Decay
+13	     Release
+14	     Primary Release
+15	     Secondary Release
+16	     Crossfade
+17	     LFO 1 Amount
+18	     LFO 1 Rate
+19	     LFO 2 Amount
+20	     LFO 2 Rate
+21	     Auxiliary Envelope Amount
+22	     Auxiliary Envelope Attack
+23	     Auxiliary Envelope Decay
+24	     Auxiliary Envelope Release
+
+Realtime Controllers
+
+MIDI value   Source
+0	     Pitch Wheel
+1	     Controller A
+2	     Controller B
+3	     Controller C
+4	     Controller D
+5	     Key Aftertouch
+6	     Channel Aftertouch
+7	     LFO 1
+8	     LFO 2
+9	     Auxiliary Envelope
+
+Footswitch Controllers
+
+MIDI value   Destination
+0	     Off
+1	     Sustain
+2	     Primary Sustain
+3	     Secondary Sustain
+4	     Alternate Volume Envelope
+5	     Primary Alternate Volume Envelope
+6	     Secondary Alternate Volume Envelope
+7	     Alternate Volume Release
+8	     Primary Alternate Volume Release
+9	     Secondary Alternate Volume Release
+10	     Cross Switch
+
+
+
+| Internet:    andrew.maclean@rose.com  |   Andrew MacLean   |
+|    or:       AMM@BMBCOMP.UUCP         |   Milton,Ontario   |
+
+---
+   VbReader 2.01 #NR   A "program" is used to turn data into error messages.
+   RoseMail 2.50 : RoseNet<=>Usenet Gateway : Rose Media 416-733-2285
+
