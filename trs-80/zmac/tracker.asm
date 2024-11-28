@@ -282,7 +282,7 @@ cur1:
 		
 scan:
 	
-	ld a, (track) 
+	ld a, (status) 
 	or a
 	jr nz,scancont
 
@@ -934,23 +934,27 @@ nextnote0:
 	and b
 	ld (trackpos),a
 
-	;; sample keyboard here if (qtrackpos) = (trackpos)
-
 	cp b
-	jr nz, nextnote1
+	jr z, nextnote1
+
+	;; ENTER sample keyboard; this one makes noise,
+	;; ONLY sample when (qtrackpos) = (trackpos)
+
+	keydown k_enter 
+	call nz,setgridandsoundr
+
+nextnote1:
 
 	;; sample keyboard
 
 	keydown k_space 
 	call nz,setgridr
 
-	keydown k_enter 
-	call nz,setgridandsoundr
-
 	keydown k_clear
 	call nz,erasegridr
-	
-nextnote1:
+
+	ld a, (trackpos)
+
 	bit 7,a
 	ret z
 	
