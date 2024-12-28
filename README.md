@@ -342,7 +342,8 @@ scanning and self-modifying key handler code.
 
   ![MIDORG](pics/midorg.gif)
 
-- `TRACKER/CMD`: A drum pattern sequencer (and eventually MIDI drum tracker) for your TRS-80. 
+- `TRACKER/CMD`, `TREACKER1/CMD`: A drum pattern sequencer for your TRS-80. `TRACKER1/CMD` allows realtime tracking / recording over the MIDI drum channel (10) from a
+  connected MIDI keyboard / synthesizer (via MIDI IN). 
 
   ![TRACKER](pics/tracker.gif) 
 
@@ -397,7 +398,10 @@ MIDI keyboards choose to send a MIDI NOTE ON message with velocity
   with your TRS-80 keyboard. The program can generate different wave
   forms (sine, square, saw, triangle), and utilizes both the left and
   the right channel of the Orchestra - each channel can be played via
-  a dedicated row of keys (one octave) from your TRS-80 keyboard. 
+  a dedicated row of keys (one octave) from your TRS-80 keyboard!
+  Even the channel volumes can be changed. 
+
+  ![STORCH](pics/storch.gif)
   
 ### Creating Your Own Songs for MIDI/80 Playback 
 
