@@ -8,6 +8,15 @@
 
 ## News 
 
+### December 2024
+
+- Cool TRS-80 Orchestra + MIDI/80 music performance by Joel Hilliard
+on the Model 4 and 4p (using `STORCH/CMD` and `TRACKER/CMD` for S2 drums). 
+
+https://www.youtube.com/watch?v=8xH_k91aPCo
+
+![SundayJelly](pics/sundayjelly.png)
+
 ### November 2024 
 
 - Jürgen Wich (the "Homecomputerguy.de") was one of the beta testers for
