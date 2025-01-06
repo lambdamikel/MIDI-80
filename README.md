@@ -8,6 +8,14 @@
 
 ## News 
 
+### January 2025
+
+Jürgen Wich has uploaded a demo video showcasing the MIDI/80 MIDI playback capabilities with his Model 1 - cool stuff!
+
+https://youtu.be/vjVPdRUbgE4
+
+![Homecomputerguy 2](pics/jukebox.png)
+
 ### December 2024
 
 - Cool TRS-80 Orchestra + MIDI/80 music performance by Joel Hilliard
