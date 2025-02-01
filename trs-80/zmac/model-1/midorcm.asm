@@ -4,13 +4,20 @@
 ; See orchan.z for theory of operation on keeping the sound updated while
 ; waiting for midi key off.
 
+@DSPLY		equ	$4467
+@DSP    	equ 	$0033
+@KEY    	equ 	$0049 
+ENTER		equ	$0d ; @DSPLY with newline
+
 midstat	equ	9
 middata	equ	8
 
 	org	$8000
 stack:
-title:	ascii	'MIDORCH VERSION 3.'
-title_len equ $-title
+title:		ascii	"MIDORCH VERSION 4 - MODEL 1 VERSION                             "
+		ascii   "----------------------------------------------------------------"
+		ascii   "Enter MIDI Channel 1..8? "
+title_len 	equ $-title
 start:
 	di
 	ld	sp,stack
@@ -25,6 +32,17 @@ start:
 	ld	de,$3c00
 	ld	bc,title_len
 	ldir
+
+	;;  ask for MIDI Channel
+	call @KEY
+	ld hl, $3c00 + 2*64 + 25
+	ld (hl), a
+	sub 49 ; "1" = 49 
+	add $90 ; channel 1 on = $90 to channel 8 on = $98 
+	ld (channel_on), a	
+	sub $90 
+	add $80 ; channel 1 off = $80 to channel 8 off = $88 
+	ld (channel_off), a	
 
 ; Status report but already in prime registers
 statusx	macro	state
@@ -67,7 +85,10 @@ geton:	call	dly.01
 	jr	nc,geton	; data not available
 	in	a,(middata)	; get data
 	status	a
-	cp	$90
+
+	cp $90
+	org  $-1
+	channel_on: defb $90
 	jr	nz,geton
 
 getnote:
@@ -163,7 +184,10 @@ tc	equ	t($)
 	; Special purpose status.
 	status6	a
 
-	cp	$80		; note off command
+	cp   $80
+	org  $-1
+	channel_off: defb $80
+
 	jp	nz,samplp
 tdat	equ	t($)
 	assert	tdat == sampcyc
