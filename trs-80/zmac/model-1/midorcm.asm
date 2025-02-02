@@ -14,7 +14,7 @@ middata	equ	8
 
 	org	$8000
 stack:
-title:		ascii	"MIDORCH VERSION 4 - MODEL 1 VERSION                             "
+title:		ascii	"MIDORCH 4.1 - MODEL 1 VERSION                                   "
 		ascii   "----------------------------------------------------------------"
 		ascii   "Enter MIDI Channel 1..8? "
 title_len 	equ $-title
@@ -34,10 +34,15 @@ start:
 	ldir
 
 	;;  ask for MIDI Channel
+retry:
 	call @KEY
 	ld hl, $3c00 + 2*64 + 25
 	ld (hl), a
-	sub 49 ; "1" = 49 
+	sub '1' ; "1" = 49
+        jr c,retry
+        cp 7+1 ; limit max channel to 7
+        jr nc,retry
+	
 	add $90 ; channel 1 on = $90 to channel 8 on = $98 
 	ld (channel_on), a	
 	sub $90 
