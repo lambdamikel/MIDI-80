@@ -93,8 +93,8 @@ instrumenttracks 	byte 1, 2, 3, 4, 5, 1
 velocitytracks	 	byte 127, 127, 127, 127, 127, 127
 
 ;;  midi channel specific to support MIDI PANIC
-curnoteschannels	byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-curvelschannels		byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+;; curnoteschannels	byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 
+;; curvelschannels		byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 memcursorx byte 	0
 memcursory byte 	0
@@ -786,10 +786,10 @@ testsoundx macro
 	ld (curchannel), a 
 	;; ld a,(curchannel)
 
-	ld hl, curnoteschannels
-	ld d,0
-	ld e,a
-	add hl,de
+	;;ld hl, curnoteschannels
+	;;ld d,0
+	;;ld e,a
+	;;add hl,de
 
 	add $90 
 	out (8),a
@@ -797,19 +797,19 @@ testsoundx macro
 	call short_delay
 	ld a,(curnote)
 	out (8),a
-	ld (hl), a  		; store into CUR NOTES per CHANNEL for MIDI PANIC 
+	;;ld (hl), a  		; store into CUR NOTES per CHANNEL for MIDI PANIC 
   
 	call short_delay
 	ld a,(curvelocity)
 	out (8),a
 
-	ld b,a
-	ld hl, curvelschannels 
-	ld d,0
-	ld e,b
-	add hl,de 
-	ld a,(curchannel)
-	ld (hl), a  		; store into CUR VELOCITIES per CHANNEL for MIDI PANIC 
+	;;ld b,a
+	;;ld hl, curvelschannels 
+	;;ld d,0
+	;;ld e,b
+	;;add hl,de 
+	;;ld a,(curchannel)
+	;;ld (hl), a  		; store into CUR VELOCITIES per CHANNEL for MIDI PANIC 
 
 	endm 
 
@@ -818,34 +818,50 @@ midipanic:
 	ld b, $10 
 
 channeloff:
+	;; ld a, b
+	;; dec a
+	;; add $80	
+	;; out (8),a  		; MIDI NOTE OFF for MIDI Channel in B 
+	;; call short_delay
+
+	;; ld a, b
+	;; dec a
+	;; ld hl, curnoteschannels ; retrieve last MIDI ON Message for Channel in B NOTE 
+	;; ld d,0
+	;; ld e,a
+	;; add hl,de 
+	
+	;; ld a, (hl) 		; last MIDI NOTE ON Note
+	;; out (8), a
+	;; call short_delay
+
+	;; ld a, b
+	;; dec a 
+	;; ld hl, curvelschannels ; retrieve last MIDI ON Message for Channel in B VELOCITY
+	;; ld d,0
+	;; ld e,a 
+	;; add hl,de 
+	
+	;; ld a, (hl) 		; last MIDI NOTE ON Velocity
+	;; out (8), a
+	;; call short_delay
+
+
 	ld a, b
 	dec a
-	add $80	
-	out (8),a  		; MIDI NOTE OFF for MIDI Channel in B 
+	add $b0	
+	out (8),a  		; MIDI CC for Channel in a 
 	call short_delay
 
-	ld a, b
-	dec a
-	ld hl, curnoteschannels ; retrieve last MIDI ON Message for Channel in B NOTE 
-	ld d,0
-	ld e,a
-	add hl,de 
+	ld a,123
+	out (8),a  		; MIDI NOTE OFF 
+	call short_delay
+
+	ld a,0
+	out (8),a  		; Don't Care 
+	call short_delay
+
 	
-	ld a, (hl) 		; last MIDI NOTE ON Note
-	out (8), a
-	call short_delay
-
-	ld a, b
-	dec a 
-	ld hl, curvelschannels ; retrieve last MIDI ON Message for Channel in B VELOCITY
-	ld d,0
-	ld e,a 
-	add hl,de 
-	
-	ld a, (hl) 		; last MIDI NOTE ON Velocity
-	out (8), a
-	call short_delay
-
 	;;  repeat for all 16 Channels 
 	djnz channeloff
 	
@@ -1682,10 +1698,10 @@ playnote: ; input note on / off in c; track number 0..5 in e
 	add hl, de 
 	ld a,(hl) 		; MIDI channel for track in e
 
-	ld hl, curnoteschannels	; put into cur note buffer for MIDI PANIC 
-	ld d,0
-	ld e,a
-	add hl,de
+	;;ld hl, curnoteschannels	; put into cur note buffer for MIDI PANIC 
+	;;ld d,0
+	;;ld e,a
+	;;add hl,de
 
 	add $90			; MIDI NOTE ON for MIDI channel in a 
 	out (8),a
@@ -1695,7 +1711,7 @@ playnote: ; input note on / off in c; track number 0..5 in e
 	ld a,c			; c has the note number -> MIDI out 
 	sub DISPMIDINOTEOFFSET		
 	out (8),a
-	ld (hl), a 		; store current NOTE ON for MIDI PANIC 
+	;;ld (hl), a 		; store current NOTE ON for MIDI PANIC 
 	
 	call short_delay
 
@@ -1709,9 +1725,9 @@ playnote: ; input note on / off in c; track number 0..5 in e
 	ld a,(hl) 		; MIDI velocity for track in e 
 	out (8),a
 	
-	ld hl, curvelschannels	; put into cur velocity buffer for MIDI PANIC 
-	add hl,de
-	ld (hl), a		; store current VELOCITY for MIDI PANIC
+	;;ld hl, curvelschannels	; put into cur velocity buffer for MIDI PANIC 
+	;;add hl,de
+	;;ld (hl), a		; store current VELOCITY for MIDI PANIC
   
 	ret 
 	
