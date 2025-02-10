@@ -27,8 +27,8 @@ free: 	 ascii   'F'
 tracked: ascii   'T'
 
 
-title:	ascii   '***** MIDI/80 DRUM TRACKER V1.4 -- (C) 2024 BY LAMBDAMIKEL *****'
-	ascii   'TRACK:1 SPEED:-- | C:0 I:01 N:24 V:7F | BARS:8 STEP:01 PAT:A S-F'
+title:	ascii   '***** MIDI/80 DRUM TRACKER V1.41 - (C) 2024 BY LAMBDAMIKEL *****'
+	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -58,7 +58,7 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 	ascii   'CHANGE CUR TRACK MIDI INSTRUMENT : U I                          '
 	ascii   'CHANGE CUR TRACK MIDI VELOCITY   : J K                          '
 	ascii   'CHANGE CUR TRACK DRUM            : ARROW-LEFT ARROW-RIGHT       ' 
-	ascii   'CHANGE CUR TRACK DRUM            : ARROW-LEFT ARROW-RIGHT       '
+	ascii   'CHANGE CUR TRACK GATE LENGTH     : *                            '
 	ascii   'HELP, QUIT, LOAD & SAVE          : H, Q, L, S,                  '
 	ascii   'CHANGE PATTERN                   : -                            '
 
@@ -91,6 +91,7 @@ drumnostracks		byte 36, 38, 40, 51, 44, 46
 channeltracks 		byte 0, 1, 2, 3, 4, 9
 instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
 velocitytracks	 	byte 127, 127, 127, 127, 127, 127
+gatetracks	 	byte 8,8,8,8,8,8
 
 ;;  midi channel specific to support MIDI PANIC
 ;; curnoteschannels	byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 
@@ -399,7 +400,6 @@ scancont1:
 	cp 'K'
 	jp z,velocityup
 
-
 	cp KCURUP 
 	jp z,nextbar
 
@@ -451,6 +451,10 @@ scancont1:
 	cp '!'
 	jp z,midipanic
 
+	cp '*'
+	jp z,chggatelength
+
+
 	jp loop 
 	
 	;;  do a screen update after keypress and continue 
@@ -463,9 +467,21 @@ cont:
 	call showtrackvelocity 
 	call showgridres
 	call showbars
+	call showgate		
 	
 	jp loop
-
+	
+chggatelength:
+	call gettrackgate
+	sla a 
+	and $1f
+	jr nz,chggatelength1
+	ld a,1
+	
+chggatelength1:
+	ld (hl), a
+	jp cont
+	
 chgridres:
 	ld a,(gridres)
 	sla a 
@@ -997,6 +1013,16 @@ gettrackinstrumentx macro
 	ld a,(hl)
 	endm
 
+gettrackgatex macro 
+	call gettracknr
+	dec a
+	ld hl,gatetracks
+	ld d,0
+	ld e,a
+	add hl, de 
+	ld a,(hl)
+	endm
+
 gettrackvelocityx macro 
 	call gettracknr
 	dec a
@@ -1129,7 +1155,7 @@ startstop:
 	or a
 	jr nz, showplay
 	
-	ld de,$3c00 + 64 + 61
+	ld de,$3c00 + 64 + 6
 	ld hl,stopped 
 	ld bc,1 
 	ldir
@@ -1139,7 +1165,7 @@ showplay:
 
 	call setmiditrackinstruments
 	
-	ld de,$3c00 + 64 + 61
+	ld de,$3c00 + 64 + 6
 	ld hl,playing  
 	ld bc,1
 	ldir
@@ -1154,14 +1180,14 @@ trackstatus:
 	or a
 	jr nz, showtrackstatus
 	
-	ld de,$3c00 + 64 + 63
+	ld de,$3c00 + 64 + 7
 	ld hl,free 
 	ld bc,1
 	ldir
 	jp cont
 	
 showtrackstatus:	
-	ld de,$3c00 + 64 + 63
+	ld de,$3c00 + 64 + 7
 	ld hl,tracked   
 	ld bc,1
 	ldir
@@ -1435,7 +1461,7 @@ convnibble:
 showtempo:
 	ld a,(tempo)
 	ld c,a 
-	ld hl,$3c00+64+14
+	ld hl,$3c00+64+25
 	call byte2ascii
 	ld (hl),d
 	inc hl
@@ -1464,6 +1490,10 @@ gettrackinstrument:
 	gettrackinstrumentx 
 	ret
 
+gettrackgate:	
+	gettrackgatex 
+	ret
+
 gettrackvelocity:	
 	gettrackvelocityx
 	ret
@@ -1485,7 +1515,7 @@ gettrackchannelreg: ; input: e register, starting at 0
 showtrackdrum:
 	call gettrackdrum
 	ld c, a
-	ld hl,$3c00+64+30
+	ld hl,$3c00+64+52
 	call byte2ascii
 	ld (hl),d
 	inc hl
@@ -1495,7 +1525,7 @@ showtrackdrum:
 showtrackchannel:
 	call gettrackchannel 
 	ld c, a
-	ld hl,$3c00+64+21
+	ld hl,$3c00+64+43
 	call convnibble 
 	ld (hl),e
 	ret
@@ -1503,7 +1533,7 @@ showtrackchannel:
 showtrackinstrument:
 	call gettrackinstrument
 	ld c, a
-	ld hl,$3c00+64+25
+	ld hl,$3c00+64+47
 	call byte2ascii
 	ld (hl),d
 	inc hl
@@ -1513,7 +1543,7 @@ showtrackinstrument:
 showtrackvelocity:
 	call gettrackvelocity
 	ld c, a
-	ld hl,$3c00+64+35
+	ld hl,$3c00+64+57
 	call byte2ascii
 	ld (hl),d
 	inc hl
@@ -1523,7 +1553,7 @@ showtrackvelocity:
 showtrack:
 	call gettracknr 
 	ld c,a 
-	ld hl,$3c00+64+6
+	ld hl,$3c00+64+17
 	call convnibble 
 	ld (hl),e
 	ret
@@ -1734,20 +1764,32 @@ playnote: ; input note on / off in c; track number 0..5 in e
 showgridres:
 	ld a,(gridres)
 	ld c, a
-	ld hl,$3c00+64+52
+	ld hl,$3c00+64+36
 	call byte2ascii
 	ld (hl),d
 	inc hl
 	ld (hl),e
 	ret
 
+
+showgate:
+	call gettrackgate
+	ld c, a
+	ld hl,$3c00+64+62
+	call byte2ascii
+	ld (hl),d
+	inc hl
+	ld (hl),e
+	ret
+	
 showbars:
 	ld a,(numbars)
 	ld c, a
-	ld hl,$3c00+64+45
+	ld hl,$3c00+64+32
 	call convnibble
 	ld (hl),e
 	ret
+
 
 
 short_delay:
