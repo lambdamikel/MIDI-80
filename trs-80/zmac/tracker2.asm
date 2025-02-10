@@ -28,7 +28,7 @@ tracked: ascii   'T'
 
 
 title:	ascii   '***** MIDI/80 DRUM TRACKER V1.4 -- (C) 2024 BY LAMBDAMIKEL *****'
-	ascii   'TRACK:1 SPEED:-- | C:1 I:01 N:24 V:7F | BARS:8 STEP:01 PAT:A S-F'
+	ascii   'TRACK:1 SPEED:-- | C:0 I:01 N:24 V:7F | BARS:8 STEP:01 PAT:A S-F'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -45,22 +45,22 @@ data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
 
 helpt:	ascii   '************************** HELP PAGE ***************************'
-	ascii   'CURSOR MOVEMENT, FINE           : A D W X, Z C                  '
-	ascii   'JUMP TO BAR POS                 : 1 2 3 4 5 6 7 8               '
-	ascii   'CHANGE BAR COUNT                : B                             '
-	ascii   'NEXT / PREV GRID POS            : ARROW-UP ARROW-DOWN           '
-	ascii   'CHANGE GRID STEP                : G                             '
-	ascii   'SET GRID, SOUND, CLEAR          : SPACE ENTER CLEAR             '
-	ascii   'PLAY & STOP                     : P                             '
-	ascii   'TOGGLE TRACKING                 : T                             '
-	ascii   'CHANGE PLAYBACK SPEED           : N M , .                       '
-	ascii   'CHANGE CUR TRACK MIDI CHANNEL   : + -                           '
-	ascii   'CHANGE CUR TRACK MIDI INTRUMENT : U I                           '
-	ascii   'CHANGE CUR TRACK MIDI VELOCITY  : J K                           '
-	ascii   'CHANGE CUR TRACK DRUM           : ARROW-LEFT ARROW-RIGHT        '
-	ascii   'CHANGE CUR TRACK DRUM           : ARROW-LEFT ARROW-RIGHT        '
-	ascii   'HELP, QUIT, LOAD & SAVE         : H Q L S                       '
-	ascii   'CHANGE PATTERN                  : -                             '
+	ascii   'CURSOR MOVEMENT, FINE            : A D W X, Z C                 '
+	ascii   'CHANGE BAR COUNT, JUMP TO BAR POS: B, 1 2 3 4 5 6 7 8           '
+	ascii   'NEXT / PREV GRID POS             : ARROW-UP ARROW-DOWN          '
+	ascii   'CHANGE GRID STEP                 : G                            '
+	ascii   'SET GRID, SOUND, CLEAR           : SPACE, ENTER, CLEAR          '
+	ascii   'PLAY & STOP                      : P                            '
+	ascii   'ALL NOTES OFF (MIDI PANIC)       : !                            '
+	ascii   'TOGGLE TRACKING                  : T                            '
+	ascii   'CHANGE PLAYBACK SPEED            : N M , .                      '
+	ascii   'CHANGE CUR TRACK MIDI CHANNEL    : + -                          '
+	ascii   'CHANGE CUR TRACK MIDI INSTRUMENT : U I                          '
+	ascii   'CHANGE CUR TRACK MIDI VELOCITY   : J K                          '
+	ascii   'CHANGE CUR TRACK DRUM            : ARROW-LEFT ARROW-RIGHT       ' 
+	ascii   'CHANGE CUR TRACK DRUM            : ARROW-LEFT ARROW-RIGHT       '
+	ascii   'HELP, QUIT, LOAD & SAVE          : H, Q, L, S,                  '
+	ascii   'CHANGE PATTERN                   : -                            '
 
 
 lastcur	     byte	'.'
@@ -90,7 +90,11 @@ tracks2 defs    6*64
 drumnostracks		byte 36, 38, 40, 51, 44, 46 
 channeltracks 		byte 0, 1, 2, 3, 4, 9
 instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
-velocitytracks	 	byte 127, 127, 127, 127, 127, 127 
+velocitytracks	 	byte 127, 127, 127, 127, 127, 127
+
+;;  midi channel specific to support MIDI PANIC
+curnoteschannels	byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+curvelschannels		byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 memcursorx byte 	0
 memcursory byte 	0
@@ -444,6 +448,9 @@ scancont1:
 	cp 'B'
 	jp z,chgnumbars 
 
+	cp '!'
+	jp z,midipanic
+
 	jp loop 
 	
 	;;  do a screen update after keypress and continue 
@@ -775,20 +782,75 @@ testsoundx macro
 	;; call gettrackdrum
 	;; ld b,a
 
-	ld a,(curchannel)
+	call gettrackchannel
+	ld (curchannel), a 
+	;; ld a,(curchannel)
+
+	ld hl, curnoteschannels
+	ld d,0
+	ld e,a
+	add hl,de
+
 	add $90 
 	out (8),a
   
 	call short_delay
 	ld a,(curnote)
-	out (8),a 
+	out (8),a
+	ld (hl), a  		; store into CUR NOTES per CHANNEL for MIDI PANIC 
   
 	call short_delay
 	ld a,(curvelocity)
-	out (8),a 
-  
+	out (8),a
+
+	ld b,a
+	ld hl, curvelschannels 
+	ld d,0
+	ld e,b
+	add hl,de 
+	ld a,(curchannel)
+	ld (hl), a  		; store into CUR VELOCITIES per CHANNEL for MIDI PANIC 
+
 	endm 
 
+midipanic:
+
+	ld b, $10 
+
+channeloff:
+	ld a, b
+	dec a
+	add $80	
+	out (8),a  		; MIDI NOTE OFF for MIDI Channel in B 
+	call short_delay
+
+	ld a, b
+	dec a
+	ld hl, curnoteschannels ; retrieve last MIDI ON Message for Channel in B NOTE 
+	ld d,0
+	ld e,a
+	add hl,de 
+	
+	ld a, (hl) 		; last MIDI NOTE ON Note
+	out (8), a
+	call short_delay
+
+	ld a, b
+	dec a 
+	ld hl, curvelschannels ; retrieve last MIDI ON Message for Channel in B VELOCITY
+	ld d,0
+	ld e,a 
+	add hl,de 
+	
+	ld a, (hl) 		; last MIDI NOTE ON Velocity
+	out (8), a
+	call short_delay
+
+	;;  repeat for all 16 Channels 
+	djnz channeloff
+	
+	jp cont
+	
 drumnoup:
 	call gettrackdrum
 	inc a 
@@ -1618,7 +1680,12 @@ playnote: ; input note on / off in c; track number 0..5 in e
 	ld d,0
 	;; ld e,e 
 	add hl, de 
-	ld a,(hl) 		; MIDI channel for track in e 
+	ld a,(hl) 		; MIDI channel for track in e
+
+	ld hl, curnoteschannels	; put into cur note buffer for MIDI PANIC 
+	ld d,0
+	ld e,a
+	add hl,de
 
 	add $90			; MIDI NOTE ON for MIDI channel in a 
 	out (8),a
@@ -1628,6 +1695,7 @@ playnote: ; input note on / off in c; track number 0..5 in e
 	ld a,c			; c has the note number -> MIDI out 
 	sub DISPMIDINOTEOFFSET		
 	out (8),a
+	ld (hl), a 		; store current NOTE ON for MIDI PANIC 
 	
 	call short_delay
 
@@ -1639,8 +1707,11 @@ playnote: ; input note on / off in c; track number 0..5 in e
 	;; ld e,e 
 	add hl, de 
 	ld a,(hl) 		; MIDI velocity for track in e 
-
 	out (8),a
+	
+	ld hl, curvelschannels	; put into cur velocity buffer for MIDI PANIC 
+	add hl,de
+	ld (hl), a		; store current VELOCITY for MIDI PANIC
   
 	ret 
 	
