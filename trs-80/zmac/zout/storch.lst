@@ -1,0 +1,3353 @@
+   1:				;
+   2:				; storch.z - stereo orchestra 85/90 organ
+   3:				;
+   4:				; Upper two keyboard rows are the right channel:
+   5:				;     _____ _____       _____ _____ _____       _____ _____
+   6:				;    | c'# | d'# |     | f'# | g'# | a'# |     | c''#| d''#|
+   7:				;  __|__2__|__3__|_____|__5__|__6__|__7__|_____|__9__|__0__|__ _____
+   8:				; |  c' |  d' |  e' |  f' |  g' |  a' |  b' | c'' | d'' | e'' | f'' |
+   9:				; |__Q__|__W__|__E__|__R__|__T__|__Y__|__U__|__I__|__O__|__P__|__@__|
+  10:				;
+  11:				; 1 switches right channel waveform (sine, square, triangle, saw)
+  12:				;
+  13:				; Lower two keyboard rows are the left channel:
+  14:				;     _____ _____       _____ _____ _____       _____ _____
+  15:				;    |  c# |  d# |     |  f# |  g# |  a# |     | c'# | d'# |
+  16:				;  __|__S__|__D__|_____|__G__|__H__|__J__|_____|__L__|__;__|__ 
+  17:				; |  c  |  d  |  e  |  f  |  g  |  a  |  b  | c'  | d'  | e'  |
+  18:				; |__Z__|__X__|__C__|__V__|__B__|__N__|__M__|__,__|__.__|__/__|
+  19:				;
+  20:				; A switches left channel waveform (sine, square, triangle, saw)
+  21:				;
+  22:				; Up/Down arrows change left volume.
+  23:				; Left/Right arrows change right volume.
+  24:				; Volume goes from 1/16 to 16/16.
+  25:				;
+  26:				; Current sample output rate on each channel is:
+  27:				;	Model 1		13,440 Hz (1774080 / sampcyc)
+  28:				;	Model 3,4	15,360 Hz (2027520 / sampcyc)
+  29:				;
+  30:				; Requires 32K memory or 16K without volume control.
+  31:				;
+  32:				; Equate havevol to 0 for program without volume control.
+  33:				;
+  34:				; TODO:
+  35:				;	model 4 high speed support with all wait state possibilities.
+  36:				;	heartbeat line (maybe vaguely show output waveform)?
+  37:				;		video waits might make it distorting on Model 4
+  38:				
+  39:     -	0001          	havevol	equ	1
+  40:				
+  41:     -	5200          		org	$5200
+  42:     -	5200          	stack:
+  43:     -	5200  20204D6F	splash:	ascii   "  Model x Orchestra 85 Organ by George Phillips, Dec. 18, 2024  "
+	              64656C20
+	              78204F72
+	              63686573
+	              74726120
+	              3835204F
+	              7267616E
+	              20627920
+	              47656F72
+	              67652050
+	              68696C6C
+	              6970732C
+	              20446563
+	              2E203138
+	              2C203230
+	              32342020
+  44:     -	0001          	   if havevol
+  45:     -	5240  20206C65		ascii   "  left volume ----------------------------------- right volume  "
+	              66742076
+	              6F6C756D
+	              65202D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D207269
+	              67687420
+	              766F6C75
+	              6D652020
+  46:				   else
+  48:				   endif
+  49:     -	5280  20202020		ascii	"     ___      %         %         %          %                  "
+	              205F5F5F
+	              20202020
+	              20202520
+	              20202020
+	              20202020
+	              25202020
+	              20202020
+	              20202520
+	              20202020
+	              20202020
+	              20252020
+	              20202020
+	              20202020
+	              20202020
+	              20202020
+  50:     -	52C0  20202020		ascii	"    |_1_|    sine     square   triangle   sawtooth              "
+	              7C5F315F
+	              7C202020
+	              2073696E
+	              65202020
+	              20207371
+	              75617265
+	              20202074
+	              7269616E
+	              676C6520
+	              20207361
+	              77746F6F
+	              74682020
+	              20202020
+	              20202020
+	              20202020
+  51:     -	5300  20202020		ascii   "    _____ _____     _____ _____ _____       _____ _____         "
+	              5F5F5F5F
+	              5F205F5F
+	              5F5F5F20
+	              20202020
+	              5F5F5F5F
+	              5F205F5F
+	              5F5F5F20
+	              5F5F5F5F
+	              5F202020
+	              20202020
+	              5F5F5F5F
+	              5F205F5F
+	              5F5F5F20
+	              20202020
+	              20202020
+  52:     -	5340  2020207C		ascii   "   |*c'# |*d'#|    |*f'# |*g'# |*a'# |     |*c''#|*d''#|        "
+	              2A632723
+	              207C2A64
+	              27237C20
+	              2020207C
+	              2A662723
+	              207C2A67
+	              2723207C
+	              2A612723
+	              207C2020
+	              2020207C
+	              2A632727
+	              237C2A64
+	              2727237C
+	              20202020
+	              20202020
+  53:     -	5380  20205F7C		ascii   "  _|__2__|__3_|____|__5__|__6__|__7__|_____|__9__|__0__|_ ____  "
+	              5F5F325F
+	              5F7C5F5F
+	              335F7C5F
+	              5F5F5F7C
+	              5F5F355F
+	              5F7C5F5F
+	              365F5F7C
+	              5F5F375F
+	              5F7C5F5F
+	              5F5F5F7C
+	              5F5F395F
+	              5F7C5F5F
+	              305F5F7C
+	              5F205F5F
+	              5F5F2020
+  54:     -	53C0  207C2A63		ascii   " |*c'|* d' |*e' |*f' |* g' |* a' |* b' |*c'' |*d'' |*e'' |*f''| "
+	              277C2A20
+	              6427207C
+	              2A652720
+	              7C2A6627
+	              207C2A20
+	              6727207C
+	              2A206127
+	              207C2A20
+	              6227207C
+	              2A632727
+	              207C2A64
+	              2727207C
+	              2A652727
+	              207C2A66
+	              27277C20
+  55:     -	5400  207C5F51		ascii   " |_Q_|__W__|_E__|_R__|__T__|__Y__|__U__|__I__|__O__|__P__|__@_| "
+	              5F7C5F5F
+	              575F5F7C
+	              5F455F5F
+	              7C5F525F
+	              5F7C5F5F
+	              545F5F7C
+	              5F5F595F
+	              5F7C5F5F
+	              555F5F7C
+	              5F5F495F
+	              5F7C5F5F
+	              4F5F5F7C
+	              5F5F505F
+	              5F7C5F5F
+	              405F7C20
+  56:     -	5440  20202020		ascii   "     _____ _____       _____ _____ _____       _____ _____      "
+	              205F5F5F
+	              5F5F205F
+	              5F5F5F5F
+	              20202020
+	              2020205F
+	              5F5F5F5F
+	              205F5F5F
+	              5F5F205F
+	              5F5F5F5F
+	              20202020
+	              2020205F
+	              5F5F5F5F
+	              205F5F5F
+	              5F5F2020
+	              20202020
+  57:     -	5480  20202020		ascii	"    |* c# |* d# |     |* f# |* g# |* a# |     |*c'# |*d'# |     "
+	              7C2A2063
+	              23207C2A
+	              20642320
+	              7C202020
+	              20207C2A
+	              20662320
+	              7C2A2067
+	              23207C2A
+	              20612320
+	              7C202020
+	              20207C2A
+	              63272320
+	              7C2A6427
+	              23207C20
+	              20202020
+  58:     -	54C0  2020205F		ascii   "   _|__S__|__D__|_____|__G__|__H__|__J__|_____|__L__|__;__|_    "
+	              7C5F5F53
+	              5F5F7C5F
+	              5F445F5F
+	              7C5F5F5F
+	              5F5F7C5F
+	              5F475F5F
+	              7C5F5F48
+	              5F5F7C5F
+	              5F4A5F5F
+	              7C5F5F5F
+	              5F5F7C5F
+	              5F4C5F5F
+	              7C5F5F3B
+	              5F5F7C5F
+	              20202020
+  59:     -	5500  20207C2A		ascii   "  |*c |* d  |* e  |* f  |* g  |* a  |* b  |*c'  |*d'  |*e'  |   " 
+	              63207C2A
+	              20642020
+	              7C2A2065
+	              20207C2A
+	              20662020
+	              7C2A2067
+	              20207C2A
+	              20612020
+	              7C2A2062
+	              20207C2A
+	              63272020
+	              7C2A6427
+	              20207C2A
+	              65272020
+	              7C202020
+  60:     -	5540  20207C5F		ascii	"  |_Z_|__X__|__C__|__V__|__B__|__N__|__M__|__,__|__.__|__/__|   "
+	              5A5F7C5F
+	              5F585F5F
+	              7C5F5F43
+	              5F5F7C5F
+	              5F565F5F
+	              7C5F5F42
+	              5F5F7C5F
+	              5F4E5F5F
+	              7C5F5F4D
+	              5F5F7C5F
+	              5F2C5F5F
+	              7C5F5F2E
+	              5F5F7C5F
+	              5F2F5F5F
+	              7C202020
+  61:     -	5580  20202020		ascii	"       ___    sine     square   triangle   sawtooth             "
+	              2020205F
+	              5F5F2020
+	              20207369
+	              6E652020
+	              20202073
+	              71756172
+	              65202020
+	              74726961
+	              6E676C65
+	              20202073
+	              6177746F
+	              6F746820
+	              20202020
+	              20202020
+	              20202020
+  62:     -	55C0  20202020		ascii	"      |_A_|     %         %         %          %                "
+	              20207C5F
+	              415F7C20
+	              20202020
+	              25202020
+	              20202020
+	              20202520
+	              20202020
+	              20202020
+	              25202020
+	              20202020
+	              20202025
+	              20202020
+	              20202020
+	              20202020
+	              20202020
+  63:     -	5600  00      		ascii	0
+  64:				
+  65:     -	5601          	start:
+  66:    0+4	5601  F3      		di
+  67:    4+10	5602  310052  		ld	sp,stack	; only used during initialization
+  68:				
+  69:   14+4	5605  AF      		xor	a
+  70:   18+11	5606  D384    		out	($84),a		; Model 3 memory map for Model 4
+  71:				
+  72:				; Detect Model 1, 3 or 4
+  73:   29+11	5608  DBFF    		in	a,(0ffh)	; read OUTMOD latches
+  74:   40+4	560A  47      		ld	b,a		; save original settings
+  75:   44+7	560B  0E60    		ld	c,60h
+  76:   51+4	560D  A9      		xor	c		; invert CPU Fast, DISWAIT
+  77:   55+11	560E  D3EC    		out	(0ech),a	; set latches
+  78:   66+11	5610  DBFF    		in	a,(0ffh)	; read latches
+  79:   77+4	5612  A9      		xor	c		; flip to original value
+  80:   81+4	5613  A8      		xor	b		; compare against original
+  81:   85+7	5614  0EEC    		ld	c,0ech
+  82:   92+12	5616  ED41    		out	(c),b		; restore original settings
+  83:  104+4	5618  07      		rlca
+  84:  108+4	5619  07      		rlca
+  85:  112+7+5	561A  3009    		jr	nc,.ism4	; CPU Fast unchanged, must be Model 4
+  86:  119+4	561C  07      		rlca
+  87:  123+7	561D  3E33    		ld	a,'3'
+  88:  130+7+5	561F  3006    		jr	nc,.mdone	; DISWAIT same, Model III
+  89:  137+7	5621  3E31    		ld	a,'1'		; otherwise, it's a Model I
+  90:  144+12	5623  1802    		jr	.mdone
+  91:  156+7	5625  3E34    	.ism4:	ld	a,'4'
+  92:     -	5627          	.mdone:
+  93:				
+  94:  163+13	5627  320852  		ld	(splash+8),a
+  95:  176+7	562A  FE31    		cp	'1'
+  96:  183+7+5	562C  280B    		jr	z,not34
+  97:				
+  98:					; Say we're for Orchestra 90
+  99:  190+10	562E  213930  		ld	hl,'90'
+ 100:  200+16	5631  221452  		ld	(splash+20),hl
+ 101:				
+ 102:					; Don't skip the Model 3 patching
+ 103:  216+7	5634  3E01    		ld	a,1		; "ld bc,nn" opcode
+ 104:  223+13	5636  327E57  		ld	(patch_skip),a
+ 105:				
+ 106:     -	5639          	not34:
+ 107:  236+10	5639  210052  		ld	hl,splash
+ 108:  246+10	563C  11003C  		ld	de,$3c00
+ 109:  256+4	563F  AF      		xor	a
+ 110:  260+4	5640  08      		ex	af,af'
+ 111:  264+14	5641  FD213067		ld	iy,wave_ind
+ 112:  278+7	5645  7E      	splp:	ld	a,(hl)		; eh, we'll assume first byte not special
+ 113:  285+7	5646  FE7C    		cp	'|'
+ 114:  292+12	5648  1803    	barx:	jr	nobar		; by default we don't translate '|' -> '!'
+ 115:  304+7	564A  3E21    		ld	a,'!'
+ 116:  311+7	564C  77      		ld	(hl),a
+ 117:  318+7	564D  12      	nobar:	ld	(de),a
+ 118:  325+4	564E  EB      		ex	de,hl
+ 119:  329+7	564F  BE      		cp	(hl)
+ 120:  336+7+5	5650  2807    		jr	z,charok
+ 121:  343+15	5652  CBAE    		res	5,(hl)
+ 122:					; no lower case; enable bar translation
+ 123:  358+7	5654  3E20    		ld	a,$20		; "jr nz" opcode
+ 124:  365+13	5656  324856  		ld	(barx),a
+ 125:  378+4	5659  EB      	charok:	ex	de,hl
+ 126:  382+6	565A  23      		inc	hl
+ 127:  388+6	565B  13      		inc	de
+ 128:  394+7	565C  7E      		ld	a,(hl)
+ 129:  401+4	565D  B7      		or	a
+ 130:  405+7+5	565E  2837    		jr	z,spdn
+ 131:  412+7	5660  FE2A    		cp	'*'
+ 132:  419+7+5	5662  2812    		jr	z,star
+ 133:  426+7	5664  FE25    		cp	'%'
+ 134:  433+7+5	5666  20DD    		jr	nz,splp
+ 135:				
+ 136:  440+10	5668  3620    		ld	(hl),' '
+ 137:  450+19	566A  FD7300  		ld	(iy),e
+ 138:  469+19	566D  FD7201  		ld	(iy+1),d
+ 139:  488+10	5670  FD23    		inc	iy
+ 140:  498+10	5672  FD23    		inc	iy
+ 141:				
+ 142:  508+12	5674  18CF    		jr	splp
+ 143:				
+ 144:  520+14	5676  DD21DD65	star:	ld	ix,param_tab-6
+ 145:  534+10	567A  010600  		ld	bc,6
+ 146:  544+4	567D  08      		ex	af,af'
+ 147:  548+15	567E  DD09    	look:	add	ix,bc
+ 148:  563+20	5680  DDCB057E		bit	7,(ix+5)
+ 149:  583+7+5	5684  28F8    		jr	z,look
+ 150:  590+19	5686  DDBE04  		cp	(ix+4)
+ 151:  609+7+5	5689  20F3    		jr	nz,look
+ 152:  616+4	568B  3C      		inc	a
+ 153:  620+4	568C  08      		ex	af,af'
+ 154:  624+19	568D  DD7304  		ld	(ix+4),e
+ 155:  643+19	5690  DD7205  		ld	(ix+5),d
+ 156:  662+10	5693  3620    		ld	(hl),' '
+ 157:  672+12	5695  18AE    		jr	splp
+ 158:				
+ 159:  684+4	5697  EB      	spdn:	ex	de,hl
+ 160:  688+8	5698  CB74    	clr:	bit	6,h
+ 161:  696+7+5	569A  2005    		jr	nz,clrdn
+ 162:  703+10	569C  3620    		ld	(hl),' '
+ 163:  713+6	569E  23      		inc	hl
+ 164:  719+12	569F  18F7    		jr	clr
+ 165:     -	56A1          	clrdn:
+ 166:				
+ 167:     -	0095          	meter_l	equ	128+1+4+16
+ 168:     -	00AA          	meter_r	equ	128+2+8+32
+ 169:				
+ 170:     -	0001          	   if havevol
+ 171:					; Draw initial volume indicators
+ 172:  731+14	56A1  DD21003C		ld	ix,$3c00
+ 173:  745+7	56A5  0610    		ld	b,16
+ 174:  752+10	56A7  114000  		ld	de,64
+ 175:  762+19	56AA  DD360095	vollp:	ld	(ix),meter_l
+ 176:  781+19	56AE  DD363FAA		ld	(ix+63),meter_r
+ 177:  800+15	56B2  DD19    		add	ix,de
+ 178:  815+8+5	56B4  10F4    		djnz	vollp
+ 179:				
+ 180:     -	0400          	banksz	equ	4*256
+ 181:				
+ 182:     -	8000          	vol_16	equ	wavebnk+0*banksz
+ 183:     -	8400          	vol_15	equ	wavebnk+1*banksz
+ 184:     -	8800          	vol_14	equ	wavebnk+2*banksz
+ 185:     -	8C00          	vol_13	equ	wavebnk+3*banksz
+ 186:     -	9000          	vol_12	equ	wavebnk+4*banksz
+ 187:     -	9400          	vol_11	equ	wavebnk+5*banksz
+ 188:     -	9800          	vol_10	equ	wavebnk+6*banksz
+ 189:     -	9C00          	vol_9	equ	wavebnk+7*banksz
+ 190:     -	A000          	vol_8	equ	wavebnk+8*banksz
+ 191:     -	A400          	vol_7	equ	wavebnk+9*banksz
+ 192:     -	A800          	vol_6	equ	wavebnk+10*banksz
+ 193:     -	AC00          	vol_5	equ	wavebnk+11*banksz
+ 194:     -	B000          	vol_4	equ	wavebnk+12*banksz
+ 195:     -	B400          	vol_3	equ	wavebnk+13*banksz
+ 196:     -	B800          	vol_2	equ	wavebnk+14*banksz
+ 197:     -	BC00          	vol_1	equ	wavebnk+15*banksz
+ 198:				
+ 199:					; Create other volume levels.
+ 200:					; Wouldn't kill me to work out some loops here.
+ 201:  823+10	56B6  210080  		ld	hl,vol_16
+ 202:  833+10	56B9  1100A0  		ld	de,vol_8	; 1/2 volume
+ 203:  843+17	56BC  CDC265  		call	div2
+ 204:				
+ 205:  860+10	56BF  2100A0  		ld	hl,vol_8
+ 206:  870+10	56C2  1100B0  		ld	de,vol_4	; 1/4 volume
+ 207:  880+17	56C5  CDC265  		call	div2
+ 208:				
+ 209:  897+10	56C8  2100B0  		ld	hl,vol_4
+ 210:  907+10	56CB  1100B8  		ld	de,vol_2	; 1/8 volume
+ 211:  917+17	56CE  CDC265  		call	div2
+ 212:				
+ 213:  934+10	56D1  2100B8  		ld	hl,vol_2
+ 214:  944+10	56D4  1100BC  		ld	de,vol_1	; 1/16 volume
+ 215:  954+17	56D7  CDC265  		call	div2
+ 216:				
+ 217:  971+10	56DA  2100B8  		ld	hl,vol_2
+ 218:  981+10	56DD  1100BC  		ld	de,vol_1
+ 219:  991+14	56E0  DD2100B4		ld	ix,vol_3
+ 220: 1005+17	56E4  CDD165  		call	sum2
+ 221:				
+ 222: 1022+10	56E7  2100B0  		ld	hl,vol_4
+ 223: 1032+10	56EA  1100BC  		ld	de,vol_1
+ 224: 1042+14	56ED  DD2100AC		ld	ix,vol_5
+ 225: 1056+17	56F1  CDD165  		call	sum2
+ 226:				
+ 227: 1073+10	56F4  2100B0  		ld	hl,vol_4
+ 228: 1083+10	56F7  1100B8  		ld	de,vol_2
+ 229: 1093+14	56FA  DD2100A8		ld	ix,vol_6
+ 230: 1107+17	56FE  CDD165  		call	sum2
+ 231:				
+ 232: 1124+10	5701  2100B0  		ld	hl,vol_4
+ 233: 1134+10	5704  1100B4  		ld	de,vol_3
+ 234: 1144+14	5707  DD2100A4		ld	ix,vol_7
+ 235: 1158+17	570B  CDD165  		call	sum2
+ 236:				
+ 237: 1175+10	570E  2100A0  		ld	hl,vol_8
+ 238: 1185+10	5711  1100BC  		ld	de,vol_1
+ 239: 1195+14	5714  DD21009C		ld	ix,vol_9
+ 240: 1209+17	5718  CDD165  		call	sum2
+ 241:				
+ 242: 1226+10	571B  2100A0  		ld	hl,vol_8
+ 243: 1236+10	571E  1100B8  		ld	de,vol_2
+ 244: 1246+14	5721  DD210098		ld	ix,vol_10
+ 245: 1260+17	5725  CDD165  		call	sum2
+ 246:				
+ 247: 1277+10	5728  2100A0  		ld	hl,vol_8
+ 248: 1287+10	572B  1100B4  		ld	de,vol_3
+ 249: 1297+14	572E  DD210094		ld	ix,vol_11
+ 250: 1311+17	5732  CDD165  		call	sum2
+ 251:				
+ 252: 1328+10	5735  2100A0  		ld	hl,vol_8
+ 253: 1338+10	5738  1100B0  		ld	de,vol_4
+ 254: 1348+14	573B  DD210090		ld	ix,vol_12
+ 255: 1362+17	573F  CDD165  		call	sum2
+ 256:				
+ 257: 1379+10	5742  2100A0  		ld	hl,vol_8
+ 258: 1389+10	5745  1100AC  		ld	de,vol_5
+ 259: 1399+14	5748  DD210090		ld	ix,vol_12
+ 260: 1413+17	574C  CDD165  		call	sum2
+ 261:				
+ 262: 1430+10	574F  210090  		ld	hl,vol_12
+ 263: 1440+10	5752  1100BC  		ld	de,vol_1
+ 264: 1450+14	5755  DD21008C		ld	ix,vol_13
+ 265: 1464+17	5759  CDD165  		call	sum2
+ 266:				
+ 267: 1481+10	575C  210090  		ld	hl,vol_12
+ 268: 1491+10	575F  1100B8  		ld	de,vol_2
+ 269: 1501+14	5762  DD210088		ld	ix,vol_14
+ 270: 1515+17	5766  CDD165  		call	sum2
+ 271:				
+ 272: 1532+10	5769  210090  		ld	hl,vol_12
+ 273: 1542+10	576C  1100B4  		ld	de,vol_3
+ 274: 1552+14	576F  DD210084		ld	ix,vol_15
+ 275: 1566+17	5773  CDD165  		call	sum2
+ 276:				
+ 277:				   endif
+ 278:				
+ 279: 1583+11	5776  DBFF    		in	a,($ff)
+ 280: 1594+7	5778  F610    		or	a,$10		; enable extio
+ 281: 1601+7	577A  E69F    		and	a,~($20 | $40)	; M3 no video wait, M4 slow CPU
+ 282: 1608+11	577C  D3EC    		out	($ec),a
+ 283:				
+ 284:     -	00B9          	dac_l	equ	$b9
+ 285:     -	00B5          	dac_r	equ	$b5
+ 286:				
+ 287:     -	0079          	dac90_l	equ	$79
+ 288:     -	0075          	dac90_r	equ	$75
+ 289:				
+ 290:     -	577E          	patch_skip:
+ 291: 1619+10	577E  C3B657  		jp	no_patch
+ 292:				
+ 293: 1629+10	5781  010E01  		ld	bc,dn
+ 294: 1639+10	5784  3100C1  		ld	sp,dac_patch
+ 295: 1649+10	5787  E1      	dpatch:	pop	hl
+ 296: 1659+7	5788  7E      		ld	a,(hl)
+ 297: 1666+7	5789  E60F    		and	$f
+ 298: 1673+7	578B  F670    		or	dac90_l & $f0
+ 299: 1680+7	578D  77      		ld	(hl),a
+ 300: 1687+6	578E  0B      		dec	bc
+ 301: 1693+4	578F  78      		ld	a,b
+ 302: 1697+4	5790  B1      		or	c
+ 303: 1701+7+5	5791  20F4    		jr	nz,dpatch
+ 304:				
+ 305: 1708+7	5793  0629    		ld	b,step3_size
+ 306: 1715+10	5795  31D966  		ld	sp,step3_tab
+ 307: 1725+10	5798  21E365  		ld	hl,param_tab
+ 308: 1735+10	579B  D1      	ppatch:	pop	de
+ 309: 1745+7	579C  73      		ld	(hl),e
+ 310: 1752+6	579D  23      		inc	hl
+ 311: 1758+7	579E  72      		ld	(hl),d
+ 312: 1765+6	579F  23      		inc	hl
+ 313:				
+ 314: 1771+6	57A0  23      		inc	hl
+ 315: 1777+6	57A1  23      		inc	hl
+ 316: 1783+6	57A2  23      		inc	hl
+ 317: 1789+6	57A3  23      		inc	hl
+ 318:				
+ 319: 1795+7	57A4  3E5E    		ld	a,up3_ptr
+ 320: 1802+13	57A6  32DA5E  		ld	(ptr1),a	; up arrow to '^'
+ 321: 1815+13	57A9  32C557  		ld	(up_ptr_addr),a
+ 322: 1828+7	57AC  3E76    		ld	a,down3_ptr
+ 323: 1835+13	57AE  32D55F  		ld	(ptr3),a	; down arrow to 'v'
+ 324: 1848+13	57B1  32BD57  		ld	(down_ptr_addr),a
+ 325:				
+ 326: 1861+8+5	57B4  10E5    		djnz	ppatch
+ 327:				
+ 328:     -	57B6          	no_patch:
+ 329:				
+ 330:				; Ahem, lot of macros and such before the code continues.
+ 331:				
+ 332:     -	0084          	sampcyc	equ	132
+ 333:				
+ 334:				equval	macro	root,n,val
+ 335:				&root&n	=	val
+ 336:					endm
+ 337:				
+ 338:				; Get the step value for 32 notes as step_0 .. step_31
+ 339:				
+ 340:				calc_steps macro
+ 341:					octbase = 110 * 256
+ 342:					hz = octbase
+ 343:					nt = 0
+ 344:					rept	32
+ 345:				
+ 346:					; Hz of entire 256 byte buffer at step 1 is: 
+ 347:					;	cpu_hz / sampcyc / 256
+ 348:					; (52.5 Hz at 1774080 Hz, 60 Hz at 2027520 Hz)
+ 349:					; So target Hz over that is our step.
+ 350:					; But we want 8.8 fixed point value.
+ 351:				
+ 352:					equval	step_,%nt,hz/(cpu_hz/sampcyc/256)
+ 353:				
+ 354:					hz *= 271 ; twelfth root 2 * 256
+ 355:					hz /= 256
+ 356:					nt++
+ 357:					if nt % 12 == 0
+ 358:						octbase *= 2
+ 359:						hz = octbase
+ 360:					endif
+ 361:				
+ 362:					endm
+ 363:				
+ 364:				; Define these sensibly
+ 365:				
+ 366:				st_c0	=	step_0
+ 367:				st_c0@	=	step_1
+ 368:				st_d0	=	step_2
+ 369:				st_d0@	=	step_3
+ 370:				st_e0	=	step_4
+ 371:				st_f0	=	step_5
+ 372:				st_f0@	=	step_6
+ 373:				st_g0	=	step_7
+ 374:				st_g0@	=	step_8
+ 375:				st_a0	=	step_9
+ 376:				st_a0@	=	step_10
+ 377:				st_b0	=	step_11
+ 378:				
+ 379:				st_c1	=	step_12
+ 380:				st_c1@	=	step_13
+ 381:				st_d1	=	step_14
+ 382:				st_d1@	=	step_15
+ 383:				st_e1	=	step_16
+ 384:				st_f1	=	step_17
+ 385:				st_f1@	=	step_18
+ 386:				st_g1	=	step_19
+ 387:				st_g1@	=	step_20
+ 388:				st_a1	=	step_21
+ 389:				st_a1@	=	step_22
+ 390:				st_b1	=	step_23
+ 391:				
+ 392:				st_c2	=	step_24
+ 393:				st_c2@	=	step_25
+ 394:				st_d2	=	step_26
+ 395:				st_d2@	=	step_27
+ 396:				st_e2	=	step_28
+ 397:				st_f2	=	step_29
+ 398:				
+ 399:				st_null	=	0
+ 400:				
+ 401:					endm
+ 402:				
+ 403:     -	0000          	dn = 0
+ 404:				
+ 405:				samp_l	macro
+ 406:					add	hl,de
+ 407:					ld	c,h
+ 408:					ld	a,(bc)
+ 409:					out	(dac_l),a
+ 410:					equval	dacp,%dn,$-1
+ 411:					dn++
+ 412:					endm
+ 413:				
+ 414:				samp_r	macro
+ 415:					exx
+ 416:					add	hl,de
+ 417:					ld	c,h
+ 418:					ld	a,(bc)
+ 419:					out	(dac_r),a
+ 420:					equval	dacp,%dn,$-1
+ 421:					dn++
+ 422:					exx
+ 423:					endm
+ 424:				
+ 425:				; samp_r but leaves us in prime registers
+ 426:				samp_r_prime macro
+ 427:					exx
+ 428:					add	hl,de
+ 429:					ld	c,h
+ 430:					ld	a,(bc)
+ 431:					out	(dac_r),a
+ 432:					equval	dacp,%dn,$-1
+ 433:					dn++
+ 434:					endm
+ 435:				
+ 436:				start_cycle macro
+ 437:				diff	defl	sampcyc-t($)
+ 438:					assert	t($) == sampcyc
+ 439:					sett	0
+ 440:					endm
+ 441:				
+ 442:				; Check we're at the correct amount for left sample
+ 443:				check_l	macro
+ 444:				ldiff	defl	33-t($)
+ 445:					assert	t($) == 11+4+7+11 ; cycles used in samp_l
+ 446:					endm
+ 447:				
+ 448:				; Check we're at the correct amount for right sample
+ 449:				; I suppose this is unnecessary since you can do whatever you
+ 450:				; like with the rest of the sample time.
+ 451:				check_r	macro
+ 452:				rdiff	defl	74-t($)
+ 453:					assert	t($) == 74 ; cycles used in samp_l and samp_r
+ 454:					endm
+ 455:				
+ 456:				cycle	macro
+ 457:					start_cycle
+ 458:					samp_l
+ 459:					samp_r
+ 460:					endm
+ 461:				
+ 462:				key	macro	id,addrmask,st,down
+ 463:				  if parkey == 0
+ 464:				param_&id:
+ 465:				  endif
+ 466:				
+ 467:				  if parkey < 2
+ 468:					defw	st_&st
+ 469:				  endif
+ 470:				
+ 471:				  if parkey == 0
+ 472:					defw	ret_&id
+ 473:					defw	$ff00+id
+ 474:				  endif
+ 475:				
+ 476:				  if parkey == 2
+ 477:					cycle
+ 478:					ld	sp,param_&id
+ 479:					; Waste 7+4
+ 480:					nop
+ 481:					ld	a,0
+ 482:					ld	a,0		; waste we can eliminate?
+ 483:					ld	a,(addrmask >> 8)
+ 484:					and	addrmask % $100
+ 485:					jp	nz,down
+ 486:				ret_&id:
+ 487:				  endif
+ 488:					endm
+ 489:				
+ 490:				key_l	macro	id,addrmask,st
+ 491:					key	id,addrmask,st,down_l
+ 492:					endm
+ 493:				
+ 494:				key_r	macro	id,addrmask,st
+ 495:					key	id,addrmask,st,down_r
+ 496:					endm
+ 497:				
+ 498:				; Model 1 keyboard matrix.
+ 499:				;        1   2   4   8  16  32  64  128
+ 500:				; $3801	 @   A   B   C   D   E   F   G
+ 501:				; $3802	 H   I   J   K   L   M   N   O
+ 502:				; $3804	 P   Q   R   S   T   U   V   W
+ 503:				; $3808	 X   Y   Z
+ 504:				; $3810	 0   1   2   3   4   5   6   7
+ 505:				; $3820	 8   9   :   ;   ,   -   .   /
+ 506:				; $3840	ENT CLR BRK UP   DN  LT  RT SPC
+ 507:				; $3880	SFT
+ 508:				
+ 509:     -	0101          	k_@	equ	$380101
+ 510:     -	0102          	k_A	equ	$380102
+ 511:     -	0104          	k_B	equ	$380104
+ 512:     -	0108          	k_C	equ	$380108
+ 513:     -	0110          	k_D	equ	$380110
+ 514:     -	0120          	k_E	equ	$380120
+ 515:     -	0140          	k_F	equ	$380140
+ 516:     -	0180          	k_G	equ	$380180
+ 517:				
+ 518:     -	0201          	k_H	equ	$380201
+ 519:     -	0202          	k_I	equ	$380202
+ 520:     -	0204          	k_J	equ	$380204
+ 521:     -	0208          	k_K	equ	$380208
+ 522:     -	0210          	k_L	equ	$380210
+ 523:     -	0220          	k_M	equ	$380220
+ 524:     -	0240          	k_N	equ	$380240
+ 525:     -	0280          	k_O	equ	$380280
+ 526:				
+ 527:     -	0401          	k_P	equ	$380401
+ 528:     -	0402          	k_Q	equ	$380402
+ 529:     -	0404          	k_R	equ	$380404
+ 530:     -	0408          	k_S	equ	$380408
+ 531:     -	0410          	k_T	equ	$380410
+ 532:     -	0420          	k_U	equ	$380420
+ 533:     -	0440          	k_V	equ	$380440
+ 534:     -	0480          	k_W	equ	$380480
+ 535:				
+ 536:     -	0801          	k_X	equ	$380801
+ 537:     -	0802          	k_Y	equ	$380802
+ 538:     -	0804          	k_Z	equ	$380804
+ 539:				
+ 540:     -	1001          	k_0	equ	$381001
+ 541:     -	1002          	k_1	equ	$381002
+ 542:     -	1004          	k_2	equ	$381004
+ 543:     -	1008          	k_3	equ	$381008
+ 544:     -	1010          	k_4	equ	$381010
+ 545:     -	1020          	k_5	equ	$381020
+ 546:     -	1040          	k_6	equ	$381040
+ 547:     -	1080          	k_7	equ	$381080
+ 548:				
+ 549:     -	2001          	k_8	equ	$382001
+ 550:     -	2002          	k_9	equ	$382002
+ 551:     -	2004          	k_colon	equ	$382004
+ 552:     -	2008          	k_semi	equ	$382008
+ 553:     -	2010          	k_comma	equ	$382010
+ 554:     -	2020          	k_dash	equ	$382020
+ 555:     -	2040          	k_dot	equ	$382040
+ 556:     -	2080          	k_slash	equ	$382080
+ 557:				
+ 558:     -	4001          	k_enter	equ	$384001
+ 559:     -	4002          	k_clear	equ	$384002
+ 560:     -	4004          	k_break	equ	$384004
+ 561:     -	4008          	k_up	equ	$384008
+ 562:     -	4010          	k_down	equ	$384010
+ 563:     -	4020          	k_left	equ	$384020
+ 564:     -	4040          	k_right	equ	$384040
+ 565:     -	4080          	k_space	equ	$384080
+ 566:				
+ 567:     -	8001          	k_shift	equ	$388001
+ 568:				
+ 569:				parkeys	macro	pk
+ 570:					calc_steps
+ 571:				
+ 572:					parkey = pk
+ 573:				
+ 574:					key_l	25,k_Z,c0
+ 575:					key_l	18,k_S,c0@
+ 576:					key_l	26,k_X,d0
+ 577:					key_l	19,k_D,d0@
+ 578:					key_l	27,k_C,e0
+ 579:					key_l	28,k_V,f0
+ 580:					key_l	20,k_G,f0@
+ 581:					key_l	29,k_B,g0
+ 582:					key_l	21,k_H,g0@
+ 583:					key_l	30,k_N,a0
+ 584:					key_l	22,k_J,a0@
+ 585:					key_l	31,k_M,b0
+ 586:					key_l	32,k_comma,c1
+ 587:					key_l	23,k_L,c1@
+ 588:					key_l	33,k_dot,d1
+ 589:					key_l	24,k_semi,d1@
+ 590:					key_l	34,k_slash,e1
+ 591:				
+ 592:					key_r	07,k_Q,c1
+ 593:					key_r	00,k_2,c1@
+ 594:					key_r	08,k_W,d1
+ 595:					key_r	01,k_3,d1@
+ 596:					key_r	09,k_E,e1
+ 597:					key_r	10,k_R,f1
+ 598:					key_r	02,k_5,f1@
+ 599:					key_r	11,k_T,g1
+ 600:					key_r	03,k_6,g1@
+ 601:					key_r	12,k_Y,a1
+ 602:					key_r	04,k_7,a1@
+ 603:					key_r	13,k_U,b1
+ 604:					key_r	14,k_I,c2
+ 605:					key_r	05,k_9,c2@
+ 606:					key_r	15,k_O,d2
+ 607:					key_r	06,k_0,d2@
+ 608:					key_r	16,k_P,e2
+ 609:					key_r	17,k_@,f2
+ 610:				
+ 611:					key	35,k_A,null,wave_down_l
+ 612:					key	36,k_1,null,wave_down_r
+ 613:				
+ 614:				   if havevol
+ 615:					key	37,k_up,null,vol_up_down_l
+ 616:					key	38,k_down,null,vol_down_down_l
+ 617:				
+ 618:					key	39,k_left,null,vol_up_down_r
+ 619:					key	40,k_right,null,vol_down_down_r
+ 620:				   endif
+ 621:				
+ 622:					endm
+ 623:				
+ 624:     -	005C          	down_ptr equ	'\'
+ 625:     -	005B          	up_ptr	equ	'['
+ 626:				
+ 627:     -	0076          	down3_ptr equ	'v'
+ 628:     -	005E          	up3_ptr	equ	'^'
+ 629:				
+ 630: 1869+4	57B6  D9      		exx
+ 631: 1873+7	57B7  06C0    		ld	b,high(silence)
+ 632: 1880+16	57B9  2A3067  		ld	hl,(wave_ind_r)
+ 633: 1896+10	57BC  365C    		ld	(hl),down_ptr
+ 634:     -	57BD          	down_ptr_addr equ $-1
+ 635: 1906+4	57BE  D9      		exx
+ 636: 1910+7	57BF  06C0    		ld	b,high(silence)
+ 637: 1917+16	57C1  2A3867  		ld	hl,(wave_ind_l)
+ 638: 1933+10	57C4  365B    		ld	(hl),up_ptr
+ 639:     -	57C5          	up_ptr_addr equ $-1
+ 640:				
+ 641:     -	0084          		sett	sampcyc		; hack to let first cycle pass
+ 642:     -	57C6          	main:
+ 643:     -	1200          		cpu_hz = 1774080
+ 644:     -	57C6  194C0AD3		parkeys	2
+	              B9D9194C
+	              0AD3B5D9
+	              31E36500
+	              3E003E00
+	              3A0838E6
+	              04C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31E96500
+	              3E003E00
+	              3A0438E6
+	              08C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31EF6500
+	              3E003E00
+	              3A0838E6
+	              01C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31F56500
+	              3E003E00
+	              3A0138E6
+	              10C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31FB6500
+	              3E003E00
+	              3A0138E6
+	              08C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31016600
+	              3E003E00
+	              3A0438E6
+	              40C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31076600
+	              3E003E00
+	              3A0138E6
+	              80C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              310D6600
+	              3E003E00
+	              3A0138E6
+	              04C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31136600
+	              3E003E00
+	              3A0238E6
+	              01C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31196600
+	              3E003E00
+	              3A0238E6
+	              40C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              311F6600
+	              3E003E00
+	              3A0238E6
+	              04C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31256600
+	              3E003E00
+	              3A0238E6
+	              20C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              312B6600
+	              3E003E00
+	              3A2038E6
+	              10C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31316600
+	              3E003E00
+	              3A0238E6
+	              10C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31376600
+	              3E003E00
+	              3A2038E6
+	              40C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              313D6600
+	              3E003E00
+	              3A2038E6
+	              08C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31436600
+	              3E003E00
+	              3A2038E6
+	              80C25F5C
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31496600
+	              3E003E00
+	              3A0438E6
+	              02C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              314F6600
+	              3E003E00
+	              3A1038E6
+	              04C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31556600
+	              3E003E00
+	              3A0438E6
+	              80C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              315B6600
+	              3E003E00
+	              3A1038E6
+	              08C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31616600
+	              3E003E00
+	              3A0138E6
+	              20C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31676600
+	              3E003E00
+	              3A0438E6
+	              04C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              316D6600
+	              3E003E00
+	              3A1038E6
+	              20C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31736600
+	              3E003E00
+	              3A0438E6
+	              10C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31796600
+	              3E003E00
+	              3A1038E6
+	              40C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              317F6600
+	              3E003E00
+	              3A0838E6
+	              02C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31856600
+	              3E003E00
+	              3A1038E6
+	              80C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              318B6600
+	              3E003E00
+	              3A0438E6
+	              20C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31916600
+	              3E003E00
+	              3A0238E6
+	              02C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31976600
+	              3E003E00
+	              3A2038E6
+	              02C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              319D6600
+	              3E003E00
+	              3A0238E6
+	              80C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31A36600
+	              3E003E00
+	              3A1038E6
+	              01C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31A96600
+	              3E003E00
+	              3A0438E6
+	              01C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31AF6600
+	              3E003E00
+	              3A0138E6
+	              01C2615D
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31B56600
+	              3E003E00
+	              3A0138E6
+	              02C2605E
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31BB6600
+	              3E003E00
+	              3A1038E6
+	              02C25B5F
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31C16600
+	              3E003E00
+	              3A4038E6
+	              08C2B061
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31C76600
+	              3E003E00
+	              3A4038E6
+	              10C25660
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31CD6600
+	              3E003E00
+	              3A4038E6
+	              20C26364
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              31D36600
+	              3E003E00
+	              3A4038E6
+	              40C20963
+ 645:				
+ 646:  132+-58	5C42  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 647:				
+ 648:					; waste 48
+ 649:   74+10	5C4E  C3515C  		jp	$+3
+ 650:   84+10	5C51  C3545C  		jp	$+3
+ 651:   94+10	5C54  C3575C  		jp	$+3
+ 652:  104+10	5C57  C35A5C  		jp	$+3
+ 653:  114+4	5C5A  00      		nop
+ 654:  118+4	5C5B  00      		nop
+ 655:				
+ 656:  122+10	5C5C  C3C657  		jp	main
+ 657:				
+ 658:				; In the simple case a key goes down, it self modifies so that when it goes
+ 659:				; up it turns off the audio for that channel.  But if a key goes down and
+ 660:				; then another does then that first one should not key off the sound.  How
+ 661:				; can it know?  On key down we need to set the key up handler to reset the
+ 662:				; jump but not stop the audio.
+ 663:				
+ 664:     -	00C2          	jp_nz	equ	$C2
+ 665:     -	00CA          	jp_z	equ	$CA
+ 666:				
+ 667:				; Handle note key down on left channel.
+ 668:				; IY is new Hz step for DE.
+ 669:     -	5C5F          	down_l:
+ 670:  132+-132	        		start_cycle
+ 671:    0+10	5C5F  D1      		pop	de
+ 672:   10+14	5C60  FDE1    		pop	iy
+ 673:					; waste 9
+ 674:   24+4	5C62  37      		scf
+ 675:   28+5+6	5C63  D0      		ret	nc
+ 676:     -	        		check_l
+ 677:   33+41	5C64  D9194C0A		samp_r
+	              D3B5D9
+ 678:				
+ 679:   74+7	5C6B  0680    		ld	b,high(wavebnk)
+ 680:     -	5C6C          		org	$-1
+ 681:    0+4	5C6C  80      	wf_l:	defb	high(wavebnk)
+ 682:					; waste 14
+ 683:   81+10	5C6D  C3705C  		jp	$+3
+ 684:   91+4	5C70  00      		nop
+ 685:				
+ 686:   95+19	5C71  FD36FDCA		ld	(iy-3),jp_z
+ 687:  114+14	5C75  DD210300		ld	ix,3		; active down key
+ 688:     -	5C77          		org	$-2
+ 689:    0+6	5C77  0300    	active_l:	defw	3
+ 690:					; waste 4
+ 691:  128+4	5C79  00      		nop
+ 692:				
+ 693:  132+-58	5C7A  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 694:					; Adjust active first in case it is us.
+ 695:   74+19	5C86  DD36FE17		ld	(ix-2),low(old_up_l)
+ 696:   93+19	5C8A  DD36FF5D		ld	(ix-1),high(old_up_l)
+ 697:  112+20	5C8E  FD22775C		ld	(active_l),iy	; we're the one to stop
+ 698:				
+ 699:  132+-58	5C92  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 700:   74+19	5C9E  FD36FEC5		ld	(iy-2),low(up_l)
+ 701:   93+19	5CA2  FD36FF5C		ld	(iy-1),high(up_l)	; previous will not stop audio
+ 702:					; waste 20
+ 703:  112+10	5CA6  C3A95C  		jp	$+3
+ 704:  122+10	5CA9  C3AC5C  		jp	$+3
+ 705:				
+ 706:  132+-58	5CAC  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 707:   74+14	5CB8  DDE1    		pop	ix
+ 708:   88+19	5CBA  DD36002A		ld	(ix),'*'
+ 709:					; waste 17
+ 710:  107+7	5CBE  3E00    		ld	a,0
+ 711:  114+10	5CC0  C3C35C  		jp	$+3
+ 712:				
+ 713:  124+8	5CC3  FDE9    		jp	(iy)		; return to main key scan loop
+ 714:				
+ 715:     -	5CC5          	up_l:
+ 716:  132+-132	        		start_cycle
+ 717:    0+7	5CC5  06C0    		ld	b,high(silence)	; back to quiet
+ 718:    7+6	5CC7  33      		inc	sp
+ 719:   13+6	5CC8  33      		inc	sp	; skip stack top with 2 extra
+ 720:   19+14	5CC9  FDE1    		pop	iy
+ 721:     -	        		check_l
+ 722:   33+41	5CCB  D9194C0A		samp_r
+	              D3B5D9
+ 723:				
+ 724:   74+19	5CD2  FD36FDC2		ld	(iy-3),jp_nz
+ 725:   93+19	5CD6  FD36FE5F		ld	(iy-2),low(down_l)
+ 726:					; waste 20
+ 727:  112+10	5CDA  C3DD5C  		jp	$+3
+ 728:  122+10	5CDD  C3E05C  		jp	$+3
+ 729:				
+ 730:  132+-132	        		start_cycle
+ 731:    0+19	5CE0  FD36FF5C		ld	(iy-1),high(down_l)
+ 732:					; waste 14
+ 733:   19+4	5CE4  00      		nop
+ 734:   23+10	5CE5  C3E85C  		jp	$+3
+ 735:     -	        		check_l
+ 736:   33+41	5CE8  D9194C0A		samp_r
+	              D3B5D9
+ 737:					; audio is off so active no longer matters
+ 738:   74+14	5CEF  DD210300		ld	ix,3
+ 739:   88+20	5CF3  DD22775C		ld	(active_l),ix
+ 740:				
+ 741:					; waste 24
+ 742:  108+10	5CF7  C3FA5C  		jp	$+3
+ 743:  118+10	5CFA  C3FD5C  		jp	$+3
+ 744:  128+4	5CFD  00      		nop
+ 745:				
+ 746:  132+-58	5CFE  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 747:   74+14	5D0A  DDE1    		pop	ix
+ 748:   88+19	5D0C  DD360020		ld	(ix),' '
+ 749:					; waste 17
+ 750:  107+7	5D10  3E00    		ld	a,0
+ 751:  114+10	5D12  C3155D  		jp	$+3
+ 752:				
+ 753:  124+8	5D15  FDE9    		jp	(iy)		; return
+ 754:				
+ 755:				; A key has gone up but it is no longer in charge of the note.
+ 756:     -	5D17          	old_up_l:
+ 757:  132+-58	5D17  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 758:   74+10	5D23  F1      		pop	af
+ 759:   84+14	5D24  FDE1    		pop	iy
+ 760:   98+19	5D26  FD36FDC2		ld	(iy-3),jp_nz
+ 761:					; waste 15
+ 762:  117+4	5D2A  00      		nop
+ 763:  121+4	5D2B  00      		nop
+ 764:  125+7	5D2C  3E00    		ld	a,0
+ 765:				
+ 766:  132+-58	5D2E  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 767:   74+19	5D3A  FD36FF5C		ld	(iy-1),high(down_l)
+ 768:   93+19	5D3E  FD36FE5F		ld	(iy-2),low(down_l)
+ 769:					; waste 20
+ 770:  112+10	5D42  C3455D  		jp	$+3
+ 771:  122+10	5D45  C3485D  		jp	$+3
+ 772:				
+ 773:  132+-58	5D48  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 774:   74+14	5D54  DDE1    		pop	ix
+ 775:   88+19	5D56  DD360020		ld	(ix),' '
+ 776:					; waste 17
+ 777:  107+7	5D5A  3E00    		ld	a,0
+ 778:  114+10	5D5C  C35F5D  		jp	$+3
+ 779:				
+ 780:  124+8	5D5F  FDE9    		jp	(iy)		; return
+ 781:				
+ 782:				; Handle note key down on right channel.
+ 783:				; Top of stack is new Hz step for DE.
+ 784:				; Next stack is return address.
+ 785:				; Next stack is screen address for key press on/off indicator.
+ 786:				
+ 787:     -	5D61          	down_r:
+ 788:  132+-132	        		start_cycle
+ 789:    0+33	5D61  194C0AD3		samp_l
+	              B9
+ 790:   33+4	5D66  D9      		exx
+ 791:   37+10	5D67  D1      		pop	de
+ 792:   47+7	5D68  0680    		ld	b,high(wavebnk)
+ 793:     -	5D69          		org	$-1
+ 794:    0+4	5D69  80      	wf_r:	defb	high(wavebnk)
+ 795:   54+4	5D6A  D9      		exx
+ 796:   58+14	5D6B  FDE1    		pop	iy		; to self-modify key-down check
+ 797:   72+19	5D6D  FD36FDCA		ld	(iy-3),jp_z
+ 798:   91+14	5D71  DD210300		ld	ix,3		; active down key
+ 799:     -	5D73          		org	$-2
+ 800:    0+6	5D73  0300    	active_r:	defw	3
+ 801:					; waste 12
+ 802:  105+12	5D75  1800    		jr	$+2
+ 803:					; waste another 15
+ 804:  117+4	5D77  00      		nop
+ 805:  121+4	5D78  00      		nop
+ 806:  125+7	5D79  3E00    		ld	a,0
+ 807:				
+ 808:  132+-58	5D7B  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 809:					; Adjust active first in case it is us.
+ 810:   74+19	5D87  DD36FE16		ld	(ix-2),low(old_up_r)
+ 811:   93+19	5D8B  DD36FF5E		ld	(ix-1),high(old_up_r)
+ 812:  112+20	5D8F  FD22735D		ld	(active_r),iy	; we're the one to stop
+ 813:				
+ 814:  132+-58	5D93  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 815:   74+19	5D9F  FD36FEC6		ld	(iy-2),low(up_r)
+ 816:   93+19	5DA3  FD36FF5D		ld	(iy-1),high(up_r)	; previous will not stop audio
+ 817:					; waste 20
+ 818:  112+10	5DA7  C3AA5D  		jp	$+3
+ 819:  122+10	5DAA  C3AD5D  		jp	$+3
+ 820:				
+ 821:  132+-58	5DAD  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 822:   74+14	5DB9  DDE1    		pop	ix
+ 823:   88+19	5DBB  DD36002A		ld	(ix),'*'
+ 824:					; waste 17
+ 825:  107+7	5DBF  3E00    		ld	a,0
+ 826:  114+10	5DC1  C3C45D  		jp	$+3
+ 827:				
+ 828:  124+8	5DC4  FDE9    		jp	(iy)		; return to main key scan loop
+ 829:				
+ 830:     -	5DC6          	up_r:
+ 831:  132+-132	        		start_cycle
+ 832:    0+33	5DC6  194C0AD3		samp_l
+	              B9
+ 833:   33+4	5DCB  D9      		exx
+ 834:   37+7	5DCC  06C0    		ld	b,high(silence)	; back to quiet
+ 835:   44+4	5DCE  D9      		exx
+ 836:   48+10	5DCF  F1      		pop	af
+ 837:   58+14	5DD0  FDE1    		pop	iy
+ 838:				
+ 839:   72+19	5DD2  FD36FDC2		ld	(iy-3),jp_nz
+ 840:   91+19	5DD6  FD36FE61		ld	(iy-2),low(down_r)
+ 841:					; waste 22
+ 842:  110+12	5DDA  1800    		jr	$+2
+ 843:  122+10	5DDC  C3DF5D  		jp	$+3
+ 844:				
+ 845:  132+-132	        		start_cycle
+ 846:    0+33	5DDF  194C0AD3		samp_l
+	              B9
+ 847:   33+19	5DE4  FD36FF5D		ld	(iy-1),high(down_r)
+ 848:					; waste 22
+ 849:   52+4	5DE8  00      		nop
+ 850:   56+4	5DE9  00      		nop
+ 851:   60+4	5DEA  00      		nop
+ 852:   64+10	5DEB  C3EE5D  		jp	$+3
+ 853:				
+ 854:					; audio is off so active no longer matters
+ 855:   74+14	5DEE  DD210300		ld	ix,3
+ 856:   88+20	5DF2  DD22735D		ld	(active_r),ix
+ 857:				
+ 858:					; waste 24
+ 859:  108+10	5DF6  C3F95D  		jp	$+3
+ 860:  118+10	5DF9  C3FC5D  		jp	$+3
+ 861:  128+4	5DFC  00      		nop
+ 862:				
+ 863:  132+-58	5DFD  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 864:   74+14	5E09  DDE1    		pop	ix
+ 865:   88+19	5E0B  DD360020		ld	(ix),' '
+ 866:					; waste 17
+ 867:  107+7	5E0F  3E00    		ld	a,0
+ 868:  114+10	5E11  C3145E  		jp	$+3
+ 869:				
+ 870:  124+8	5E14  FDE9    		jp	(iy)		; return
+ 871:				
+ 872:				; A key has gone up but it is no longer in charge of the note.
+ 873:     -	5E16          	old_up_r:
+ 874:  132+-58	5E16  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 875:   74+10	5E22  F1      		pop	af
+ 876:   84+14	5E23  FDE1    		pop	iy
+ 877:   98+19	5E25  FD36FDC2		ld	(iy-3),jp_nz
+ 878:					; waste 15
+ 879:  117+4	5E29  00      		nop
+ 880:  121+4	5E2A  00      		nop
+ 881:  125+7	5E2B  3E00    		ld	a,0
+ 882:				
+ 883:  132+-58	5E2D  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 884:   74+19	5E39  FD36FF5D		ld	(iy-1),high(down_r)
+ 885:   93+19	5E3D  FD36FE61		ld	(iy-2),low(down_r)
+ 886:					; waste 20
+ 887:  112+10	5E41  C3445E  		jp	$+3
+ 888:  122+10	5E44  C3475E  		jp	$+3
+ 889:				
+ 890:  132+-58	5E47  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 891:   74+14	5E53  DDE1    		pop	ix
+ 892:   88+19	5E55  DD360020		ld	(ix),' '
+ 893:					; waste 17
+ 894:  107+7	5E59  3E00    		ld	a,0
+ 895:  114+10	5E5B  C35E5E  		jp	$+3
+ 896:				
+ 897:  124+8	5E5E  FDE9    		jp	(iy)		; return
+ 898:				
+ 899:     -	0000          		pn = 0
+ 900:				set_ind	macro	ind,tab,char
+ 901:					local	ipos
+ 902:					cycle
+ 903:					ld	a,(ind)
+ 904:					and	3
+ 905:					add	a,a
+ 906:					or	low(tab)
+ 907:					ld	(ipos),a
+ 908:					; waste 14
+ 909:					ld	a,0
+ 910:					ld	a,0
+ 911:				
+ 912:					cycle
+ 913:					ld	iy,(tab)
+ 914:					org	$-2
+ 915:				ipos	defw	tab
+ 916:					ld	(iy),char
+ 917:					equval	ptr,%pn,$-1
+ 918:					pn++
+ 919:					; waste 19
+ 920:					jr	$+2
+ 921:					ld	a,0
+ 922:				
+ 923:					endm
+ 924:				
+ 925:     -	5E60          	wave_down_l:
+ 926:     -	5E60  194C0AD3		set_ind	wf_l,wave_ind_l,' '
+	              B9D9194C
+	              0AD3B5D9
+	              3A6C5CE6
+	              0387F638
+	              32895E3E
+	              003E0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9FD
+	              2A3867
+	        5E89  3867FD36
+	              00201800
+	              3E00
+ 927:				
+ 928:  132+-58	5E93  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 929:   74+13	5E9F  3A6C5C  		ld	a,(wf_l)
+ 930:   87+4	5EA2  3C      		inc	a
+ 931:   91+7	5EA3  E603    		and	3
+ 932:   98+7	5EA5  F680    		or	high(wavebnk)
+ 933:     -	5EA6          		org	$-1
+ 934:    0+4	5EA6  80      	wb_l:	defb	high(wavebnk)
+ 935:  105+13	5EA7  326C5C  		ld	(wf_l),a
+ 936:  118+10	5EAA  F1      		pop	af
+ 937:					; waste 4
+ 938:  128+4	5EAB  00      		nop
+ 939:				
+ 940:     -	5EAC  194C0AD3		set_ind	wf_l,wave_ind_l,up_ptr
+	              B9D9194C
+	              0AD3B5D9
+	              3A6C5CE6
+	              0387F638
+	              32D55E3E
+	              003E0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9FD
+	              2A3867
+	        5ED5  3867FD36
+	              005B1800
+	              3E00
+ 941:				
+ 942:  132+-58	5EDF  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 943:   74+14	5EEB  FDE1    		pop	iy
+ 944:   88+19	5EED  FD36FF5F		ld	(iy-1),high(wave_up_l)
+ 945:  107+19	5EF1  FD36FE2C		ld	(iy-2),low(wave_up_l)
+ 946:					; waste 6
+ 947:  126+6	5EF5  33      		inc	sp		; yeah, it's OK
+ 948:				
+ 949:  132+-58	5EF6  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 950:   74+19	5F02  FD36FDCA		ld	(iy-3),jp_z
+ 951:					; waste 10
+ 952:   93+10	5F06  C3095F  		jp	$+3
+ 953:  103+4	5F09  78      		ld	a,b
+ 954:  107+7	5F0A  FEC0    		cp	high(silence)
+ 955:  114+10	5F0C  CA2A5F  		jp	z,jp_iy		; return if currently silent
+ 956:  124+4	5F0F  00      		nop			; balance out
+ 957:  128+4	5F10  00      		nop			; jp (iy)
+ 958:				
+ 959:  132+-58	5F11  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 960:   74+13	5F1D  3A6C5C  		ld	a,(wf_l)
+ 961:   87+4	5F20  47      		ld	b,a
+ 962:					; waste 33
+ 963:   91+13	5F21  3A0000  		ld	a,(0)
+ 964:  104+10	5F24  C3275F  		jp	$+3
+ 965:  114+10	5F27  C32A5F  		jp	$+3
+ 966:  124+8	5F2A  FDE9    	jp_iy:	jp	(iy)
+ 967:				
+ 968:				kreset	macro	handler
+ 969:					cycle
+ 970:				
+ 971:					pop	af
+ 972:					pop	iy
+ 973:					ld	(iy-3),jp_nz
+ 974:					; waste 15
+ 975:					nop
+ 976:					nop
+ 977:					ld	a,0
+ 978:				
+ 979:					cycle
+ 980:				
+ 981:					ld	(iy-2),low(handler)
+ 982:					ld	(iy-1),high(handler)
+ 983:					; waste 12
+ 984:					jr	$+2
+ 985:					jp	(iy)
+ 986:				
+ 987:					endm
+ 988:				
+ 989:     -	5F2C          	wave_up_l:
+ 990:     -	5F2C  194C0AD3		kreset	wave_down_l
+	              B9D9194C
+	              0AD3B5D9
+	              F1FDE1FD
+	              36FDC200
+	              003E0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9FD
+	              36FE60FD
+	              36FF5E18
+	              00FDE9
+ 991:				
+ 992:     -	5F5B          	wave_down_r:
+ 993:     -	5F5B  194C0AD3		set_ind	wf_r,wave_ind_r,' '
+	              B9D9194C
+	              0AD3B5D9
+	              3A695DE6
+	              0387F630
+	              32845F3E
+	              003E0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9FD
+	              2A3067
+	        5F84  3067FD36
+	              00201800
+	              3E00
+ 994:				
+ 995:  132+-58	5F8E  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+ 996:   74+13	5F9A  3A695D  		ld	a,(wf_r)
+ 997:   87+4	5F9D  3C      		inc	a
+ 998:   91+7	5F9E  E603    		and	3
+ 999:   98+7	5FA0  F680    		or	high(wavebnk)	; self-mod for volume control
+1000:     -	5FA1          		org	$-1
+1001:    0+4	5FA1  80      	wb_r:	defb	high(wavebnk)
+1002:  105+13	5FA2  32695D  		ld	(wf_r),a
+1003:  118+10	5FA5  F1      		pop	af
+1004:					; waste 4
+1005:  128+4	5FA6  00      		nop
+1006:				
+1007:     -	5FA7  194C0AD3		set_ind	wf_r,wave_ind_r,down_ptr
+	              B9D9194C
+	              0AD3B5D9
+	              3A695DE6
+	              0387F630
+	              32D05F3E
+	              003E0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9FD
+	              2A3067
+	        5FD0  3067FD36
+	              005C1800
+	              3E00
+1008:				
+1009:  132+-58	5FDA  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+1010:   74+14	5FE6  FDE1    		pop	iy
+1011:   88+19	5FE8  FD36FF60		ld	(iy-1),high(wave_up_r)
+1012:  107+19	5FEC  FD36FE27		ld	(iy-2),low(wave_up_r)
+1013:					; waste 6
+1014:  126+6	5FF0  33      		inc	sp		; yeah, it's OK
+1015:				
+1016:  132+-132	        		start_cycle
+1017:    0+33	5FF1  194C0AD3		samp_l
+	              B9
+1018:   33+37	5FF6  D9194C0A		samp_r_prime
+	              D3B5
+1019:   70+19	5FFC  FD36FDCA		ld	(iy-3),jp_z
+1020:					; waste 10
+1021:   89+10	6000  C30360  		jp	$+3
+1022:   99+4	6003  78      		ld	a,b
+1023:  103+4	6004  D9      		exx
+1024:  107+7	6005  FEC0    		cp	high(silence)
+1025:  114+10	6007  CA2A5F  		jp	z,jp_iy		; return if currently silent
+1026:  124+4	600A  00      		nop			; balance out
+1027:  128+4	600B  00      		nop			; jp (iy)
+1028:				
+1029:  132+-58	600C  194C0AD3		cycle
+	              B9D9194C
+	              0AD3B5D9
+1030:   74+13	6018  3A695D  		ld	a,(wf_r)
+1031:   87+4	601B  D9      		exx
+1032:   91+4	601C  47      		ld	b,a
+1033:   95+4	601D  D9      		exx
+1034:					; waste 25
+1035:   99+10	601E  C32160  		jp	$+3
+1036:  109+7	6021  3E00    		ld	a,0
+1037:  116+4	6023  00      		nop
+1038:  120+4	6024  00      		nop
+1039:  124+8	6025  FDE9    		jp	(iy)
+1040:				
+1041:     -	6027          	wave_up_r:
+1042:     -	6027  194C0AD3		kreset	wave_down_r
+	              B9D9194C
+	              0AD3B5D9
+	              F1FDE1FD
+	              36FDC200
+	              003E0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9FD
+	              36FE5BFD
+	              36FF5F18
+	              00FDE9
+1043:				
+1044:				dovol	macro	chan,direction,uphandler,prime
+1045:					local	wfv,svde,is_quiet,wfact
+1046:				
+1047:					cycle
+1048:				
+1049:					; Clean up all parameters and get return location into IY
+1050:					pop	af		
+1051:					pop	iy
+1052:					pop	af		; Oh, not necessary; oh well.
+1053:					ld	ix,(vl_m&chan)
+1054:					; waste 4
+1055:					nop
+1056:				
+1057:					cycle
+1058:				
+1059:					add	ix,ix
+1060:					add	ix,ix		; get "volume" bits in IX high byte
+1061:					ld	(voltmp),ix	; make accessible
+1062:					; waste 8
+1063:					nop
+1064:					nop
+1065:				
+1066:					cycle
+1067:				
+1068:					ld	ix,(vl_m&chan)
+1069:					ld	a,(voltmp+1)	; volume bits
+1070:				   if direction > 0
+1071:					cp	$3f*4+3		; volume bits 15?
+1072:				   else
+1073:					cp	$3c*4+0		; volume bits 0?
+1074:				   endif
+1075:					jp	z,jp_iy		; return if volume at up/down limit
+1076:					nop			; balance
+1077:					nop			;   jp (iy)
+1078:					; lucky balance
+1079:				
+1080:					cycle
+1081:				
+1082:				   if direction > 0
+1083:					ld	(ix),' '	; erase top of volume
+1084:				   else
+1085:					jr	$+2
+1086:					or	a,0
+1087:				   endif
+1088:					ld	(svde),de
+1089:					; waste 19
+1090:					jr	$+2
+1091:					or	a,0
+1092:				
+1093:					cycle
+1094:				
+1095:					ld	ix,(vl_m&chan);
+1096:				
+1097:					prime
+1098:					ld	a,b
+1099:					sub	high(silence)
+1100:					ld	(wfact),a
+1101:					prime
+1102:					; waste 6
+1103:					inc	sp
+1104:				
+1105:					cycle
+1106:				
+1107:					ld	de,64*direction
+1108:					add	ix,de		; move meter
+1109:					ld	de,0
+1110:					org	$-2
+1111:				svde:	defw	0
+1112:				   if direction > 0
+1113:					; waste 23
+1114:					jp	$+3
+1115:					nop
+1116:					scf
+1117:					ret	nc
+1118:				   else
+1119:				   	ld	(ix),meter&chan	; add to top of meter
+1120:					; waste 4
+1121:					nop
+1122:				   endif
+1123:				
+1124:					cycle
+1125:				
+1126:					ld	(vl_m&chan),ix	; save volume position
+1127:					ld	a,(wf&chan)
+1128:					and	3		; clear volume from waveform
+1129:					ld	(wfv),a
+1130:					; waste 5
+1131:					ret	c
+1132:				
+1133:					cycle
+1134:				
+1135:					ld	a,(voltmp+1)	; previous volume bits
+1136:				   if direction > 0
+1137:				   	inc	a		; caught up to moved meter
+1138:				   else
+1139:				   	dec	a		; caught up to moved meter
+1140:				   endif
+1141:					add	a,a
+1142:					add	a,a		; make way for waveform
+1143:					xor	(high(wavebnk)&$c0)^$c0	; magically fix up high bits
+1144:					or	0		; add waveform back in
+1145:					org	$-1
+1146:				wfv:	defb	0
+1147:					ld	(wf&chan),a
+1148:					; waste 6
+1149:					inc	sp
+1150:				
+1151:					cycle
+1152:				
+1153:					; waste 4
+1154:					nop
+1155:				
+1156:					ld	a,(wf&chan)
+1157:					and	~3		; drop waveform
+1158:					ld	(wb&chan),a
+1159:				
+1160:					ld	a,0
+1161:					org	$-1
+1162:				wfact:	defb	0
+1163:					or	a
+1164:					jp	z,is_quiet
+1165:				
+1166:					cycle
+1167:					ld	a,(wf&chan)
+1168:					prime
+1169:					ld	b,a
+1170:					prime
+1171:					; waste 33
+1172:					ld	a,(0)
+1173:					jp	$+3
+1174:					jp	$+3
+1175:				
+1176:				is_quiet:
+1177:					cycle
+1178:				
+1179:					ld	(iy-1),high(uphandler)
+1180:					ld	(iy-2),low(uphandler)
+1181:					; waste 20
+1182:					jp	$+3
+1183:					jp	$+3
+1184:				
+1185:					cycle
+1186:				
+1187:					; waste 31
+1188:					jr	$+2
+1189:					jr	$+2
+1190:					or	a,0
+1191:				
+1192:					ld	(iy-3),jp_z
+1193:					jp	(iy)
+1194:				
+1195:					endm
+1196:				
+1197:     -	0001          	   if havevol
+1198:				
+1199:     -	6056          	vol_down_down_l:
+1200:     -	6056  194C0AD3		dovol	_l,1,vol_down_up_l,nop
+	              B9D9194C
+	              0AD3B5D9
+	              F1FDE1F1
+	              DD2ABC65
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9DD29DD
+	              29DD22C0
+	              65000019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9DD
+	              2ABC653A
+	              C165FEFF
+	              CA2A5F00
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9DD3600
+	              20ED53DE
+	              601800F6
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9DD2ABC
+	              650078D6
+	              C0322F61
+	              0033194C
+	              0AD3B9D9
+	              194C0AD3
+	              B5D91140
+	              00DD1911
+	              0000
+	        60DE  0000C3E3
+	              600037D0
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              DD22BC65
+	              3A6C5CE6
+	              03321461
+	              D8194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D93AC165
+	              3C8787EE
+	              40F600
+	        6114  00326C5C
+	              33194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9003A6C
+	              5CE6FC32
+	              A65E3E00
+	        612F  00B7CA4F
+	              61194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D93A6C5C
+	              0047003A
+	              0000C34C
+	              61C34F61
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              FD36FF61
+	              FD36FE81
+	              C36661C3
+	              6961194C
+	              0AD3B9D9
+	              194C0AD3
+	              B5D91800
+	              1800F600
+	              FD36FDCA
+	              FDE9
+1201:				
+1202:     -	6181          	vol_down_up_l:
+1203:     -	6181  194C0AD3		kreset	vol_down_down_l,nop
+	              B9D9194C
+	              0AD3B5D9
+	              F1FDE1FD
+	              36FDC200
+	              003E0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9FD
+	              36FE56FD
+	              36FF6018
+	              00FDE9
+1204:				
+1205:     -	61B0          	vol_up_down_l:
+1206:     -	61B0  194C0AD3		dovol	_l,-1,vol_up_up_l,nop
+	              B9D9194C
+	              0AD3B5D9
+	              F1FDE1F1
+	              DD2ABC65
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9DD29DD
+	              29DD22C0
+	              65000019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9DD
+	              2ABC653A
+	              C165FEF0
+	              CA2A5F00
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D91800F6
+	              00ED5338
+	              621800F6
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9DD2ABC
+	              650078D6
+	              C0328862
+	              0033194C
+	              0AD3B9D9
+	              194C0AD3
+	              B5D911C0
+	              FFDD1911
+	              0000
+	        6238  0000DD36
+	              00950019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9DD
+	              22BC653A
+	              6C5CE603
+	              326D62D8
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              3AC1653D
+	              8787EE40
+	              F600
+	        626D  00326C5C
+	              33194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9003A6C
+	              5CE6FC32
+	              A65E3E00
+	        6288  00B7CAA8
+	              62194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D93A6C5C
+	              0047003A
+	              0000C3A5
+	              62C3A862
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              FD36FF62
+	              FD36FEDA
+	              C3BF62C3
+	              C262194C
+	              0AD3B9D9
+	              194C0AD3
+	              B5D91800
+	              1800F600
+	              FD36FDCA
+	              FDE9
+1207:				
+1208:     -	62DA          	vol_up_up_l:
+1209:     -	62DA  194C0AD3		kreset	vol_up_down_l,nop
+	              B9D9194C
+	              0AD3B5D9
+	              F1FDE1FD
+	              36FDC200
+	              003E0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9FD
+	              36FEB0FD
+	              36FF6118
+	              00FDE9
+1210:				
+1211:     -	6309          	vol_down_down_r:
+1212:     -	6309  194C0AD3		dovol	_r,1,vol_down_up_r,exx
+	              B9D9194C
+	              0AD3B5D9
+	              F1FDE1F1
+	              DD2ABE65
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9DD29DD
+	              29DD22C0
+	              65000019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9DD
+	              2ABE653A
+	              C165FEFF
+	              CA2A5F00
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9DD3600
+	              20ED5391
+	              631800F6
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9DD2ABE
+	              65D978D6
+	              C032E263
+	              D933194C
+	              0AD3B9D9
+	              194C0AD3
+	              B5D91140
+	              00DD1911
+	              0000
+	        6391  0000C396
+	              630037D0
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              DD22BE65
+	              3A695DE6
+	              0332C763
+	              D8194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D93AC165
+	              3C8787EE
+	              40F600
+	        63C7  0032695D
+	              33194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9003A69
+	              5DE6FC32
+	              A15F3E00
+	        63E2  00B7CA02
+	              64194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D93A695D
+	              D947D93A
+	              0000C3FF
+	              63C30264
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              FD36FF64
+	              FD36FE34
+	              C31964C3
+	              1C64194C
+	              0AD3B9D9
+	              194C0AD3
+	              B5D91800
+	              1800F600
+	              FD36FDCA
+	              FDE9
+1213:				
+1214:     -	6434          	vol_down_up_r:
+1215:     -	6434  194C0AD3		kreset	vol_down_down_r,exx
+	              B9D9194C
+	              0AD3B5D9
+	              F1FDE1FD
+	              36FDC200
+	              003E0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9FD
+	              36FE09FD
+	              36FF6318
+	              00FDE9
+1216:				
+1217:     -	6463          	vol_up_down_r:
+1218:     -	6463  194C0AD3		dovol	_r,-1,vol_up_up_r,exx
+	              B9D9194C
+	              0AD3B5D9
+	              F1FDE1F1
+	              DD2ABE65
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9DD29DD
+	              29DD22C0
+	              65000019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9DD
+	              2ABE653A
+	              C165FEF0
+	              CA2A5F00
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D91800F6
+	              00ED53EB
+	              641800F6
+	              00194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9DD2ABE
+	              65D978D6
+	              C0323B65
+	              D933194C
+	              0AD3B9D9
+	              194C0AD3
+	              B5D911C0
+	              FFDD1911
+	              0000
+	        64EB  0000DD36
+	              00AA0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9DD
+	              22BE653A
+	              695DE603
+	              322065D8
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              3AC1653D
+	              8787EE40
+	              F600
+	        6520  0032695D
+	              33194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D9003A69
+	              5DE6FC32
+	              A15F3E00
+	        653B  00B7CA5B
+	              65194C0A
+	              D3B9D919
+	              4C0AD3B5
+	              D93A695D
+	              D947D93A
+	              0000C358
+	              65C35B65
+	              194C0AD3
+	              B9D9194C
+	              0AD3B5D9
+	              FD36FF65
+	              FD36FE8D
+	              C37265C3
+	              7565194C
+	              0AD3B9D9
+	              194C0AD3
+	              B5D91800
+	              1800F600
+	              FD36FDCA
+	              FDE9
+1219:				
+1220:     -	658D          	vol_up_up_r:
+1221:     -	658D  194C0AD3		kreset	vol_up_down_r,exx
+	              B9D9194C
+	              0AD3B5D9
+	              F1FDE1FD
+	              36FDC200
+	              003E0019
+	              4C0AD3B9
+	              D9194C0A
+	              D3B5D9FD
+	              36FE63FD
+	              36FF6418
+	              00FDE9
+1222:				
+1223:  132+-132	        		start_cycle		; just to check balance
+1224:				
+1225:     -	65BC  003C    	vl_m_l:	defw	$3c00
+1226:     -	65BE  3F3C    	vl_m_r:	defw	$3c00+63
+1227:     -	65C0  0000    	voltmp:	defw	0
+1228:				
+1229:				; Divide sample block at HL by 2 and put into DE.
+1230:    0+10	65C2  010400  	div2:	ld	bc,4
+1231:   10+7	65C5  7E      	d2lp:	ld	a,(hl)
+1232:   17+8	65C6  CB2F    		sra	a
+1233:   25+7	65C8  12      		ld	(de),a
+1234:   32+6	65C9  23      		inc	hl
+1235:   38+6	65CA  13      		inc	de
+1236:   44+8+5	65CB  10F8    		djnz	d2lp
+1237:   52+4	65CD  0D      		dec	c
+1238:   56+7+5	65CE  20F5    		jr	nz,d2lp
+1239:   63+10	65D0  C9      		ret
+1240:				
+1241:				; Add sample block at HL and DE and put into IX.
+1242:   73+10	65D1  010400  	sum2:	ld	bc,4
+1243:   83+7	65D4  1A      	s2lp:	ld	a,(de)
+1244:   90+7	65D5  86      		add	a,(hl)
+1245:   97+19	65D6  DD7700  		ld	(ix),a
+1246:  116+6	65D9  13      		inc	de
+1247:  122+6	65DA  23      		inc	hl
+1248:  128+10	65DB  DD23    		inc	ix
+1249:  138+8+5	65DD  10F5    		djnz	s2lp
+1250:  146+4	65DF  0D      		dec	c
+1251:  150+7+5	65E0  20F2    		jr	nz,s2lp
+1252:  157+10	65E2  C9      		ret
+1253:				
+1254:				   endif
+1255:				
+1256:     -	65E3          	param_tab:
+1257:     -	1200          		cpu_hz = 1774080
+1258:     -	65E3  1D02E257		parkeys	0
+	              19FF3D02
+	              FE5712FF
+	              5E021A58
+	              1AFF8202
+	              365813FF
+	              A8025258
+	              1BFFCF02
+	              6E581CFF
+	              FA028A58
+	              14FF2603
+	              A6581DFF
+	              5503C258
+	              15FF8703
+	              DE581EFF
+	              BC03FA58
+	              16FFF403
+	              16591FFF
+	              3B043259
+	              20FF7A04
+	              4E5917FF
+	              BD046A59
+	              21FF0405
+	              865918FF
+	              5005A259
+	              22FF3B04
+	              BE5907FF
+	              7A04DA59
+	              00FFBD04
+	              F65908FF
+	              0405125A
+	              01FF5005
+	              2E5A09FF
+	              9F054A5A
+	              0AFFF405
+	              665A02FF
+	              4D06825A
+	              0BFFAB06
+	              9E5A03FF
+	              1007BA5A
+	              0CFF7907
+	              D65A04FF
+	              EA07F25A
+	              0DFF7608
+	              0E5B0EFF
+	              F5082A5B
+	              05FF7B09
+	              465B0FFF
+	              090A625B
+	              06FFA00A
+	              7E5B10FF
+	              3F0B9A5B
+	              11FF0000
+	              B65B23FF
+	              0000D25B
+	              24FF0000
+	              EE5B25FF
+	              00000A5C
+	              26FF0000
+	              265C27FF
+	              0000425C
+	              28FF
+1259:				
+1260:     -	66D9          	step3_tab:
+1261:     -	F000          		cpu_hz = 2027520
+1262:     -	66D9  D501F001		parkeys	1
+	              0D022C02
+	              4D026F02
+	              9402BB02
+	              E4020F03
+	              3D036D03
+	              AA03E103
+	              1B045904
+	              9A04AA03
+	              E1031B04
+	              59049A04
+	              DF042805
+	              7605C805
+	              1E067A06
+	              DB065507
+	              C3073708
+	              B3083509
+	              BF090000
+	              00000000
+	              00000000
+	              0000
+1263:     -	0029          	step3_size equ	($-step3_tab)/2
+1264:				
+1265:     -	6730          		org	($+15)/16*16	; 16 byte align
+1266:				; These must be together and have entries for exact number of wave selections.
+1267:     -	6730          	wave_ind:
+1268:     -	6730          	wave_ind_r:
+1269:     -	6730          		defs	4 * 2
+1270:     -	6738          	wave_ind_l:
+1271:     -	6738          		defs	4 * 2
+1272:				
+1273:     -	0001          	   if havevol
+1274:     -	8000          		org	($+16383)/16384*16384	; 16K align
+1275:				   else
+1277:				   endif
+1278:				
+1279:     -	8000          	wavebnk:
+1280:					include	sine.inc
+**** sine.inc ****
+   1:				;	for ($i = 0; $i < 256; $i++) {
+   2:				;		push(@s, int(sin($i * 2 * 3.1415926 / 256) * 127));
+   3:				;	}
+   4:				;	for ($r = 0; $r < 256; $r += 16) {
+   5:				;		print "\tdb\t";
+   6:				;		print join(',', @s[$r .. $r + 15]);
+   7:				;		print "\n";
+   8:				;	}
+   9:     -	8000          	sine:
+  10:				;# !Gperl sine.inc
+  11:     -	8000  00030609		db	0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45
+	              0C0F1215
+	              181B1E21
+	              24272A2D
+  12:     -	8010  30333639		db	48,51,54,57,59,62,65,67,70,73,75,78,80,82,85,87
+	              3B3E4143
+	              46494B4E
+	              50525557
+  13:     -	8020  595B5E60		db	89,91,94,96,98,100,102,103,105,107,108,110,112,113,114,116
+	              62646667
+	              696B6C6E
+	              70717274
+  14:     -	8030  75767778		db	117,118,119,120,121,122,123,123,124,125,125,126,126,126,126,126
+	              797A7B7B
+	              7C7D7D7E
+	              7E7E7E7E
+  15:     -	8040  7E7E7E7E		db	126,126,126,126,126,126,125,125,124,123,123,122,121,120,119,118
+	              7E7E7D7D
+	              7C7B7B7A
+	              79787776
+  16:     -	8050  75747271		db	117,116,114,113,112,110,108,107,105,103,102,100,98,96,94,91
+	              706E6C6B
+	              69676664
+	              62605E5B
+  17:     -	8060  59575552		db	89,87,85,82,80,78,75,73,70,67,65,62,59,57,54,51
+	              504E4B49
+	              4643413E
+	              3B393633
+  18:     -	8070  302D2A27		db	48,45,42,39,36,33,30,27,24,21,18,15,12,9,6,3
+	              24211E1B
+	              1815120F
+	              0C090603
+  19:     -	8080  00FDFAF7		db	0,-3,-6,-9,-12,-15,-18,-21,-24,-27,-30,-33,-36,-39,-42,-45
+	              F4F1EEEB
+	              E8E5E2DF
+	              DCD9D6D3
+  20:     -	8090  D0CDCAC7		db	-48,-51,-54,-57,-59,-62,-65,-67,-70,-73,-75,-78,-80,-82,-85,-87
+	              C5C2BFBD
+	              BAB7B5B2
+	              B0AEABA9
+  21:     -	80A0  A7A5A2A0		db	-89,-91,-94,-96,-98,-100,-102,-103,-105,-107,-108,-110,-112,-113,-114,-116
+	              9E9C9A99
+	              97959492
+	              908F8E8C
+  22:     -	80B0  8B8A8988		db	-117,-118,-119,-120,-121,-122,-123,-123,-124,-125,-125,-126,-126,-126,-126,-126
+	              87868585
+	              84838382
+	              82828282
+  23:     -	80C0  82828282		db	-126,-126,-126,-126,-126,-126,-125,-125,-124,-123,-123,-122,-121,-120,-119,-118
+	              82828383
+	              84858586
+	              8788898A
+  24:     -	80D0  8B8C8E8F		db	-117,-116,-114,-113,-112,-110,-108,-107,-105,-103,-102,-100,-98,-96,-94,-91
+	              90929495
+	              97999A9C
+	              9EA0A2A5
+  25:     -	80E0  A7A9ABAE		db	-89,-87,-85,-82,-80,-78,-75,-73,-70,-67,-65,-62,-59,-57,-54,-51
+	              B0B2B5B7
+	              BABDBFC2
+	              C5C7CACD
+  26:     -	80F0  D0D3D6D9		db	-48,-45,-42,-39,-36,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3
+	              DCDFE2E5
+	              E8EBEEF1
+	              F4F7FAFD
+**** storch.z ****
+1281:     -	0001          		assert	$ % 256 == 0
+1282:     -	8100          	square:
+1283:     -	8100 ..817F 7F		dc	128,127
+1284:     -	8180 ..81FF 81		dc	128,$81		; zmac fails if -127; buggy?
+1285:				
+1286:     -	0001          		assert	$ % 256 == 0
+1287:     -	8200          	triangle:
+1288:     -	FF80          		smp = -128
+1289:     -	8200  80828486		rept	127
+	              888A8C8E
+	              90929496
+	              989A9C9E
+	              A0A2A4A6
+	              A8AAACAE
+	              B0B2B4B6
+	              B8BABCBE
+	              C0C2C4C6
+	              C8CACCCE
+	              D0D2D4D6
+	              D8DADCDE
+	              E0E2E4E6
+	              E8EAECEE
+	              F0F2F4F6
+	              F8FAFCFE
+	              00020406
+	              080A0C0E
+	              10121416
+	              181A1C1E
+	              20222426
+	              282A2C2E
+	              30323436
+	              383A3C3E
+	              40424446
+	              484A4C4E
+	              50525456
+	              585A5C5E
+	              60626466
+	              686A6C6E
+	              70727476
+	              787A7C
+1293:				
+1294:     -	007F          		smp++
+1295:     -	827F  7F      		defb	smp
+1296:				
+1297:     -	8280  7F7D7B79		rept	127
+	              77757371
+	              6F6D6B69
+	              67656361
+	              5F5D5B59
+	              57555351
+	              4F4D4B49
+	              47454341
+	              3F3D3B39
+	              37353331
+	              2F2D2B29
+	              27252321
+	              1F1D1B19
+	              17151311
+	              0F0D0B09
+	              07050301
+	              FFFDFBF9
+	              F7F5F3F1
+	              EFEDEBE9
+	              E7E5E3E1
+	              DFDDDBD9
+	              D7D5D3D1
+	              CFCDCBC9
+	              C7C5C3C1
+	              BFBDBBB9
+	              B7B5B3B1
+	              AFADABA9
+	              A7A5A3A1
+	              9F9D9B99
+	              97959391
+	              8F8D8B89
+	              878583
+1301:     -	82FF  80      		defb	-128
+1302:				
+1303:     -	0001          		assert	$ % 256 == 0
+1304:     -	8300          	saw:	
+1305:     -	0000          		smp = 0
+1306:     -	8300  00010203		rept 	256
+	              04050607
+	              08090A0B
+	              0C0D0E0F
+	              10111213
+	              14151617
+	              18191A1B
+	              1C1D1E1F
+	              20212223
+	              24252627
+	              28292A2B
+	              2C2D2E2F
+	              30313233
+	              34353637
+	              38393A3B
+	              3C3D3E3F
+	              40414243
+	              44454647
+	              48494A4B
+	              4C4D4E4F
+	              50515253
+	              54555657
+	              58595A5B
+	              5C5D5E5F
+	              60616263
+	              64656667
+	              68696A6B
+	              6C6D6E6F
+	              70717273
+	              74757677
+	              78797A7B
+	              7C7D7E7F
+	              80818283
+	              84858687
+	              88898A8B
+	              8C8D8E8F
+	              90919293
+	              94959697
+	              98999A9B
+	              9C9D9E9F
+	              A0A1A2A3
+	              A4A5A6A7
+	              A8A9AAAB
+	              ACADAEAF
+	              B0B1B2B3
+	              B4B5B6B7
+	              B8B9BABB
+	              BCBDBEBF
+	              C0C1C2C3
+	              C4C5C6C7
+	              C8C9CACB
+	              CCCDCECF
+	              D0D1D2D3
+	              D4D5D6D7
+	              D8D9DADB
+	              DCDDDEDF
+	              E0E1E2E3
+	              E4E5E6E7
+	              E8E9EAEB
+	              ECEDEEEF
+	              F0F1F2F3
+	              F4F5F6F7
+	              F8F9FAFB
+	              FCFDFEFF
+1310:				
+1311:     -	0001          	   if havevol
+1312:					; space for 15 volume levels of each of the 4 waveforms.
+1313:     -	8400          		defs	15 * 4 * 256
+1314:				   endif
+1315:				
+1316:     -	0001          		assert	$ % 256 == 0
+1317:     -	C000          	silence:
+1318:     -	C000 ..C0FF 00		dc	256,0
+1319:				
+1320:				wordval	macro	root,n
+1321:					defw	&root&n
+1322:					endm
+1323:				
+1324:				; Table of addresses of DAC values.
+1325:     -	C100          	dac_patch:
+1326:     -	0000          		n = 0
+1327:     -	C100  CA57D057		rept	dn
+	              E657EC57
+	              02580858
+	              1E582458
+	              3A584058
+	              56585C58
+	              72587858
+	              8E589458
+	              AA58B058
+	              C658CC58
+	              E258E858
+	              FE580459
+	              1A592059
+	              36593C59
+	              52595859
+	              6E597459
+	              8A599059
+	              A659AC59
+	              C259C859
+	              DE59E459
+	              FA59005A
+	              165A1C5A
+	              325A385A
+	              4E5A545A
+	              6A5A705A
+	              865A8C5A
+	              A25AA85A
+	              BE5AC45A
+	              DA5AE05A
+	              F65AFC5A
+	              125B185B
+	              2E5B345B
+	              4A5B505B
+	              665B6C5B
+	              825B885B
+	              9E5BA45B
+	              BA5BC05B
+	              D65BDC5B
+	              F25BF85B
+	              0E5C145C
+	              2A5C305C
+	              465C4C5C
+	              695C7E5C
+	              845C965C
+	              9C5CB05C
+	              B65CD05C
+	              ED5C025D
+	              085D1B5D
+	              215D325D
+	              385D4C5D
+	              525D655D
+	              7F5D855D
+	              975D9D5D
+	              B15DB75D
+	              CA5DE35D
+	              015E075E
+	              1A5E205E
+	              315E375E
+	              4B5E515E
+	              645E6A5E
+	              7F5E855E
+	              975E9D5E
+	              B05EB65E
+	              CB5ED15E
+	              E35EE95E
+	              FA5E005F
+	              155F1B5F
+	              305F365F
+	              475F4D5F
+	              5F5F655F
+	              7A5F805F
+	              925F985F
+	              AB5FB15F
+	              C65FCC5F
+	              DE5FE45F
+	              F55FFB5F
+	              10601660
+	              2B603160
+	              42604860
+	              5A606060
+	              6F607560
+	              85608B60
+	              9F60A560
+	              B760BD60
+	              D060D660
+	              EA60F060
+	              03610961
+	              1D612361
+	              38613E61
+	              53615961
+	              6D617361
+	              85618B61
+	              9C61A261
+	              B461BA61
+	              C961CF61
+	              DF61E561
+	              F961FF61
+	              11621762
+	              2A623062
+	              43624962
+	              5C626262
+	              76627C62
+	              91629762
+	              AC62B262
+	              C662CC62
+	              DE62E462
+	              F562FB62
+	              0D631363
+	              22632863
+	              38633E63
+	              52635863
+	              6A637063
+	              83638963
+	              9D63A363
+	              B663BC63
+	              D063D663
+	              EB63F163
+	              06640C64
+	              20642664
+	              38643E64
+	              4F645564
+	              67646D64
+	              7C648264
+	              92649864
+	              AC64B264
+	              C464CA64
+	              DD64E364
+	              F664FC64
+	              0F651565
+	              29652F65
+	              44654A65
+	              5F656565
+	              79657F65
+	              91659765
+	              A865AE65
+1331:				
+1332:     -	5601          		end	start
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+   601	symbols
+  7271	bytes
+
+  2307	macro calls
+  6019	macro bytes
+    80	invented symbols
+
+
+
+Symbol Table:
+
+.ism4           5625      22053
+.mdone          5627      22055
+?d0499          5E89      24201
+?d0519          5ED5      24277
+?d0564          5F84      24452
+?d0584          5FD0      24528
+?e0628          6114      24852
+?e0714          626D      25197
+?e0800          63C7      25543
+?e0886          6520      25888
+?f0628          60DE      24798
+?f0714          6238      25144
+?f0800          6391      25489
+?f0886          64EB      25835
+?g0628          614F      24911
+?g0714          62A8      25256
+?g0800          6402      25602
+?g0886          655B      25947
+?h0628          612F      24879
+?h0714          6288      25224
+?h0800          63E2      25570
+?h0886          653B      25915
+active_l        5C77      23671
+active_r        5D73      23923
+banksz         = 400      1024
+barx            5648      22088
+charok          5659      22105
+clr             5698      22168
+clrdn           56A1      22177
+cpu_hz         =001EF000  2027520
+d2lp            65C5      26053
+dac90_l        =79        121
+dac90_r        =75        117
+dac_l          =B9        185
+dac_patch       C100      49408
+dac_r          =B5        181
+dacp0          =57CA      22474
+dacp1          =57D0      22480
+dacp10         =5856      22614
+dacp100        =5D52      23890
+dacp101        =5D65      23909
+dacp102        =5D7F      23935
+dacp103        =5D85      23941
+dacp104        =5D97      23959
+dacp105        =5D9D      23965
+dacp106        =5DB1      23985
+dacp107        =5DB7      23991
+dacp108        =5DCA      24010
+dacp109        =5DE3      24035
+dacp11         =585C      22620
+dacp110        =5E01      24065
+dacp111        =5E07      24071
+dacp112        =5E1A      24090
+dacp113        =5E20      24096
+dacp114        =5E31      24113
+dacp115        =5E37      24119
+dacp116        =5E4B      24139
+dacp117        =5E51      24145
+dacp118        =5E64      24164
+dacp119        =5E6A      24170
+dacp12         =5872      22642
+dacp120        =5E7F      24191
+dacp121        =5E85      24197
+dacp122        =5E97      24215
+dacp123        =5E9D      24221
+dacp124        =5EB0      24240
+dacp125        =5EB6      24246
+dacp126        =5ECB      24267
+dacp127        =5ED1      24273
+dacp128        =5EE3      24291
+dacp129        =5EE9      24297
+dacp13         =5878      22648
+dacp130        =5EFA      24314
+dacp131        =5F00      24320
+dacp132        =5F15      24341
+dacp133        =5F1B      24347
+dacp134        =5F30      24368
+dacp135        =5F36      24374
+dacp136        =5F47      24391
+dacp137        =5F4D      24397
+dacp138        =5F5F      24415
+dacp139        =5F65      24421
+dacp14         =588E      22670
+dacp140        =5F7A      24442
+dacp141        =5F80      24448
+dacp142        =5F92      24466
+dacp143        =5F98      24472
+dacp144        =5FAB      24491
+dacp145        =5FB1      24497
+dacp146        =5FC6      24518
+dacp147        =5FCC      24524
+dacp148        =5FDE      24542
+dacp149        =5FE4      24548
+dacp15         =5894      22676
+dacp150        =5FF5      24565
+dacp151        =5FFB      24571
+dacp152        =6010      24592
+dacp153        =6016      24598
+dacp154        =602B      24619
+dacp155        =6031      24625
+dacp156        =6042      24642
+dacp157        =6048      24648
+dacp158        =605A      24666
+dacp159        =6060      24672
+dacp16         =58AA      22698
+dacp160        =606F      24687
+dacp161        =6075      24693
+dacp162        =6085      24709
+dacp163        =608B      24715
+dacp164        =609F      24735
+dacp165        =60A5      24741
+dacp166        =60B7      24759
+dacp167        =60BD      24765
+dacp168        =60D0      24784
+dacp169        =60D6      24790
+dacp17         =58B0      22704
+dacp170        =60EA      24810
+dacp171        =60F0      24816
+dacp172        =6103      24835
+dacp173        =6109      24841
+dacp174        =611D      24861
+dacp175        =6123      24867
+dacp176        =6138      24888
+dacp177        =613E      24894
+dacp178        =6153      24915
+dacp179        =6159      24921
+dacp18         =58C6      22726
+dacp180        =616D      24941
+dacp181        =6173      24947
+dacp182        =6185      24965
+dacp183        =618B      24971
+dacp184        =619C      24988
+dacp185        =61A2      24994
+dacp186        =61B4      25012
+dacp187        =61BA      25018
+dacp188        =61C9      25033
+dacp189        =61CF      25039
+dacp19         =58CC      22732
+dacp190        =61DF      25055
+dacp191        =61E5      25061
+dacp192        =61F9      25081
+dacp193        =61FF      25087
+dacp194        =6211      25105
+dacp195        =6217      25111
+dacp196        =622A      25130
+dacp197        =6230      25136
+dacp198        =6243      25155
+dacp199        =6249      25161
+dacp2          =57E6      22502
+dacp20         =58E2      22754
+dacp200        =625C      25180
+dacp201        =6262      25186
+dacp202        =6276      25206
+dacp203        =627C      25212
+dacp204        =6291      25233
+dacp205        =6297      25239
+dacp206        =62AC      25260
+dacp207        =62B2      25266
+dacp208        =62C6      25286
+dacp209        =62CC      25292
+dacp21         =58E8      22760
+dacp210        =62DE      25310
+dacp211        =62E4      25316
+dacp212        =62F5      25333
+dacp213        =62FB      25339
+dacp214        =630D      25357
+dacp215        =6313      25363
+dacp216        =6322      25378
+dacp217        =6328      25384
+dacp218        =6338      25400
+dacp219        =633E      25406
+dacp22         =58FE      22782
+dacp220        =6352      25426
+dacp221        =6358      25432
+dacp222        =636A      25450
+dacp223        =6370      25456
+dacp224        =6383      25475
+dacp225        =6389      25481
+dacp226        =639D      25501
+dacp227        =63A3      25507
+dacp228        =63B6      25526
+dacp229        =63BC      25532
+dacp23         =5904      22788
+dacp230        =63D0      25552
+dacp231        =63D6      25558
+dacp232        =63EB      25579
+dacp233        =63F1      25585
+dacp234        =6406      25606
+dacp235        =640C      25612
+dacp236        =6420      25632
+dacp237        =6426      25638
+dacp238        =6438      25656
+dacp239        =643E      25662
+dacp24         =591A      22810
+dacp240        =644F      25679
+dacp241        =6455      25685
+dacp242        =6467      25703
+dacp243        =646D      25709
+dacp244        =647C      25724
+dacp245        =6482      25730
+dacp246        =6492      25746
+dacp247        =6498      25752
+dacp248        =64AC      25772
+dacp249        =64B2      25778
+dacp25         =5920      22816
+dacp250        =64C4      25796
+dacp251        =64CA      25802
+dacp252        =64DD      25821
+dacp253        =64E3      25827
+dacp254        =64F6      25846
+dacp255        =64FC      25852
+dacp256        =650F      25871
+dacp257        =6515      25877
+dacp258        =6529      25897
+dacp259        =652F      25903
+dacp26         =5936      22838
+dacp260        =6544      25924
+dacp261        =654A      25930
+dacp262        =655F      25951
+dacp263        =6565      25957
+dacp264        =6579      25977
+dacp265        =657F      25983
+dacp266        =6591      26001
+dacp267        =6597      26007
+dacp268        =65A8      26024
+dacp269        =65AE      26030
+dacp27         =593C      22844
+dacp28         =5952      22866
+dacp29         =5958      22872
+dacp3          =57EC      22508
+dacp30         =596E      22894
+dacp31         =5974      22900
+dacp32         =598A      22922
+dacp33         =5990      22928
+dacp34         =59A6      22950
+dacp35         =59AC      22956
+dacp36         =59C2      22978
+dacp37         =59C8      22984
+dacp38         =59DE      23006
+dacp39         =59E4      23012
+dacp4          =5802      22530
+dacp40         =59FA      23034
+dacp41         =5A00      23040
+dacp42         =5A16      23062
+dacp43         =5A1C      23068
+dacp44         =5A32      23090
+dacp45         =5A38      23096
+dacp46         =5A4E      23118
+dacp47         =5A54      23124
+dacp48         =5A6A      23146
+dacp49         =5A70      23152
+dacp5          =5808      22536
+dacp50         =5A86      23174
+dacp51         =5A8C      23180
+dacp52         =5AA2      23202
+dacp53         =5AA8      23208
+dacp54         =5ABE      23230
+dacp55         =5AC4      23236
+dacp56         =5ADA      23258
+dacp57         =5AE0      23264
+dacp58         =5AF6      23286
+dacp59         =5AFC      23292
+dacp6          =581E      22558
+dacp60         =5B12      23314
+dacp61         =5B18      23320
+dacp62         =5B2E      23342
+dacp63         =5B34      23348
+dacp64         =5B4A      23370
+dacp65         =5B50      23376
+dacp66         =5B66      23398
+dacp67         =5B6C      23404
+dacp68         =5B82      23426
+dacp69         =5B88      23432
+dacp7          =5824      22564
+dacp70         =5B9E      23454
+dacp71         =5BA4      23460
+dacp72         =5BBA      23482
+dacp73         =5BC0      23488
+dacp74         =5BD6      23510
+dacp75         =5BDC      23516
+dacp76         =5BF2      23538
+dacp77         =5BF8      23544
+dacp78         =5C0E      23566
+dacp79         =5C14      23572
+dacp8          =583A      22586
+dacp80         =5C2A      23594
+dacp81         =5C30      23600
+dacp82         =5C46      23622
+dacp83         =5C4C      23628
+dacp84         =5C69      23657
+dacp85         =5C7E      23678
+dacp86         =5C84      23684
+dacp87         =5C96      23702
+dacp88         =5C9C      23708
+dacp89         =5CB0      23728
+dacp9          =5840      22592
+dacp90         =5CB6      23734
+dacp91         =5CD0      23760
+dacp92         =5CED      23789
+dacp93         =5D02      23810
+dacp94         =5D08      23816
+dacp95         =5D1B      23835
+dacp96         =5D21      23841
+dacp97         =5D32      23858
+dacp98         =5D38      23864
+dacp99         =5D4C      23884
+diff           =00        0
+div2            65C2      26050
+dn             = 10E      270
+down3_ptr      =76        118
+down_l          5C5F      23647
+down_ptr       =5C        92
+down_ptr_addr  =57BD      22461
+down_r          5D61      23905
+dpatch          5787      22407
+havevol        =01        1
+hz             =0002B5DE  177630
+jp_iy           5F2A      24362
+jp_nz          =C2        194
+jp_z           =CA        202
+k_0            =00381001  3674113
+k_1            =00381002  3674114
+k_2            =00381004  3674116
+k_3            =00381008  3674120
+k_4            =00381010  3674128
+k_5            =00381020  3674144
+k_6            =00381040  3674176
+k_7            =00381080  3674240
+k_8            =00382001  3678209
+k_9            =00382002  3678210
+k_@            =00380101  3670273
+k_A            =00380102  3670274
+k_B            =00380104  3670276
+k_C            =00380108  3670280
+k_D            =00380110  3670288
+k_E            =00380120  3670304
+k_F            =00380140  3670336
+k_G            =00380180  3670400
+k_H            =00380201  3670529
+k_I            =00380202  3670530
+k_J            =00380204  3670532
+k_K            =00380208  3670536
+k_L            =00380210  3670544
+k_M            =00380220  3670560
+k_N            =00380240  3670592
+k_O            =00380280  3670656
+k_P            =00380401  3671041
+k_Q            =00380402  3671042
+k_R            =00380404  3671044
+k_S            =00380408  3671048
+k_T            =00380410  3671056
+k_U            =00380420  3671072
+k_V            =00380440  3671104
+k_W            =00380480  3671168
+k_X            =00380801  3672065
+k_Y            =00380802  3672066
+k_Z            =00380804  3672068
+k_break        =00384004  3686404
+k_clear        =00384002  3686402
+k_colon        =00382004  3678212
+k_comma        =00382010  3678224
+k_dash         =00382020  3678240
+k_dot          =00382040  3678272
+k_down         =00384010  3686416
+k_enter        =00384001  3686401
+k_left         =00384020  3686432
+k_right        =00384040  3686464
+k_semi         =00382008  3678216
+k_shift        =00388001  3702785
+k_slash        =00382080  3678336
+k_space        =00384080  3686528
+k_up           =00384008  3686408
+ldiff          =00        0
+look            567E      22142
+main            57C6      22470
+meter_l        =95        149
+meter_r        =AA        170
+n              = 10E      270
+no_patch        57B6      22454
+nobar           564D      22093
+not34           5639      22073
+nt             =20        32
+octbase        =0001B800  112640
+old_up_l        5D17      23831
+old_up_r        5E16      24086
+param_00        664F      26191
+param_01        665B      26203
+param_02        666D      26221
+param_03        6679      26233
+param_04        6685      26245
+param_05        6697      26263
+param_06        66A3      26275
+param_07        6649      26185
+param_08        6655      26197
+param_09        6661      26209
+param_10        6667      26215
+param_11        6673      26227
+param_12        667F      26239
+param_13        668B      26251
+param_14        6691      26257
+param_15        669D      26269
+param_16        66A9      26281
+param_17        66AF      26287
+param_18        65E9      26089
+param_19        65F5      26101
+param_20        6607      26119
+param_21        6613      26131
+param_22        661F      26143
+param_23        6631      26161
+param_24        663D      26173
+param_25        65E3      26083
+param_26        65EF      26095
+param_27        65FB      26107
+param_28        6601      26113
+param_29        660D      26125
+param_30        6619      26137
+param_31        6625      26149
+param_32        662B      26155
+param_33        6637      26167
+param_34        6643      26179
+param_35        66B5      26293
+param_36        66BB      26299
+param_37        66C1      26305
+param_38        66C7      26311
+param_39        66CD      26317
+param_40        66D3      26323
+param_tab       65E3      26083
+parkey         =01        1
+patch_skip      577E      22398
+pn             =04        4
+ppatch          579B      22427
+ptr0           =5E8E      24206
+ptr1           =5EDA      24282
+ptr2           =5F89      24457
+ptr3           =5FD5      24533
+ret_00          59DA      23002
+ret_01          5A12      23058
+ret_02          5A66      23142
+ret_03          5A9E      23198
+ret_04          5AD6      23254
+ret_05          5B2A      23338
+ret_06          5B62      23394
+ret_07          59BE      22974
+ret_08          59F6      23030
+ret_09          5A2E      23086
+ret_10          5A4A      23114
+ret_11          5A82      23170
+ret_12          5ABA      23226
+ret_13          5AF2      23282
+ret_14          5B0E      23310
+ret_15          5B46      23366
+ret_16          5B7E      23422
+ret_17          5B9A      23450
+ret_18          57FE      22526
+ret_19          5836      22582
+ret_20          588A      22666
+ret_21          58C2      22722
+ret_22          58FA      22778
+ret_23          594E      22862
+ret_24          5986      22918
+ret_25          57E2      22498
+ret_26          581A      22554
+ret_27          5852      22610
+ret_28          586E      22638
+ret_29          58A6      22694
+ret_30          58DE      22750
+ret_31          5916      22806
+ret_32          5932      22834
+ret_33          596A      22890
+ret_34          59A2      22946
+ret_35          5BB6      23478
+ret_36          5BD2      23506
+ret_37          5BEE      23534
+ret_38          5C0A      23562
+ret_39          5C26      23590
+ret_40          5C42      23618
+s2lp            65D4      26068
+sampcyc        =84        132
+saw             8300      33536
+silence         C000      49152
+sine            8000      32768
+smp            = 100      256
+spdn            5697      22167
+splash          5200      20992
+splp            5645      22085
+square          8100      33024
+st_a0          = 30F      783
+st_a0@         = 33D      829
+st_a1          = 61E      1566
+st_a1@         = 67A      1658
+st_b0          = 36D      877
+st_b1          = 6DB      1755
+st_c0          = 1D5      469
+st_c0@         = 1F0      496
+st_c1          = 3AA      938
+st_c1@         = 3E1      993
+st_c2          = 755      1877
+st_c2@         = 7C3      1987
+st_d0          = 20D      525
+st_d0@         = 22C      556
+st_d1          = 41B      1051
+st_d1@         = 459      1113
+st_d2          = 837      2103
+st_d2@         = 8B3      2227
+st_e0          = 24D      589
+st_e1          = 49A      1178
+st_e2          = 935      2357
+st_f0          = 26F      623
+st_f0@         = 294      660
+st_f1          = 4DF      1247
+st_f1@         = 528      1320
+st_f2          = 9BF      2495
+st_g0          = 2BB      699
+st_g0@         = 2E4      740
+st_g1          = 576      1398
+st_g1@         = 5C8      1480
+st_null        =00        0
+stack           5200      20992
+star            5676      22134
+start           5601      22017
+step3_size     =29        41
+step3_tab       66D9      26329
+step_0         = 1D5      469
+step_1         = 1F0      496
+step_10        = 33D      829
+step_11        = 36D      877
+step_12        = 3AA      938
+step_13        = 3E1      993
+step_14        = 41B      1051
+step_15        = 459      1113
+step_16        = 49A      1178
+step_17        = 4DF      1247
+step_18        = 528      1320
+step_19        = 576      1398
+step_2         = 20D      525
+step_20        = 5C8      1480
+step_21        = 61E      1566
+step_22        = 67A      1658
+step_23        = 6DB      1755
+step_24        = 755      1877
+step_25        = 7C3      1987
+step_26        = 837      2103
+step_27        = 8B3      2227
+step_28        = 935      2357
+step_29        = 9BF      2495
+step_3         = 22C      556
+step_30        = A51      2641
+step_31        = AEC      2796
+step_4         = 24D      589
+step_5         = 26F      623
+step_6         = 294      660
+step_7         = 2BB      699
+step_8         = 2E4      740
+step_9         = 30F      783
+sum2            65D1      26065
+triangle        8200      33280
+up3_ptr        =5E        94
+up_l            5CC5      23749
+up_ptr         =5B        91
+up_ptr_addr    =57C5      22469
+up_r            5DC6      24006
+vl_m_l          65BC      26044
+vl_m_r          65BE      26046
+vol_1          =BC00      48128
+vol_10         =9800      38912
+vol_11         =9400      37888
+vol_12         =9000      36864
+vol_13         =8C00      35840
+vol_14         =8800      34816
+vol_15         =8400      33792
+vol_16         =8000      32768
+vol_2          =B800      47104
+vol_3          =B400      46080
+vol_4          =B000      45056
+vol_5          =AC00      44032
+vol_6          =A800      43008
+vol_7          =A400      41984
+vol_8          =A000      40960
+vol_9          =9C00      39936
+vol_down_down_l 6056      24662
+vol_down_down_r 6309      25353
+vol_down_up_l   6181      24961
+vol_down_up_r   6434      25652
+vol_up_down_l   61B0      25008
+vol_up_down_r   6463      25699
+vol_up_up_l     62DA      25306
+vol_up_up_r     658D      25997
+vollp           56AA      22186
+voltmp          65C0      26048
+wave_down_l     5E60      24160
+wave_down_r     5F5B      24411
+wave_ind        6730      26416
+wave_ind_l      6738      26424
+wave_ind_r      6730      26416
+wave_up_l       5F2C      24364
+wave_up_r       6027      24615
+wavebnk         8000      32768
+wb_l            5EA6      24230
+wb_r            5FA1      24481
+wf_l            5C6C      23660
+wf_r            5D69      23913

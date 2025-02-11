@@ -1,5 +1,4 @@
-; TRACKER Version 1.2
-; to do: mute track, real-time sequencing, MIDI in, more sensible pre-selected instruments, .... 
+; TRACKER Version 1.3
 
 	org $8000
 

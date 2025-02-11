@@ -1,0 +1,409 @@
+   1:				;
+   2:				; midorch.z - play notes on orchestra 80 as read from midi80 device.
+   3:				;
+   4:				; See orchan.z for theory of operation on keeping the sound updated while
+   5:				; waiting for midi key off.
+   6:				
+   7:     -	4467          	@DSPLY		equ	$4467
+   8:     -	0033          	@DSP    	equ 	$0033
+   9:     -	0049          	@KEY    	equ 	$0049 
+  10:     -	000D          	ENTER		equ	$0d ; @DSPLY with newline
+  11:				
+  12:     -	0009          	midstat	equ	9
+  13:     -	0008          	middata	equ	8
+  14:				
+  15:				
+  16:     -	8000          		org	$8000
+  17:     -	8000          	stack:
+  18:     -	8000  4D49444F	title:		ascii	"MIDORCH 4.1 - MODEL III VERSION                                 "
+	              52434820
+	              342E3120
+	              2D204D4F
+	              44454C20
+	              49494920
+	              56455253
+	              494F4E20
+	              20202020
+	              20202020
+	              20202020
+	              20202020
+	              20202020
+	              20202020
+	              20202020
+	              20202020
+  19:     -	8040  2D2D2D2D			ascii   "----------------------------------------------------------------"
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+	              2D2D2D2D
+  20:     -	8080  456E7465			ascii   "Enter MIDI Channel 1..8? "
+	              72204D49
+	              44492043
+	              68616E6E
+	              656C2031
+	              2E2E383F
+	              20
+  21:     -	0099          	title_len 	equ $-title
+  22:     -	8099          	start:
+  23:					
+  24:    0+4	8099  F3      		di
+  25:    4+10	809A  310080  		ld	sp,stack
+  26:				
+  27:   14+10	809D  21003C  		ld	hl,$3c00
+  28:   24+10	80A0  11013C  		ld	de,$3c00+1
+  29:   34+10	80A3  01FF03  		ld	bc,1024-1
+  30:   44+10	80A6  3620    		ld	(hl),' '
+  31:   54+16+5	80A8  EDB0    		ldir
+  32:				
+  33:   70+10	80AA  210080  		ld	hl,title
+  34:   80+10	80AD  11003C  		ld	de,$3c00
+  35:   90+10	80B0  019900  		ld	bc,title_len
+  36:  100+16+5	80B3  EDB0    		ldir
+  37:				
+  38:					;;  ask for MIDI Channel
+  39:     -	80B5          	retry:
+  40:  116+17	80B5  CD4900  		call @KEY
+  41:  133+10	80B8  21993C  		ld hl, $3c00 + 2*64 + 25
+  42:  143+7	80BB  77      		ld (hl), a
+  43:  150+7	80BC  D631    		sub '1' ; "1" = 49
+  44:  157+7+5	80BE  38F5    		jr c,retry
+  45:  164+7	80C0  FE08    		cp 7+1 ; limit max channel to 7
+  46:  171+7+5	80C2  30F1    		jr nc,retry
+  47:					
+  48:  178+7	80C4  C690    		add $90 ; channel 1 on = $90 to channel 8 on = $98 
+  49:  185+13	80C6  32F580  		ld (channel_on), a	
+  50:  198+7	80C9  D690    		sub $90 
+  51:  205+7	80CB  C680    		add $80 ; channel 1 off = $80 to channel 8 off = $88 
+  52:  212+13	80CD  326981  		ld (channel_off), a	
+  53:					
+  54:  225+11	80D0  DBFF    		in  a,($ff)
+  55:  236+7	80D2  F610    		or  a,$10
+  56:  243+7	80D4  E69F    		and a,~($20 | $40) ; disable video wait states M3, and SLOW mode M4
+  57:  250+11	80D6  D3EC    		out ($ec),a
+  58:				
+  59:				; Status report but already in prime registers
+  60:				statusx	macro	state
+  61:					ld	(hl),state
+  62:					inc	l
+  63:					endm
+  64:				
+  65:				; Status report
+  66:				status	macro	state
+  67:					exx
+  68:					statusx	state
+  69:					exx
+  70:					endm
+  71:				
+  72:				; Status cursor
+  73:				cursor	macro
+  74:					exx
+  75:					ld	(hl),191
+  76:					exx
+  77:					endm
+  78:				
+  79:				; Status report with extra 6 cycle delay.
+  80:				status6	macro	state
+  81:					exx
+  82:					inc	de
+  83:					statusx	state
+  84:					exx
+  85:					endm
+  86:				
+  87:  261+4	80D8  D9      		exx
+  88:  265+10	80D9  21003D  		ld	hl,$3d00
+  89:  275+4	80DC  D9      		exx
+  90:				
+  91:					; Wait for note on ($90) from midi.
+  92:  279+17	80DD  CD7081  	geton:	call	dly.01
+  93:  296+22	80E0  D9362E2C		status	'.'
+	              D9
+  94:  318+18	80E5  D936BFD9		cursor
+  95:  336+11	80E9  DB09    		in	a,(midstat)
+  96:  347+4	80EB  1F      		rra
+  97:  351+7+5	80EC  30EF    		jr	nc,geton	; data not available
+  98:  358+11	80EE  DB08    		in	a,(middata)	; get data
+  99:  369+19	80F0  D9772CD9		status	a
+ 100:				
+ 101:  388+7	80F4  FE90    		cp $90
+ 102:     -	80F5          		org  $-1
+ 103:    0+4	80F5  90      		channel_on: defb $90
+ 104:  395+7+5	80F6  20E5    		jr	nz,geton
+ 105:				
+ 106:     -	80F8          	getnote:
+ 107:  402+17	80F8  CD7081  		call	dly.01		; maybe delay not so necessary?
+ 108:  419+22	80FB  D936212C		status	'!'
+	              D9
+ 109:  441+18	8100  D936BFD9		cursor
+ 110:  459+11	8104  DB09    		in	a,(midstat)
+ 111:  470+4	8106  1F      		rra
+ 112:  474+7+5	8107  30EF    		jr	nc,getnote
+ 113:  481+11	8109  DB08    		in	a,(middata)
+ 114:  492+7	810B  D618    		sub	24		; can handle note 0 .. 23
+ 115:  499+7	810D  FE1B    		cp	27		; and only have 27 notes
+ 116:  506+7+5	810F  30CC    		jr	nc,geton	; note   of range, start over
+ 117:				
+ 118:  513+7	8111  1600    		ld	d,0
+ 119:  520+4	8113  5F      		ld	e,a
+ 120:  524+10	8114  217A81  		ld	hl,steptab
+ 121:  534+11	8117  19      		add	hl,de
+ 122:  545+11	8118  19      		add	hl,de
+ 123:  556+7	8119  5E      		ld	e,(hl)
+ 124:  563+6	811A  23      		inc	hl
+ 125:  569+7	811B  56      		ld	d,(hl)
+ 126:  576+7	811C  0682    		ld	b,high(sine)
+ 127:  583+10	811E  210000  		ld	hl,0
+ 128:				
+ 129:  593+7	8121  C640    		add	a,'@'		; indicate note
+ 130:  600+19	8123  D9772CD9		status	a
+ 131:				
+ 132:     -	0056          	sampcyc	equ	86		; cycles per sample output
+ 133:				
+ 134:				; After outputting a sample the code checks if a MIDI byte is ready.
+ 135:				; It not it loops back to sampout1 where 28 cycles are wasted to
+ 136:				; balance the loop out to 86 cycles.
+ 137:				; If there is a MIDI byte it gets the byte and checks for note off ($80).
+ 138:				; If it isn't that it loops back to sampout2 which works out to
+ 139:				; 86 cycles for that loop.
+ 140:				;
+ 141:				; To be friendlier to the midi80 we only check it every 0.01 seconds.
+ 142:				
+ 143:				sample	macro
+ 144:					add	hl,de
+ 145:					ld	c,h
+ 146:					ld	a,(bc)
+ 147:					out	($79),a
+ 148:					endm
+ 149:				
+ 150:				; Output one sample and initialize our 0.01 second delay count.
+ 151:     -	0000          		sett	0
+ 152:     -	8127          	samplp:
+ 153:    0+33	8127  194C0AD3		sample
+	              79
+ 154:   33+4	812C  D9      		exx
+ 155:   37+10	812D  010200  		ld	bc,2027520/sampcyc/10000
+ 156:   47+4	8130  D9      		exx
+ 157:   51+22	8131  D936492C		status	'I'
+	              D9
+ 158:					; waste 13
+ 159:   73+13	8136  3A0000  		ld	a,(0)
+ 160:				
+ 161:     -	0056          	ti	equ	t($)
+ 162:     -	0001          		assert	ti == sampcyc
+ 163:				
+ 164:				; Output samples for 1/10000th of a second.
+ 165:     -	0000          		sett	0
+ 166:     -	8139          	sampdly:
+ 167:    0+33	8139  194C0AD3		sample
+	              79
+ 168:   33+4	813E  D9      		exx
+ 169:   37+14	813F  36532C  		statusx	'S'
+ 170:   51+6	8142  0B      		dec	bc
+ 171:   57+4	8143  78      		ld	a,b
+ 172:   61+4	8144  B1      		or	c
+ 173:   65+4	8145  D9      		exx
+ 174:					; waste 7
+ 175:   69+7	8146  3E00    		ld	a,0
+ 176:				
+ 177:   76+10	8148  C23981  		jp	nz,sampdly
+ 178:     -	0056          	td	equ	t($)
+ 179:     -	0001          		assert	td == sampcyc
+ 180:				
+ 181:				; Output one sample and check for MIDI data.
+ 182:     -	0000          		sett	0
+ 183:    0+33	814B  194C0AD3		sample
+	              79
+ 184:   33+28	8150  D9133643		status6	'C'
+	              2CD9
+ 185:   61+11	8156  DB09    		in	a,(midstat)
+ 186:   72+4	8158  1F      		rra
+ 187:   76+10	8159  D22781  		jp	nc,samplp	; no data
+ 188:     -	0056          	tc	equ	t($)
+ 189:     -	0001          		assert	tc == sampcyc
+ 190:				
+ 191:				; Output one sample; read data byte and decide what to to.
+ 192:     -	0000          		sett	0
+ 193:    0+33	815C  194C0AD3		sample
+	              79
+ 194:   33+11	8161  DB08    		in	a,(middata)
+ 195:				
+ 196:					; Special purpose status.
+ 197:   44+25	8163  D913772C		status6	a
+	              D9
+ 198:				
+ 199:   69+7	8168  FE80    		cp   $80
+ 200:     -	8169          		org  $-1
+ 201:    0+4	8169  80      		channel_off: defb $80
+ 202:					
+ 203:   76+10	816A  C22781  		jp	nz,samplp
+ 204:     -	0056          	tdat	equ	t($)
+ 205:     -	0001          		assert	tdat == sampcyc	
+ 206:				
+ 207:   86+10	816D  C3DD80  		jp	geton		; got stop, go look for new start.
+ 208:				
+ 209:   96+10	8170  010500  	dly.01:	ld	bc,d10000th
+ 210:     -	0000          		sett	0
+ 211:    0+6	8173  0B      	dly:	dec	bc
+ 212:    6+4	8174  78      		ld	a,b
+ 213:   10+4	8175  B1      		or	c
+ 214:   14+10	8176  C27381  		jp	nz,dly
+ 215:   24+10	8179  C9      		ret
+ 216:     -	0005          	d10000th	equ	2027520 / t($) / 10000
+ 217:				
+ 218:     -	817A          	steptab:
+ 219:     -	DC00          		octbase = 220 * 256
+ 220:     -	DC00          		hz = octbase
+ 221:     -	0000          		nt = 0
+ 222:     -	817A  64028802		rept	27
+	              AE02D602
+	              00032D03
+	              5D038F03
+	              C503FD03
+	              39047904
+	              C8041005
+	              5C05AC05
+	              01065B06
+	              BA061F07
+	              8A07FB07
+	              7308F208
+	              9009200A
+	              B80A
+ 241:				
+ 242:     -	8200          		org	high($+255)*256	; 256 byte align
+ 243:					include	sine.inc
+**** sine.inc ****
+   1:				;	for ($i = 0; $i < 256; $i++) {
+   2:				;		push(@s, int(sin($i * 2 * 3.1415926 / 256) * 127));
+   3:				;	}
+   4:				;	for ($r = 0; $r < 256; $r += 16) {
+   5:				;		print "\tdb\t";
+   6:				;		print join(',', @s[$r .. $r + 15]);
+   7:				;		print "\n";
+   8:				;	}
+   9:     -	8200          	sine:
+  10:				;# !Gperl sine.inc
+  11:     -	8200  00030609		db	0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45
+	              0C0F1215
+	              181B1E21
+	              24272A2D
+  12:     -	8210  30333639		db	48,51,54,57,59,62,65,67,70,73,75,78,80,82,85,87
+	              3B3E4143
+	              46494B4E
+	              50525557
+  13:     -	8220  595B5E60		db	89,91,94,96,98,100,102,103,105,107,108,110,112,113,114,116
+	              62646667
+	              696B6C6E
+	              70717274
+  14:     -	8230  75767778		db	117,118,119,120,121,122,123,123,124,125,125,126,126,126,126,126
+	              797A7B7B
+	              7C7D7D7E
+	              7E7E7E7E
+  15:     -	8240  7E7E7E7E		db	126,126,126,126,126,126,125,125,124,123,123,122,121,120,119,118
+	              7E7E7D7D
+	              7C7B7B7A
+	              79787776
+  16:     -	8250  75747271		db	117,116,114,113,112,110,108,107,105,103,102,100,98,96,94,91
+	              706E6C6B
+	              69676664
+	              62605E5B
+  17:     -	8260  59575552		db	89,87,85,82,80,78,75,73,70,67,65,62,59,57,54,51
+	              504E4B49
+	              4643413E
+	              3B393633
+  18:     -	8270  302D2A27		db	48,45,42,39,36,33,30,27,24,21,18,15,12,9,6,3
+	              24211E1B
+	              1815120F
+	              0C090603
+  19:     -	8280  00FDFAF7		db	0,-3,-6,-9,-12,-15,-18,-21,-24,-27,-30,-33,-36,-39,-42,-45
+	              F4F1EEEB
+	              E8E5E2DF
+	              DCD9D6D3
+  20:     -	8290  D0CDCAC7		db	-48,-51,-54,-57,-59,-62,-65,-67,-70,-73,-75,-78,-80,-82,-85,-87
+	              C5C2BFBD
+	              BAB7B5B2
+	              B0AEABA9
+  21:     -	82A0  A7A5A2A0		db	-89,-91,-94,-96,-98,-100,-102,-103,-105,-107,-108,-110,-112,-113,-114,-116
+	              9E9C9A99
+	              97959492
+	              908F8E8C
+  22:     -	82B0  8B8A8988		db	-117,-118,-119,-120,-121,-122,-123,-123,-124,-125,-125,-126,-126,-126,-126,-126
+	              87868585
+	              84838382
+	              82828282
+  23:     -	82C0  82828282		db	-126,-126,-126,-126,-126,-126,-125,-125,-124,-123,-123,-122,-121,-120,-119,-118
+	              82828383
+	              84858586
+	              8788898A
+  24:     -	82D0  8B8C8E8F		db	-117,-116,-114,-113,-112,-110,-108,-107,-105,-103,-102,-100,-98,-96,-94,-91
+	              90929495
+	              97999A9C
+	              9EA0A2A5
+  25:     -	82E0  A7A9ABAE		db	-89,-87,-85,-82,-80,-78,-75,-73,-70,-67,-65,-62,-59,-57,-54,-51
+	              B0B2B5B7
+	              BABDBFC2
+	              C5C7CACD
+  26:     -	82F0  D0D3D6D9		db	-48,-45,-42,-39,-36,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3
+	              DCDFE2E5
+	              E8EBEEF1
+	              F4F7FAFD
+**** midorcm.asm ****
+ 244:				
+ 245:     -	8099          		end	start
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+    30	symbols
+   690	bytes
+
+    48	macro calls
+   475	macro bytes
+     0	invented symbols
+
+
+
+Symbol Table:
+
+@DSP           =33        51
+@DSPLY         =4467      17511
+@KEY           =49        73
+ENTER          =0D        13
+channel_off     8169      33129
+channel_on      80F5      33013
+d10000th       =05        5
+dly             8173      33139
+dly.01          8170      33136
+getnote         80F8      33016
+geton           80DD      32989
+hz             =000413ED  267245
+middata        =08        8
+midstat        =09        9
+nt             =03        3
+octbase        =00037000  225280
+retry           80B5      32949
+sampcyc        =56        86
+sampdly         8139      33081
+samplp          8127      33063
+sine            8200      33280
+stack           8000      32768
+start           8099      32921
+steptab         817A      33146
+tc             =56        86
+td             =56        86
+tdat           =56        86
+ti             =56        86
+title           8000      32768
+title_len      =99        153

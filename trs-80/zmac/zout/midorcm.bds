@@ -1,0 +1,1235 @@
+binary-debuggable-source
+0000 0000 f midorcm.asm
+0000 0000 s ;
+0000 0000 s ; midorch.z - play notes on orchestra 80 as read from midi80 device.
+0000 0000 s ;
+0000 0000 s ; See orchan.z for theory of operation on keeping the sound updated while
+0000 0000 s ; waiting for midi key off.
+0000 0000 s 
+0000 0000 s @DSPLY		equ	$4467
+0000 0000 s @DSP    	equ 	$0033
+0000 0000 s @KEY    	equ 	$0049 
+0000 0000 s ENTER		equ	$0d ; @DSPLY with newline
+0000 0000 s 
+0000 0000 s midstat	equ	9
+0000 0000 s middata	equ	8
+0000 0000 s 
+0000 0000 s 
+8000 8000 s 	org	$8000
+8000 8000 s stack:
+8000 8000 d 4d49444f52434820342e31202d204d4f44454c204949492056455253494f4e202020202020202020202020202020202020202020202020202020202020202020
+8000 8000 u 40 02
+8000 8000 s title:		ascii	"MIDORCH 4.1 - MODEL III VERSION                                 "
+8040 8040 d 2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d
+8040 8040 u 40 02
+8040 8040 s 		ascii   "----------------------------------------------------------------"
+8080 8080 d 456e746572204d494449204368616e6e656c20312e2e383f20
+8080 8080 u 19 02
+8080 8080 s 		ascii   "Enter MIDI Channel 1..8? "
+8099 8099 s title_len 	equ $-title
+8099 8099 s start:
+8099 8099 s 	
+8099 8099 d f3
+8099 8099 u 01 01
+8099 8099 s 	di
+809a 809a d 310080
+809a 809a u 03 01
+809a 809a s 	ld	sp,stack
+809d 809d s 
+809d 809d d 21003c
+809d 809d u 03 01
+809d 809d s 	ld	hl,$3c00
+80a0 80a0 d 11013c
+80a0 80a0 u 03 01
+80a0 80a0 s 	ld	de,$3c00+1
+80a3 80a3 d 01ff03
+80a3 80a3 u 03 01
+80a3 80a3 s 	ld	bc,1024-1
+80a6 80a6 d 3620
+80a6 80a6 u 02 01
+80a6 80a6 s 	ld	(hl),' '
+80a8 80a8 d edb0
+80a8 80a8 u 02 01
+80a8 80a8 s 	ldir
+80aa 80aa s 
+80aa 80aa d 210080
+80aa 80aa u 03 01
+80aa 80aa s 	ld	hl,title
+80ad 80ad d 11003c
+80ad 80ad u 03 01
+80ad 80ad s 	ld	de,$3c00
+80b0 80b0 d 019900
+80b0 80b0 u 03 01
+80b0 80b0 s 	ld	bc,title_len
+80b3 80b3 d edb0
+80b3 80b3 u 02 01
+80b3 80b3 s 	ldir
+80b5 80b5 s 
+80b5 80b5 s 	;;  ask for MIDI Channel
+80b5 80b5 s retry:
+80b5 80b5 d cd4900
+80b5 80b5 u 03 01
+80b5 80b5 s 	call @KEY
+80b8 80b8 d 21993c
+80b8 80b8 u 03 01
+80b8 80b8 s 	ld hl, $3c00 + 2*64 + 25
+80bb 80bb d 77
+80bb 80bb u 01 01
+80bb 80bb s 	ld (hl), a
+80bc 80bc d d631
+80bc 80bc u 02 01
+80bc 80bc s 	sub '1' ; "1" = 49
+80be 80be d 38f5
+80be 80be u 02 01
+80be 80be s 	jr c,retry
+80c0 80c0 d fe08
+80c0 80c0 u 02 01
+80c0 80c0 s 	cp 7+1 ; limit max channel to 7
+80c2 80c2 d 30f1
+80c2 80c2 u 02 01
+80c2 80c2 s 	jr nc,retry
+80c4 80c4 s 	
+80c4 80c4 d c690
+80c4 80c4 u 02 01
+80c4 80c4 s 	add $90 ; channel 1 on = $90 to channel 8 on = $98 
+80c6 80c6 d 32f580
+80c6 80c6 u 03 01
+80c6 80c6 s 	ld (channel_on), a	
+80c9 80c9 d d690
+80c9 80c9 u 02 01
+80c9 80c9 s 	sub $90 
+80cb 80cb d c680
+80cb 80cb u 02 01
+80cb 80cb s 	add $80 ; channel 1 off = $80 to channel 8 off = $88 
+80cd 80cd d 326981
+80cd 80cd u 03 01
+80cd 80cd s 	ld (channel_off), a	
+80d0 80d0 s 	
+80d0 80d0 d dbff
+80d0 80d0 u 02 01
+80d0 80d0 s 	in  a,($ff)
+80d2 80d2 d f610
+80d2 80d2 u 02 01
+80d2 80d2 s 	or  a,$10
+80d4 80d4 d e69f
+80d4 80d4 u 02 01
+80d4 80d4 s 	and a,~($20 | $40) ; disable video wait states M3, and SLOW mode M4
+80d6 80d6 d d3ec
+80d6 80d6 u 02 01
+80d6 80d6 s 	out ($ec),a
+80d8 80d8 s 
+80d8 80d8 s ; Status report but already in prime registers
+80d8 80d8 s statusx	macro	state
+80d8 80d8 s 	ld	(hl),state
+80d8 80d8 s 	inc	l
+80d8 80d8 s 	endm
+80d8 80d8 s 
+80d8 80d8 s ; Status report
+80d8 80d8 s status	macro	state
+80d8 80d8 s 	exx
+80d8 80d8 s 	statusx	state
+80d8 80d8 s 	exx
+80d8 80d8 s 	endm
+80d8 80d8 s 
+80d8 80d8 s ; Status cursor
+80d8 80d8 s cursor	macro
+80d8 80d8 s 	exx
+80d8 80d8 s 	ld	(hl),191
+80d8 80d8 s 	exx
+80d8 80d8 s 	endm
+80d8 80d8 s 
+80d8 80d8 s ; Status report with extra 6 cycle delay.
+80d8 80d8 s status6	macro	state
+80d8 80d8 s 	exx
+80d8 80d8 s 	inc	de
+80d8 80d8 s 	statusx	state
+80d8 80d8 s 	exx
+80d8 80d8 s 	endm
+80d8 80d8 s 
+80d8 80d8 d d9
+80d8 80d8 u 01 01
+80d8 80d8 s 	exx
+80d9 80d9 d 21003d
+80d9 80d9 u 03 01
+80d9 80d9 s 	ld	hl,$3d00
+80dc 80dc d d9
+80dc 80dc u 01 01
+80dc 80dc s 	exx
+80dd 80dd s 
+80dd 80dd s 	; Wait for note on ($90) from midi.
+80dd 80dd d cd7081
+80dd 80dd u 03 01
+80dd 80dd s geton:	call	dly.01
+80e0 80e0 s 	status	'.'
+80e0 80e0 d d9
+80e0 80e0 u 01 01
+80e0 80e0 s 	exx
+80e1 80e1 s 	statusx	'.'
+80e1 80e1 d 362e
+80e1 80e1 u 02 01
+80e1 80e1 s 	ld	(hl),'.'
+80e3 80e3 d 2c
+80e3 80e3 u 01 01
+80e3 80e3 s 	inc	l
+80e4 80e4 s 	endm
+80e4 80e4 d d9
+80e4 80e4 u 01 01
+80e4 80e4 s 	exx
+80e5 80e5 s 	endm
+80e5 80e5 s 	cursor
+80e5 80e5 d d9
+80e5 80e5 u 01 01
+80e5 80e5 s 	exx
+80e6 80e6 d 36bf
+80e6 80e6 u 02 01
+80e6 80e6 s 	ld	(hl),191
+80e8 80e8 d d9
+80e8 80e8 u 01 01
+80e8 80e8 s 	exx
+80e9 80e9 s 	endm
+80e9 80e9 d db09
+80e9 80e9 u 02 01
+80e9 80e9 s 	in	a,(midstat)
+80eb 80eb d 1f
+80eb 80eb u 01 01
+80eb 80eb s 	rra
+80ec 80ec d 30ef
+80ec 80ec u 02 01
+80ec 80ec s 	jr	nc,geton	; data not available
+80ee 80ee d db08
+80ee 80ee u 02 01
+80ee 80ee s 	in	a,(middata)	; get data
+80f0 80f0 s 	status	a
+80f0 80f0 d d9
+80f0 80f0 u 01 01
+80f0 80f0 s 	exx
+80f1 80f1 s 	statusx	a
+80f1 80f1 d 77
+80f1 80f1 u 01 01
+80f1 80f1 s 	ld	(hl),a
+80f2 80f2 d 2c
+80f2 80f2 u 01 01
+80f2 80f2 s 	inc	l
+80f3 80f3 s 	endm
+80f3 80f3 d d9
+80f3 80f3 u 01 01
+80f3 80f3 s 	exx
+80f4 80f4 s 	endm
+80f4 80f4 s 
+80f4 80f4 d fe90
+80f4 80f4 u 02 01
+80f4 80f4 s 	cp $90
+80f5 80f5 s 	org  $-1
+80f5 80f5 d 90
+80f5 80f5 u 01 03
+80f5 80f5 s 	channel_on: defb $90
+80f6 80f6 d 20e5
+80f6 80f6 u 02 01
+80f6 80f6 s 	jr	nz,geton
+80f8 80f8 s 
+80f8 80f8 s getnote:
+80f8 80f8 d cd7081
+80f8 80f8 u 03 01
+80f8 80f8 s 	call	dly.01		; maybe delay not so necessary?
+80fb 80fb s 	status	'!'
+80fb 80fb d d9
+80fb 80fb u 01 01
+80fb 80fb s 	exx
+80fc 80fc s 	statusx	'!'
+80fc 80fc d 3621
+80fc 80fc u 02 01
+80fc 80fc s 	ld	(hl),'!'
+80fe 80fe d 2c
+80fe 80fe u 01 01
+80fe 80fe s 	inc	l
+80ff 80ff s 	endm
+80ff 80ff d d9
+80ff 80ff u 01 01
+80ff 80ff s 	exx
+8100 8100 s 	endm
+8100 8100 s 	cursor
+8100 8100 d d9
+8100 8100 u 01 01
+8100 8100 s 	exx
+8101 8101 d 36bf
+8101 8101 u 02 01
+8101 8101 s 	ld	(hl),191
+8103 8103 d d9
+8103 8103 u 01 01
+8103 8103 s 	exx
+8104 8104 s 	endm
+8104 8104 d db09
+8104 8104 u 02 01
+8104 8104 s 	in	a,(midstat)
+8106 8106 d 1f
+8106 8106 u 01 01
+8106 8106 s 	rra
+8107 8107 d 30ef
+8107 8107 u 02 01
+8107 8107 s 	jr	nc,getnote
+8109 8109 d db08
+8109 8109 u 02 01
+8109 8109 s 	in	a,(middata)
+810b 810b d d618
+810b 810b u 02 01
+810b 810b s 	sub	24		; can handle note 0 .. 23
+810d 810d d fe1b
+810d 810d u 02 01
+810d 810d s 	cp	27		; and only have 27 notes
+810f 810f d 30cc
+810f 810f u 02 01
+810f 810f s 	jr	nc,geton	; note   of range, start over
+8111 8111 s 
+8111 8111 d 1600
+8111 8111 u 02 01
+8111 8111 s 	ld	d,0
+8113 8113 d 5f
+8113 8113 u 01 01
+8113 8113 s 	ld	e,a
+8114 8114 d 217a81
+8114 8114 u 03 01
+8114 8114 s 	ld	hl,steptab
+8117 8117 d 19
+8117 8117 u 01 01
+8117 8117 s 	add	hl,de
+8118 8118 d 19
+8118 8118 u 01 01
+8118 8118 s 	add	hl,de
+8119 8119 d 5e
+8119 8119 u 01 01
+8119 8119 s 	ld	e,(hl)
+811a 811a d 23
+811a 811a u 01 01
+811a 811a s 	inc	hl
+811b 811b d 56
+811b 811b u 01 01
+811b 811b s 	ld	d,(hl)
+811c 811c d 0682
+811c 811c u 02 01
+811c 811c s 	ld	b,high(sine)
+811e 811e d 210000
+811e 811e u 03 01
+811e 811e s 	ld	hl,0
+8121 8121 s 
+8121 8121 d c640
+8121 8121 u 02 01
+8121 8121 s 	add	a,'@'		; indicate note
+8123 8123 s 	status	a
+8123 8123 d d9
+8123 8123 u 01 01
+8123 8123 s 	exx
+8124 8124 s 	statusx	a
+8124 8124 d 77
+8124 8124 u 01 01
+8124 8124 s 	ld	(hl),a
+8125 8125 d 2c
+8125 8125 u 01 01
+8125 8125 s 	inc	l
+8126 8126 s 	endm
+8126 8126 d d9
+8126 8126 u 01 01
+8126 8126 s 	exx
+8127 8127 s 	endm
+8127 8127 s 
+8127 8127 s sampcyc	equ	86		; cycles per sample output
+8127 8127 s 
+8127 8127 s ; After outputting a sample the code checks if a MIDI byte is ready.
+8127 8127 s ; It not it loops back to sampout1 where 28 cycles are wasted to
+8127 8127 s ; balance the loop out to 86 cycles.
+8127 8127 s ; If there is a MIDI byte it gets the byte and checks for note off ($80).
+8127 8127 s ; If it isn't that it loops back to sampout2 which works out to
+8127 8127 s ; 86 cycles for that loop.
+8127 8127 s ;
+8127 8127 s ; To be friendlier to the midi80 we only check it every 0.01 seconds.
+8127 8127 s 
+8127 8127 s sample	macro
+8127 8127 s 	add	hl,de
+8127 8127 s 	ld	c,h
+8127 8127 s 	ld	a,(bc)
+8127 8127 s 	out	($79),a
+8127 8127 s 	endm
+8127 8127 s 
+8127 8127 s ; Output one sample and initialize our 0.01 second delay count.
+8127 8127 s 	sett	0
+8127 8127 s samplp:
+8127 8127 s 	sample
+8127 8127 d 19
+8127 8127 u 01 01
+8127 8127 s 	add	hl,de
+8128 8128 d 4c
+8128 8128 u 01 01
+8128 8128 s 	ld	c,h
+8129 8129 d 0a
+8129 8129 u 01 01
+8129 8129 s 	ld	a,(bc)
+812a 812a d d379
+812a 812a u 02 01
+812a 812a s 	out	($79),a
+812c 812c s 	endm
+812c 812c d d9
+812c 812c u 01 01
+812c 812c s 	exx
+812d 812d d 010200
+812d 812d u 03 01
+812d 812d s 	ld	bc,2027520/sampcyc/10000
+8130 8130 d d9
+8130 8130 u 01 01
+8130 8130 s 	exx
+8131 8131 s 	status	'I'
+8131 8131 d d9
+8131 8131 u 01 01
+8131 8131 s 	exx
+8132 8132 s 	statusx	'I'
+8132 8132 d 3649
+8132 8132 u 02 01
+8132 8132 s 	ld	(hl),'I'
+8134 8134 d 2c
+8134 8134 u 01 01
+8134 8134 s 	inc	l
+8135 8135 s 	endm
+8135 8135 d d9
+8135 8135 u 01 01
+8135 8135 s 	exx
+8136 8136 s 	endm
+8136 8136 s 	; waste 13
+8136 8136 d 3a0000
+8136 8136 u 03 01
+8136 8136 s 	ld	a,(0)
+8139 8139 s 
+8139 8139 s ti	equ	t($)
+8139 8139 s 	assert	ti == sampcyc
+8139 8139 s 
+8139 8139 s ; Output samples for 1/10000th of a second.
+8139 8139 s 	sett	0
+8139 8139 s sampdly:
+8139 8139 s 	sample
+8139 8139 d 19
+8139 8139 u 01 01
+8139 8139 s 	add	hl,de
+813a 813a d 4c
+813a 813a u 01 01
+813a 813a s 	ld	c,h
+813b 813b d 0a
+813b 813b u 01 01
+813b 813b s 	ld	a,(bc)
+813c 813c d d379
+813c 813c u 02 01
+813c 813c s 	out	($79),a
+813e 813e s 	endm
+813e 813e d d9
+813e 813e u 01 01
+813e 813e s 	exx
+813f 813f s 	statusx	'S'
+813f 813f d 3653
+813f 813f u 02 01
+813f 813f s 	ld	(hl),'S'
+8141 8141 d 2c
+8141 8141 u 01 01
+8141 8141 s 	inc	l
+8142 8142 s 	endm
+8142 8142 d 0b
+8142 8142 u 01 01
+8142 8142 s 	dec	bc
+8143 8143 d 78
+8143 8143 u 01 01
+8143 8143 s 	ld	a,b
+8144 8144 d b1
+8144 8144 u 01 01
+8144 8144 s 	or	c
+8145 8145 d d9
+8145 8145 u 01 01
+8145 8145 s 	exx
+8146 8146 s 	; waste 7
+8146 8146 d 3e00
+8146 8146 u 02 01
+8146 8146 s 	ld	a,0
+8148 8148 s 
+8148 8148 d c23981
+8148 8148 u 03 01
+8148 8148 s 	jp	nz,sampdly
+814b 814b s td	equ	t($)
+814b 814b s 	assert	td == sampcyc
+814b 814b s 
+814b 814b s ; Output one sample and check for MIDI data.
+814b 814b s 	sett	0
+814b 814b s 	sample
+814b 814b d 19
+814b 814b u 01 01
+814b 814b s 	add	hl,de
+814c 814c d 4c
+814c 814c u 01 01
+814c 814c s 	ld	c,h
+814d 814d d 0a
+814d 814d u 01 01
+814d 814d s 	ld	a,(bc)
+814e 814e d d379
+814e 814e u 02 01
+814e 814e s 	out	($79),a
+8150 8150 s 	endm
+8150 8150 s 	status6	'C'
+8150 8150 d d9
+8150 8150 u 01 01
+8150 8150 s 	exx
+8151 8151 d 13
+8151 8151 u 01 01
+8151 8151 s 	inc	de
+8152 8152 s 	statusx	'C'
+8152 8152 d 3643
+8152 8152 u 02 01
+8152 8152 s 	ld	(hl),'C'
+8154 8154 d 2c
+8154 8154 u 01 01
+8154 8154 s 	inc	l
+8155 8155 s 	endm
+8155 8155 d d9
+8155 8155 u 01 01
+8155 8155 s 	exx
+8156 8156 s 	endm
+8156 8156 d db09
+8156 8156 u 02 01
+8156 8156 s 	in	a,(midstat)
+8158 8158 d 1f
+8158 8158 u 01 01
+8158 8158 s 	rra
+8159 8159 d d22781
+8159 8159 u 03 01
+8159 8159 s 	jp	nc,samplp	; no data
+815c 815c s tc	equ	t($)
+815c 815c s 	assert	tc == sampcyc
+815c 815c s 
+815c 815c s ; Output one sample; read data byte and decide what to to.
+815c 815c s 	sett	0
+815c 815c s 	sample
+815c 815c d 19
+815c 815c u 01 01
+815c 815c s 	add	hl,de
+815d 815d d 4c
+815d 815d u 01 01
+815d 815d s 	ld	c,h
+815e 815e d 0a
+815e 815e u 01 01
+815e 815e s 	ld	a,(bc)
+815f 815f d d379
+815f 815f u 02 01
+815f 815f s 	out	($79),a
+8161 8161 s 	endm
+8161 8161 d db08
+8161 8161 u 02 01
+8161 8161 s 	in	a,(middata)
+8163 8163 s 
+8163 8163 s 	; Special purpose status.
+8163 8163 s 	status6	a
+8163 8163 d d9
+8163 8163 u 01 01
+8163 8163 s 	exx
+8164 8164 d 13
+8164 8164 u 01 01
+8164 8164 s 	inc	de
+8165 8165 s 	statusx	a
+8165 8165 d 77
+8165 8165 u 01 01
+8165 8165 s 	ld	(hl),a
+8166 8166 d 2c
+8166 8166 u 01 01
+8166 8166 s 	inc	l
+8167 8167 s 	endm
+8167 8167 d d9
+8167 8167 u 01 01
+8167 8167 s 	exx
+8168 8168 s 	endm
+8168 8168 s 
+8168 8168 d fe80
+8168 8168 u 02 01
+8168 8168 s 	cp   $80
+8169 8169 s 	org  $-1
+8169 8169 d 80
+8169 8169 u 01 03
+8169 8169 s 	channel_off: defb $80
+816a 816a s 	
+816a 816a d c22781
+816a 816a u 03 01
+816a 816a s 	jp	nz,samplp
+816d 816d s tdat	equ	t($)
+816d 816d s 	assert	tdat == sampcyc	
+816d 816d s 
+816d 816d d c3dd80
+816d 816d u 03 01
+816d 816d s 	jp	geton		; got stop, go look for new start.
+8170 8170 s 
+8170 8170 d 010500
+8170 8170 u 03 01
+8170 8170 s dly.01:	ld	bc,d10000th
+8173 8173 s 	sett	0
+8173 8173 d 0b
+8173 8173 u 01 01
+8173 8173 s dly:	dec	bc
+8174 8174 d 78
+8174 8174 u 01 01
+8174 8174 s 	ld	a,b
+8175 8175 d b1
+8175 8175 u 01 01
+8175 8175 s 	or	c
+8176 8176 d c27381
+8176 8176 u 03 01
+8176 8176 s 	jp	nz,dly
+8179 8179 d c9
+8179 8179 u 01 01
+8179 8179 s 	ret
+817a 817a s d10000th	equ	2027520 / t($) / 10000
+817a 817a s 
+817a 817a s steptab:
+817a 817a s 	octbase = 220 * 256
+817a 817a s 	hz = octbase
+817a 817a s 	nt = 0
+817a 817a s 	rept	27
+817a 817a s 
+817a 817a s 	; Hz of buffer at step 1 is: (78.75 Hz)
+817a 817a s 	; 2027520 / sampcyc / 256
+817a 817a s 	; So target Hz over that is our step.
+817a 817a s 	; But we want 8.8 fixed point value.
+817a 817a s 
+817a 817a s 	defw	hz / (2027520 / sampcyc / 256)
+817a 817a s 
+817a 817a s 	hz *= 271 ; twelfth root 2 * 256
+817a 817a s 	hz /= 256
+817a 817a s 	nt++
+817a 817a s 	if nt == 12
+817a 817a s 		nt = 0
+817a 817a s 		octbase *= 2
+817a 817a s 		hz = octbase
+817a 817a s 	endif
+817a 817a s 
+817a 817a s 	endm
+817a 817a s 
+817a 817a s 	; Hz of buffer at step 1 is: (78.75 Hz)
+817a 817a s 	; 2027520 / sampcyc / 256
+817a 817a s 	; So target Hz over that is our step.
+817a 817a s 	; But we want 8.8 fixed point value.
+817a 817a s 
+817a 817a d 6402
+817a 817a u 02 02
+817a 817a s 	defw	hz / (2027520 / sampcyc / 256)
+817c 817c s 
+817c 817c s 	hz *= 271 ; twelfth root 2 * 256
+817c 817c s 	hz /= 256
+817c 817c s 	nt++
+817c 817c s 	if nt == 12
+817c 817c s 		nt = 0
+817c 817c s 		octbase *= 2
+817c 817c s 		hz = octbase
+817c 817c s 	endif
+817c 817c s 
+817c 817c s 	endm
+817c 817c s 
+817c 817c s 	; Hz of buffer at step 1 is: (78.75 Hz)
+817c 817c s 	; 2027520 / sampcyc / 256
+817c 817c s 	; So target Hz over that is our step.
+817c 817c s 	; But we want 8.8 fixed point value.
+817c 817c s 
+817c 817c d 8802
+817c 817c u 02 02
+817c 817c s 	defw	hz / (2027520 / sampcyc / 256)
+817e 817e s 
+817e 817e s 	hz *= 271 ; twelfth root 2 * 256
+817e 817e s 	hz /= 256
+817e 817e s 	nt++
+817e 817e s 	if nt == 12
+817e 817e s 		nt = 0
+817e 817e s 		octbase *= 2
+817e 817e s 		hz = octbase
+817e 817e s 	endif
+817e 817e s 
+817e 817e s 	endm
+817e 817e s 
+817e 817e s 	; Hz of buffer at step 1 is: (78.75 Hz)
+817e 817e s 	; 2027520 / sampcyc / 256
+817e 817e s 	; So target Hz over that is our step.
+817e 817e s 	; But we want 8.8 fixed point value.
+817e 817e s 
+817e 817e d ae02
+817e 817e u 02 02
+817e 817e s 	defw	hz / (2027520 / sampcyc / 256)
+8180 8180 s 
+8180 8180 s 	hz *= 271 ; twelfth root 2 * 256
+8180 8180 s 	hz /= 256
+8180 8180 s 	nt++
+8180 8180 s 	if nt == 12
+8180 8180 s 		nt = 0
+8180 8180 s 		octbase *= 2
+8180 8180 s 		hz = octbase
+8180 8180 s 	endif
+8180 8180 s 
+8180 8180 s 	endm
+8180 8180 s 
+8180 8180 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+8180 8180 s 	; 2027520 / sampcyc / 256
+8180 8180 s 	; So target Hz over that is our step.
+8180 8180 s 	; But we want 8.8 fixed point value.
+8180 8180 s 
+8180 8180 d d602
+8180 8180 u 02 02
+8180 8180 s 	defw	hz / (2027520 / sampcyc / 256)
+8182 8182 s 
+8182 8182 s 	hz *= 271 ; twelfth root 2 * 256
+8182 8182 s 	hz /= 256
+8182 8182 s 	nt++
+8182 8182 s 	if nt == 12
+8182 8182 s 		nt = 0
+8182 8182 s 		octbase *= 2
+8182 8182 s 		hz = octbase
+8182 8182 s 	endif
+8182 8182 s 
+8182 8182 s 	endm
+8182 8182 s 
+8182 8182 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+8182 8182 s 	; 2027520 / sampcyc / 256
+8182 8182 s 	; So target Hz over that is our step.
+8182 8182 s 	; But we want 8.8 fixed point value.
+8182 8182 s 
+8182 8182 d 0003
+8182 8182 u 02 02
+8182 8182 s 	defw	hz / (2027520 / sampcyc / 256)
+8184 8184 s 
+8184 8184 s 	hz *= 271 ; twelfth root 2 * 256
+8184 8184 s 	hz /= 256
+8184 8184 s 	nt++
+8184 8184 s 	if nt == 12
+8184 8184 s 		nt = 0
+8184 8184 s 		octbase *= 2
+8184 8184 s 		hz = octbase
+8184 8184 s 	endif
+8184 8184 s 
+8184 8184 s 	endm
+8184 8184 s 
+8184 8184 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+8184 8184 s 	; 2027520 / sampcyc / 256
+8184 8184 s 	; So target Hz over that is our step.
+8184 8184 s 	; But we want 8.8 fixed point value.
+8184 8184 s 
+8184 8184 d 2d03
+8184 8184 u 02 02
+8184 8184 s 	defw	hz / (2027520 / sampcyc / 256)
+8186 8186 s 
+8186 8186 s 	hz *= 271 ; twelfth root 2 * 256
+8186 8186 s 	hz /= 256
+8186 8186 s 	nt++
+8186 8186 s 	if nt == 12
+8186 8186 s 		nt = 0
+8186 8186 s 		octbase *= 2
+8186 8186 s 		hz = octbase
+8186 8186 s 	endif
+8186 8186 s 
+8186 8186 s 	endm
+8186 8186 s 
+8186 8186 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+8186 8186 s 	; 2027520 / sampcyc / 256
+8186 8186 s 	; So target Hz over that is our step.
+8186 8186 s 	; But we want 8.8 fixed point value.
+8186 8186 s 
+8186 8186 d 5d03
+8186 8186 u 02 02
+8186 8186 s 	defw	hz / (2027520 / sampcyc / 256)
+8188 8188 s 
+8188 8188 s 	hz *= 271 ; twelfth root 2 * 256
+8188 8188 s 	hz /= 256
+8188 8188 s 	nt++
+8188 8188 s 	if nt == 12
+8188 8188 s 		nt = 0
+8188 8188 s 		octbase *= 2
+8188 8188 s 		hz = octbase
+8188 8188 s 	endif
+8188 8188 s 
+8188 8188 s 	endm
+8188 8188 s 
+8188 8188 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+8188 8188 s 	; 2027520 / sampcyc / 256
+8188 8188 s 	; So target Hz over that is our step.
+8188 8188 s 	; But we want 8.8 fixed point value.
+8188 8188 s 
+8188 8188 d 8f03
+8188 8188 u 02 02
+8188 8188 s 	defw	hz / (2027520 / sampcyc / 256)
+818a 818a s 
+818a 818a s 	hz *= 271 ; twelfth root 2 * 256
+818a 818a s 	hz /= 256
+818a 818a s 	nt++
+818a 818a s 	if nt == 12
+818a 818a s 		nt = 0
+818a 818a s 		octbase *= 2
+818a 818a s 		hz = octbase
+818a 818a s 	endif
+818a 818a s 
+818a 818a s 	endm
+818a 818a s 
+818a 818a s 	; Hz of buffer at step 1 is: (78.75 Hz)
+818a 818a s 	; 2027520 / sampcyc / 256
+818a 818a s 	; So target Hz over that is our step.
+818a 818a s 	; But we want 8.8 fixed point value.
+818a 818a s 
+818a 818a d c503
+818a 818a u 02 02
+818a 818a s 	defw	hz / (2027520 / sampcyc / 256)
+818c 818c s 
+818c 818c s 	hz *= 271 ; twelfth root 2 * 256
+818c 818c s 	hz /= 256
+818c 818c s 	nt++
+818c 818c s 	if nt == 12
+818c 818c s 		nt = 0
+818c 818c s 		octbase *= 2
+818c 818c s 		hz = octbase
+818c 818c s 	endif
+818c 818c s 
+818c 818c s 	endm
+818c 818c s 
+818c 818c s 	; Hz of buffer at step 1 is: (78.75 Hz)
+818c 818c s 	; 2027520 / sampcyc / 256
+818c 818c s 	; So target Hz over that is our step.
+818c 818c s 	; But we want 8.8 fixed point value.
+818c 818c s 
+818c 818c d fd03
+818c 818c u 02 02
+818c 818c s 	defw	hz / (2027520 / sampcyc / 256)
+818e 818e s 
+818e 818e s 	hz *= 271 ; twelfth root 2 * 256
+818e 818e s 	hz /= 256
+818e 818e s 	nt++
+818e 818e s 	if nt == 12
+818e 818e s 		nt = 0
+818e 818e s 		octbase *= 2
+818e 818e s 		hz = octbase
+818e 818e s 	endif
+818e 818e s 
+818e 818e s 	endm
+818e 818e s 
+818e 818e s 	; Hz of buffer at step 1 is: (78.75 Hz)
+818e 818e s 	; 2027520 / sampcyc / 256
+818e 818e s 	; So target Hz over that is our step.
+818e 818e s 	; But we want 8.8 fixed point value.
+818e 818e s 
+818e 818e d 3904
+818e 818e u 02 02
+818e 818e s 	defw	hz / (2027520 / sampcyc / 256)
+8190 8190 s 
+8190 8190 s 	hz *= 271 ; twelfth root 2 * 256
+8190 8190 s 	hz /= 256
+8190 8190 s 	nt++
+8190 8190 s 	if nt == 12
+8190 8190 s 		nt = 0
+8190 8190 s 		octbase *= 2
+8190 8190 s 		hz = octbase
+8190 8190 s 	endif
+8190 8190 s 
+8190 8190 s 	endm
+8190 8190 s 
+8190 8190 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+8190 8190 s 	; 2027520 / sampcyc / 256
+8190 8190 s 	; So target Hz over that is our step.
+8190 8190 s 	; But we want 8.8 fixed point value.
+8190 8190 s 
+8190 8190 d 7904
+8190 8190 u 02 02
+8190 8190 s 	defw	hz / (2027520 / sampcyc / 256)
+8192 8192 s 
+8192 8192 s 	hz *= 271 ; twelfth root 2 * 256
+8192 8192 s 	hz /= 256
+8192 8192 s 	nt++
+8192 8192 s 	if nt == 12
+8192 8192 s 		nt = 0
+8192 8192 s 		octbase *= 2
+8192 8192 s 		hz = octbase
+8192 8192 s 	endif
+8192 8192 s 
+8192 8192 s 	endm
+8192 8192 s 
+8192 8192 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+8192 8192 s 	; 2027520 / sampcyc / 256
+8192 8192 s 	; So target Hz over that is our step.
+8192 8192 s 	; But we want 8.8 fixed point value.
+8192 8192 s 
+8192 8192 d c804
+8192 8192 u 02 02
+8192 8192 s 	defw	hz / (2027520 / sampcyc / 256)
+8194 8194 s 
+8194 8194 s 	hz *= 271 ; twelfth root 2 * 256
+8194 8194 s 	hz /= 256
+8194 8194 s 	nt++
+8194 8194 s 	if nt == 12
+8194 8194 s 		nt = 0
+8194 8194 s 		octbase *= 2
+8194 8194 s 		hz = octbase
+8194 8194 s 	endif
+8194 8194 s 
+8194 8194 s 	endm
+8194 8194 s 
+8194 8194 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+8194 8194 s 	; 2027520 / sampcyc / 256
+8194 8194 s 	; So target Hz over that is our step.
+8194 8194 s 	; But we want 8.8 fixed point value.
+8194 8194 s 
+8194 8194 d 1005
+8194 8194 u 02 02
+8194 8194 s 	defw	hz / (2027520 / sampcyc / 256)
+8196 8196 s 
+8196 8196 s 	hz *= 271 ; twelfth root 2 * 256
+8196 8196 s 	hz /= 256
+8196 8196 s 	nt++
+8196 8196 s 	if nt == 12
+8196 8196 s 		nt = 0
+8196 8196 s 		octbase *= 2
+8196 8196 s 		hz = octbase
+8196 8196 s 	endif
+8196 8196 s 
+8196 8196 s 	endm
+8196 8196 s 
+8196 8196 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+8196 8196 s 	; 2027520 / sampcyc / 256
+8196 8196 s 	; So target Hz over that is our step.
+8196 8196 s 	; But we want 8.8 fixed point value.
+8196 8196 s 
+8196 8196 d 5c05
+8196 8196 u 02 02
+8196 8196 s 	defw	hz / (2027520 / sampcyc / 256)
+8198 8198 s 
+8198 8198 s 	hz *= 271 ; twelfth root 2 * 256
+8198 8198 s 	hz /= 256
+8198 8198 s 	nt++
+8198 8198 s 	if nt == 12
+8198 8198 s 		nt = 0
+8198 8198 s 		octbase *= 2
+8198 8198 s 		hz = octbase
+8198 8198 s 	endif
+8198 8198 s 
+8198 8198 s 	endm
+8198 8198 s 
+8198 8198 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+8198 8198 s 	; 2027520 / sampcyc / 256
+8198 8198 s 	; So target Hz over that is our step.
+8198 8198 s 	; But we want 8.8 fixed point value.
+8198 8198 s 
+8198 8198 d ac05
+8198 8198 u 02 02
+8198 8198 s 	defw	hz / (2027520 / sampcyc / 256)
+819a 819a s 
+819a 819a s 	hz *= 271 ; twelfth root 2 * 256
+819a 819a s 	hz /= 256
+819a 819a s 	nt++
+819a 819a s 	if nt == 12
+819a 819a s 		nt = 0
+819a 819a s 		octbase *= 2
+819a 819a s 		hz = octbase
+819a 819a s 	endif
+819a 819a s 
+819a 819a s 	endm
+819a 819a s 
+819a 819a s 	; Hz of buffer at step 1 is: (78.75 Hz)
+819a 819a s 	; 2027520 / sampcyc / 256
+819a 819a s 	; So target Hz over that is our step.
+819a 819a s 	; But we want 8.8 fixed point value.
+819a 819a s 
+819a 819a d 0106
+819a 819a u 02 02
+819a 819a s 	defw	hz / (2027520 / sampcyc / 256)
+819c 819c s 
+819c 819c s 	hz *= 271 ; twelfth root 2 * 256
+819c 819c s 	hz /= 256
+819c 819c s 	nt++
+819c 819c s 	if nt == 12
+819c 819c s 		nt = 0
+819c 819c s 		octbase *= 2
+819c 819c s 		hz = octbase
+819c 819c s 	endif
+819c 819c s 
+819c 819c s 	endm
+819c 819c s 
+819c 819c s 	; Hz of buffer at step 1 is: (78.75 Hz)
+819c 819c s 	; 2027520 / sampcyc / 256
+819c 819c s 	; So target Hz over that is our step.
+819c 819c s 	; But we want 8.8 fixed point value.
+819c 819c s 
+819c 819c d 5b06
+819c 819c u 02 02
+819c 819c s 	defw	hz / (2027520 / sampcyc / 256)
+819e 819e s 
+819e 819e s 	hz *= 271 ; twelfth root 2 * 256
+819e 819e s 	hz /= 256
+819e 819e s 	nt++
+819e 819e s 	if nt == 12
+819e 819e s 		nt = 0
+819e 819e s 		octbase *= 2
+819e 819e s 		hz = octbase
+819e 819e s 	endif
+819e 819e s 
+819e 819e s 	endm
+819e 819e s 
+819e 819e s 	; Hz of buffer at step 1 is: (78.75 Hz)
+819e 819e s 	; 2027520 / sampcyc / 256
+819e 819e s 	; So target Hz over that is our step.
+819e 819e s 	; But we want 8.8 fixed point value.
+819e 819e s 
+819e 819e d ba06
+819e 819e u 02 02
+819e 819e s 	defw	hz / (2027520 / sampcyc / 256)
+81a0 81a0 s 
+81a0 81a0 s 	hz *= 271 ; twelfth root 2 * 256
+81a0 81a0 s 	hz /= 256
+81a0 81a0 s 	nt++
+81a0 81a0 s 	if nt == 12
+81a0 81a0 s 		nt = 0
+81a0 81a0 s 		octbase *= 2
+81a0 81a0 s 		hz = octbase
+81a0 81a0 s 	endif
+81a0 81a0 s 
+81a0 81a0 s 	endm
+81a0 81a0 s 
+81a0 81a0 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+81a0 81a0 s 	; 2027520 / sampcyc / 256
+81a0 81a0 s 	; So target Hz over that is our step.
+81a0 81a0 s 	; But we want 8.8 fixed point value.
+81a0 81a0 s 
+81a0 81a0 d 1f07
+81a0 81a0 u 02 02
+81a0 81a0 s 	defw	hz / (2027520 / sampcyc / 256)
+81a2 81a2 s 
+81a2 81a2 s 	hz *= 271 ; twelfth root 2 * 256
+81a2 81a2 s 	hz /= 256
+81a2 81a2 s 	nt++
+81a2 81a2 s 	if nt == 12
+81a2 81a2 s 		nt = 0
+81a2 81a2 s 		octbase *= 2
+81a2 81a2 s 		hz = octbase
+81a2 81a2 s 	endif
+81a2 81a2 s 
+81a2 81a2 s 	endm
+81a2 81a2 s 
+81a2 81a2 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+81a2 81a2 s 	; 2027520 / sampcyc / 256
+81a2 81a2 s 	; So target Hz over that is our step.
+81a2 81a2 s 	; But we want 8.8 fixed point value.
+81a2 81a2 s 
+81a2 81a2 d 8a07
+81a2 81a2 u 02 02
+81a2 81a2 s 	defw	hz / (2027520 / sampcyc / 256)
+81a4 81a4 s 
+81a4 81a4 s 	hz *= 271 ; twelfth root 2 * 256
+81a4 81a4 s 	hz /= 256
+81a4 81a4 s 	nt++
+81a4 81a4 s 	if nt == 12
+81a4 81a4 s 		nt = 0
+81a4 81a4 s 		octbase *= 2
+81a4 81a4 s 		hz = octbase
+81a4 81a4 s 	endif
+81a4 81a4 s 
+81a4 81a4 s 	endm
+81a4 81a4 s 
+81a4 81a4 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+81a4 81a4 s 	; 2027520 / sampcyc / 256
+81a4 81a4 s 	; So target Hz over that is our step.
+81a4 81a4 s 	; But we want 8.8 fixed point value.
+81a4 81a4 s 
+81a4 81a4 d fb07
+81a4 81a4 u 02 02
+81a4 81a4 s 	defw	hz / (2027520 / sampcyc / 256)
+81a6 81a6 s 
+81a6 81a6 s 	hz *= 271 ; twelfth root 2 * 256
+81a6 81a6 s 	hz /= 256
+81a6 81a6 s 	nt++
+81a6 81a6 s 	if nt == 12
+81a6 81a6 s 		nt = 0
+81a6 81a6 s 		octbase *= 2
+81a6 81a6 s 		hz = octbase
+81a6 81a6 s 	endif
+81a6 81a6 s 
+81a6 81a6 s 	endm
+81a6 81a6 s 
+81a6 81a6 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+81a6 81a6 s 	; 2027520 / sampcyc / 256
+81a6 81a6 s 	; So target Hz over that is our step.
+81a6 81a6 s 	; But we want 8.8 fixed point value.
+81a6 81a6 s 
+81a6 81a6 d 7308
+81a6 81a6 u 02 02
+81a6 81a6 s 	defw	hz / (2027520 / sampcyc / 256)
+81a8 81a8 s 
+81a8 81a8 s 	hz *= 271 ; twelfth root 2 * 256
+81a8 81a8 s 	hz /= 256
+81a8 81a8 s 	nt++
+81a8 81a8 s 	if nt == 12
+81a8 81a8 s 		nt = 0
+81a8 81a8 s 		octbase *= 2
+81a8 81a8 s 		hz = octbase
+81a8 81a8 s 	endif
+81a8 81a8 s 
+81a8 81a8 s 	endm
+81a8 81a8 s 
+81a8 81a8 s 	; Hz of buffer at step 1 is: (78.75 Hz)
+81a8 81a8 s 	; 2027520 / sampcyc / 256
+81a8 81a8 s 	; So target Hz over that is our step.
+81a8 81a8 s 	; But we want 8.8 fixed point value.
+81a8 81a8 s 
+81a8 81a8 d f208
+81a8 81a8 u 02 02
+81a8 81a8 s 	defw	hz / (2027520 / sampcyc / 256)
+81aa 81aa s 
+81aa 81aa s 	hz *= 271 ; twelfth root 2 * 256
+81aa 81aa s 	hz /= 256
+81aa 81aa s 	nt++
+81aa 81aa s 	if nt == 12
+81aa 81aa s 		nt = 0
+81aa 81aa s 		octbase *= 2
+81aa 81aa s 		hz = octbase
+81aa 81aa s 	endif
+81aa 81aa s 
+81aa 81aa s 	endm
+81aa 81aa s 
+81aa 81aa s 	; Hz of buffer at step 1 is: (78.75 Hz)
+81aa 81aa s 	; 2027520 / sampcyc / 256
+81aa 81aa s 	; So target Hz over that is our step.
+81aa 81aa s 	; But we want 8.8 fixed point value.
+81aa 81aa s 
+81aa 81aa d 9009
+81aa 81aa u 02 02
+81aa 81aa s 	defw	hz / (2027520 / sampcyc / 256)
+81ac 81ac s 
+81ac 81ac s 	hz *= 271 ; twelfth root 2 * 256
+81ac 81ac s 	hz /= 256
+81ac 81ac s 	nt++
+81ac 81ac s 	if nt == 12
+81ac 81ac s 		nt = 0
+81ac 81ac s 		octbase *= 2
+81ac 81ac s 		hz = octbase
+81ac 81ac s 	endif
+81ac 81ac s 
+81ac 81ac s 	endm
+81ac 81ac s 
+81ac 81ac s 	; Hz of buffer at step 1 is: (78.75 Hz)
+81ac 81ac s 	; 2027520 / sampcyc / 256
+81ac 81ac s 	; So target Hz over that is our step.
+81ac 81ac s 	; But we want 8.8 fixed point value.
+81ac 81ac s 
+81ac 81ac d 200a
+81ac 81ac u 02 02
+81ac 81ac s 	defw	hz / (2027520 / sampcyc / 256)
+81ae 81ae s 
+81ae 81ae s 	hz *= 271 ; twelfth root 2 * 256
+81ae 81ae s 	hz /= 256
+81ae 81ae s 	nt++
+81ae 81ae s 	if nt == 12
+81ae 81ae s 		nt = 0
+81ae 81ae s 		octbase *= 2
+81ae 81ae s 		hz = octbase
+81ae 81ae s 	endif
+81ae 81ae s 
+81ae 81ae s 	endm
+81ae 81ae s 
+81ae 81ae s 	; Hz of buffer at step 1 is: (78.75 Hz)
+81ae 81ae s 	; 2027520 / sampcyc / 256
+81ae 81ae s 	; So target Hz over that is our step.
+81ae 81ae s 	; But we want 8.8 fixed point value.
+81ae 81ae s 
+81ae 81ae d b80a
+81ae 81ae u 02 02
+81ae 81ae s 	defw	hz / (2027520 / sampcyc / 256)
+81b0 81b0 s 
+81b0 81b0 s 	hz *= 271 ; twelfth root 2 * 256
+81b0 81b0 s 	hz /= 256
+81b0 81b0 s 	nt++
+81b0 81b0 s 	if nt == 12
+81b0 81b0 s 		nt = 0
+81b0 81b0 s 		octbase *= 2
+81b0 81b0 s 		hz = octbase
+81b0 81b0 s 	endif
+81b0 81b0 s 
+81b0 81b0 s 	endm
+81b0 81b0 s 
+8200 8200 s 	org	high($+255)*256	; 256 byte align
+8200 8200 s 	include	sine.inc
+8200 8200 f sine.inc
+8200 8200 s ;	for ($i = 0; $i < 256; $i++) {
+8200 8200 s ;		push(@s, int(sin($i * 2 * 3.1415926 / 256) * 127));
+8200 8200 s ;	}
+8200 8200 s ;	for ($r = 0; $r < 256; $r += 16) {
+8200 8200 s ;		print "\tdb\t";
+8200 8200 s ;		print join(',', @s[$r .. $r + 15]);
+8200 8200 s ;		print "\n";
+8200 8200 s ;	}
+8200 8200 s sine:
+8200 8200 s ;# !Gperl sine.inc
+8200 8200 d 000306090c0f1215181b1e2124272a2d
+8200 8200 u 10 02
+8200 8200 s 	db	0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45
+8210 8210 d 303336393b3e414346494b4e50525557
+8210 8210 u 10 02
+8210 8210 s 	db	48,51,54,57,59,62,65,67,70,73,75,78,80,82,85,87
+8220 8220 d 595b5e6062646667696b6c6e70717274
+8220 8220 u 10 02
+8220 8220 s 	db	89,91,94,96,98,100,102,103,105,107,108,110,112,113,114,116
+8230 8230 d 75767778797a7b7b7c7d7d7e7e7e7e7e
+8230 8230 u 10 02
+8230 8230 s 	db	117,118,119,120,121,122,123,123,124,125,125,126,126,126,126,126
+8240 8240 d 7e7e7e7e7e7e7d7d7c7b7b7a79787776
+8240 8240 u 10 02
+8240 8240 s 	db	126,126,126,126,126,126,125,125,124,123,123,122,121,120,119,118
+8250 8250 d 75747271706e6c6b6967666462605e5b
+8250 8250 u 10 02
+8250 8250 s 	db	117,116,114,113,112,110,108,107,105,103,102,100,98,96,94,91
+8260 8260 d 59575552504e4b494643413e3b393633
+8260 8260 u 10 02
+8260 8260 s 	db	89,87,85,82,80,78,75,73,70,67,65,62,59,57,54,51
+8270 8270 d 302d2a2724211e1b1815120f0c090603
+8270 8270 u 10 02
+8270 8270 s 	db	48,45,42,39,36,33,30,27,24,21,18,15,12,9,6,3
+8280 8280 d 00fdfaf7f4f1eeebe8e5e2dfdcd9d6d3
+8280 8280 u 10 02
+8280 8280 s 	db	0,-3,-6,-9,-12,-15,-18,-21,-24,-27,-30,-33,-36,-39,-42,-45
+8290 8290 d d0cdcac7c5c2bfbdbab7b5b2b0aeaba9
+8290 8290 u 10 02
+8290 8290 s 	db	-48,-51,-54,-57,-59,-62,-65,-67,-70,-73,-75,-78,-80,-82,-85,-87
+82a0 82a0 d a7a5a2a09e9c9a9997959492908f8e8c
+82a0 82a0 u 10 02
+82a0 82a0 s 	db	-89,-91,-94,-96,-98,-100,-102,-103,-105,-107,-108,-110,-112,-113,-114,-116
+82b0 82b0 d 8b8a8988878685858483838282828282
+82b0 82b0 u 10 02
+82b0 82b0 s 	db	-117,-118,-119,-120,-121,-122,-123,-123,-124,-125,-125,-126,-126,-126,-126,-126
+82c0 82c0 d 8282828282828383848585868788898a
+82c0 82c0 u 10 02
+82c0 82c0 s 	db	-126,-126,-126,-126,-126,-126,-125,-125,-124,-123,-123,-122,-121,-120,-119,-118
+82d0 82d0 d 8b8c8e8f9092949597999a9c9ea0a2a5
+82d0 82d0 u 10 02
+82d0 82d0 s 	db	-117,-116,-114,-113,-112,-110,-108,-107,-105,-103,-102,-100,-98,-96,-94,-91
+82e0 82e0 d a7a9abaeb0b2b5b7babdbfc2c5c7cacd
+82e0 82e0 u 10 02
+82e0 82e0 s 	db	-89,-87,-85,-82,-80,-78,-75,-73,-70,-67,-65,-62,-59,-57,-54,-51
+82f0 82f0 d d0d3d6d9dcdfe2e5e8ebeef1f4f7fafd
+82f0 82f0 u 10 02
+82f0 82f0 s 	db	-48,-45,-42,-39,-36,-33,-30,-27,-24,-21,-18,-15,-12,-9,-6,-3
+8300 8300 f midorcm.asm
+8300 8300 s 
+8300 8300 s 	end	start
+8099 e
+0033 v @DSP
+0056 v tc
+0056 v td
+0056 v ti
+8127 a samplp
+8173 a dly
+80b5 a retry
+8000 a stack
+0049 v @KEY
+8099 a start
+0056 v sampcyc
+8139 a sampdly
+8000 a title
+0005 v d10000th
+8169 a channel_off
+000d v ENTER
+4467 v @DSPLY
+0008 v middata
+0099 v title_len
+80f8 a getnote
+0009 v midstat
+0056 v tdat
+80f5 a channel_on
+8200 a sine
+817a a steptab
+80dd a geton
+8170 a dly.01

@@ -1,0 +1,5297 @@
+binary-debuggable-source
+0000 0000 f tracker2.asm
+0000 0000 s ; TRACKER Version 1.5
+0000 0000 s ; to do: mute tracks, patterns + song mode, save, load
+0000 0000 s 
+0000 0000 s 
+8000 8000 s 	org $8000
+8000 8000 s 
+8000 8000 s DISPMIDINOTEOFFSET equ $61 ; 0 -> 'a' 
+8000 8000 s 
+8000 8000 s POSMARKSYM equ	$aa
+8000 8000 s SETSYM 	equ	$8f
+8000 8000 s CURSYM 	equ	'X'
+8000 8000 s ENTER	equ	$0d ; @DSPLY with newline
+8000 8000 s 
+8000 8000 s KCURLEFT	equ 8
+8000 8000 s KCURRIGHT	equ 9
+8000 8000 s KCURUP		equ 91
+8000 8000 s KCURDOWN	equ 10
+8000 8000 s 
+8000 8000 s @DSPLY		equ	$4467
+8000 8000 s @EXIT		equ	$402d
+8000 8000 s @KBD    	equ 	$002b 
+8000 8000 s @KEY    	equ 	$0049 
+8000 8000 s @DSP    	equ 	$0033
+8000 8000 s 
+8000 8000 d 53
+8000 8000 u 01 02
+8000 8000 s stopped: ascii   'S'
+8001 8001 d 50
+8001 8001 u 01 02
+8001 8001 s playing: ascii   'P'
+8002 8002 d 46
+8002 8002 u 01 02
+8002 8002 s free: 	 ascii   'F'
+8003 8003 d 54
+8003 8003 u 01 02
+8003 8003 s tracked: ascii   'T'
+8004 8004 s 
+8004 8004 s 
+8004 8004 d 2a2a2a2a2a204d4944492f383020545241434b4552202056312e35202d2028432920323032342d32303235204259204c414d4244414d494b454c202a2a2a2a2a
+8004 8004 u 40 02
+8004 8004 s title:	ascii   '***** MIDI/80 TRACKER  V1.5 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+8044 8044 d 5041543a41205346207c20545241434b3a312053504545443a2d2d207c20423a3820533a3034207c20433a3020493a3031204e3a323420563a374620473a3034
+8044 8044 u 40 02
+8044 8044 s 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
+8084 8084 d 313d3d3d2d3d3d3d2b3d3d3d2d3d3d3d323d3d3d2d3d3d3d2b3d3d3d2d3d3d3d333d3d3d2d3d3d3d2b3d3d3d2d3d3d3d343d3d3d2d3d3d3d2b3d3d3d2d3d3d3d
+8084 8084 u 40 02
+8084 8084 s 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
+80c4 80c4 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+80c4 80c4 u 40 02
+80c4 80c4 s data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+8104 8104 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+8104 8104 u 40 02
+8104 8104 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+8144 8144 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+8144 8144 u 40 02
+8144 8144 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+8184 8184 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+8184 8184 u 40 02
+8184 8184 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+81c4 81c4 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+81c4 81c4 u 40 02
+81c4 81c4 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+8204 8204 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+8204 8204 u 40 02
+8204 8204 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+8244 8244 d 353d3d3d2d3d3d3d2b3d3d3d2d3d3d3d363d3d3d2d3d3d3d2b3d3d3d2d3d3d3d373d3d3d2d3d3d3d2b3d3d3d2d3d3d3d383d3d3d2d3d3d3d2b3d3d3d2d3d3d3d
+8244 8244 u 40 02
+8244 8244 s 	ascii	'5===-===+===-===6===-===+===-===7===-===+===-===8===-===+===-===' 
+8284 8284 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+8284 8284 u 40 02
+8284 8284 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+82c4 82c4 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+82c4 82c4 u 40 02
+82c4 82c4 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+8304 8304 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+8304 8304 u 40 02
+8304 8304 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+8344 8344 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+8344 8344 u 40 02
+8344 8344 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+8384 8384 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+8384 8384 u 40 02
+8384 8384 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+83c4 83c4 d 212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e212e2e2e2d2e2e2e2b2e2e2e2d2e2e2e
+83c4 83c4 u 40 02
+83c4 83c4 s 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
+8404 8404 s 
+8404 8404 d 2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2048454c502050414745202a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a
+8404 8404 u 40 02
+8404 8404 s helpt:	ascii   '************************** HELP PAGE ***************************'
+8444 8444 d 435552534f52204d4f56454d454e542c2046494e452020202020202020202020203a20412044205720582c205a20432020202020202020202020202020202020
+8444 8444 u 40 02
+8444 8444 s 	ascii   'CURSOR MOVEMENT, FINE            : A D W X, Z C                 '
+8484 8484 d 4348414e47452042415220434f554e542c204a554d5020544f2042415220504f533a20422c203120322033203420352036203720382020202020202020202020
+8484 8484 u 40 02
+8484 8484 s 	ascii   'CHANGE BAR COUNT, JUMP TO BAR POS: B, 1 2 3 4 5 6 7 8           '
+84c4 84c4 d 4e455854202f2050524556204752494420504f53202020202020202020202020203a204152524f572d5550204152524f572d444f574e20202020202020202020
+84c4 84c4 u 40 02
+84c4 84c4 s 	ascii   'NEXT / PREV GRID POS             : ARROW-UP ARROW-DOWN          '
+8504 8504 d 4348414e47452047524944205354455020202020202020202020202020202020203a204720202020202020202020202020202020202020202020202020202020
+8504 8504 u 40 02
+8504 8504 s 	ascii   'CHANGE GRID STEP                 : G                            '
+8544 8544 d 53455420475249442c20534f554e442c20434c45415220202020202020202020203a2053504143452c20454e5445522c20434c45415220202020202020202020
+8544 8544 u 40 02
+8544 8544 s 	ascii   'SET GRID, SOUND, CLEAR           : SPACE, ENTER, CLEAR          '
+8584 8584 d 504c415920262053544f50202020202020202020202020202020202020202020203a205020202020202020202020202020202020202020202020202020202020
+8584 8584 u 40 02
+8584 8584 s 	ascii   'PLAY & STOP                      : P                            '
+85c4 85c4 d 414c4c204e4f544553204f464620284d4944492050414e494329202020202020203a202120202020202020202020202020202020202020202020202020202020
+85c4 85c4 u 40 02
+85c4 85c4 s 	ascii   'ALL NOTES OFF (MIDI PANIC)       : !                            '
+8604 8604 d 544f47474c4520545241434b494e472020202020202020202020202020202020203a205420202020202020202020202020202020202020202020202020202020
+8604 8604 u 40 02
+8604 8604 s 	ascii   'TOGGLE TRACKING                  : T                            '
+8644 8644 d 4348414e474520504c41594241434b2053504545442020202020202020202020203a204e204d202c202e20202020202020202020202020202020202020202020
+8644 8644 u 40 02
+8644 8644 s 	ascii   'CHANGE PLAYBACK SPEED            : N M , .                      '
+8684 8684 d 4348414e47452043555220545241434b204d494449204348414e4e454c202020203a202b202d2020202020202020202020202020202020202020202020202020
+8684 8684 u 40 02
+8684 8684 s 	ascii   'CHANGE CUR TRACK MIDI CHANNEL    : + -                          '
+86c4 86c4 d 4348414e47452043555220545241434b204d49444920494e535452554d454e54203a205520492020202020202020202020202020202020202020202020202020
+86c4 86c4 u 40 02
+86c4 86c4 s 	ascii   'CHANGE CUR TRACK MIDI INSTRUMENT : U I                          '
+8704 8704 d 4348414e47452043555220545241434b204d4944492056454c4f434954592020203a204a204b2020202020202020202020202020202020202020202020202020
+8704 8704 u 40 02
+8704 8704 s 	ascii   'CHANGE CUR TRACK MIDI VELOCITY   : J K                          '
+8744 8744 d 4348414e47452043555220545241434b204452554d2020202020202020202020203a204152524f572d4c454654204152524f572d524947485420202020202020
+8744 8744 u 40 02
+8744 8744 s 	ascii   'CHANGE CUR TRACK DRUM            : ARROW-LEFT ARROW-RIGHT       ' 
+8784 8784 d 4348414e47452043555220545241434b2047415445204c454e47544820202020203a202a20202020202020202020202020202020202020202020202020202020
+8784 8784 u 40 02
+8784 8784 s 	ascii   'CHANGE CUR TRACK GATE LENGTH     : *                            '
+87c4 87c4 d 48454c502c20515549542c204c4f414420262053415645202020202020202020203a20482c20512c204c2c20532c202020202020202020202020202020202020
+87c4 87c4 u 40 02
+87c4 87c4 s 	ascii   'HELP, QUIT, LOAD & SAVE          : H, Q, L, S,                  '
+8804 8804 d 4348414e4745205041545445524e202020202020202020202020202020202020203a202d20202020202020202020202020202020202020202020202020202020
+8804 8804 u 40 02
+8804 8804 s 	ascii   'CHANGE PATTERN                   : -                            '
+8844 8844 s 
+8844 8844 s 
+8844 8844 d 2e
+8844 8844 u 01 02
+8844 8844 s lastcur	     byte	'.'
+8845 8845 d c03c
+8845 8845 u 02 02
+8845 8845 s lastcurpos   word 	$3c00+3*64 
+8847 8847 s 
+8847 8847 d 00
+8847 8847 u 01 02
+8847 8847 s cursorx	byte 	0
+8848 8848 d 03
+8848 8848 u 01 02
+8848 8848 s cursory	byte 	3
+8849 8849 d 00
+8849 8849 u 01 02
+8849 8849 s blink   byte    0
+884a 884a d 00
+884a 884a u 01 02
+884a 884a s status  byte    0
+884b 884b d 00
+884b 884b u 01 02
+884b 884b s track	byte    0
+884c 884c d 00
+884c 884c u 01 02
+884c 884c s delayc 	byte	0
+884d 884d d 0a
+884d 884d u 01 02
+884d 884d s tempo   byte	10
+884e 884e d 08
+884e 884e u 01 02
+884e 884e s numbars byte	8
+884f 884f d 80
+884f 884f u 01 02
+884f 884f s numticks byte	8*16 
+8850 8850 d 04
+8850 8850 u 01 02
+8850 8850 s gridres byte  	4
+8851 8851 s 
+8851 8851 d 00
+8851 8851 u 01 02
+8851 8851 s midicount     byte  0
+8852 8852 d 00
+8852 8852 u 01 02
+8852 8852 s curnote       byte  0
+8853 8853 d 00
+8853 8853 u 01 02
+8853 8853 s curvelocity   byte  0	
+8854 8854 d 00
+8854 8854 u 01 02
+8854 8854 s curchannel    byte  0	
+8855 8855 d 00
+8855 8855 u 01 02
+8855 8855 s curinstrument byte  0	
+8856 8856 s 	
+8856 8856 d fc
+8856 8856 u 01 02
+8856 8856 s quantpat  byte  11111100b
+8857 8857 s 	
+8857 8857 s tracks1 	defs    6*64 		
+89d7 89d7 s tracks2 	defs    6*64
+8b57 8b57 s tracksoff1 	defs    6*64 		
+8cd7 8cd7 s tracksoff2 	defs    6*64
+8e57 8e57 s 
+8e57 8e57 d 242628332c2e
+8e57 8e57 u 06 02
+8e57 8e57 s drumnostracks		byte 36, 38, 40, 51, 44, 46 
+8e5d 8e5d d 000102030409
+8e5d 8e5d u 06 02
+8e5d 8e5d s channeltracks 		byte 0, 1, 2, 3, 4, 9
+8e63 8e63 d 010203040501
+8e63 8e63 u 06 02
+8e63 8e63 s instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
+8e69 8e69 d 7f7f7f7f7f7f
+8e69 8e69 u 06 02
+8e69 8e69 s velocitytracks	 	byte 127, 127, 127, 127, 127, 127
+8e6f 8e6f d 080808080808
+8e6f 8e6f u 06 02
+8e6f 8e6f s gatetracks	 	byte 8,8,8,8,8,8
+8e75 8e75 s 
+8e75 8e75 s ;;  midi channel specific to support MIDI PANIC
+8e75 8e75 s ;; curnoteschannels	byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 
+8e75 8e75 s ;; curvelschannels		byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+8e75 8e75 s 
+8e75 8e75 d 00
+8e75 8e75 u 01 02
+8e75 8e75 s memcursorx byte 	0
+8e76 8e76 d 00
+8e76 8e76 u 01 02
+8e76 8e76 s memcursory byte 	0
+8e77 8e77 s 	
+8e77 8e77 d 00
+8e77 8e77 u 01 02
+8e77 8e77 s trackpos    byte        0
+8e78 8e78 d 00
+8e78 8e78 u 01 02
+8e78 8e78 s qtrackpos   byte 	0
+8e79 8e79 s 
+8e79 8e79 s 
+8e79 8e79 s 
+8e79 8e79 s keydown macro key
+8e79 8e79 s 	ld	a,(key >> 8)
+8e79 8e79 s 	and	key % $100
+8e79 8e79 s 	endm 
+8e79 8e79 s 
+8e79 8e79 s k_@	equ	$380101
+8e79 8e79 s k_A	equ	$380102
+8e79 8e79 s k_B	equ	$380104
+8e79 8e79 s k_C	equ	$380108
+8e79 8e79 s k_D	equ	$380110
+8e79 8e79 s k_E	equ	$380120
+8e79 8e79 s k_F	equ	$380140
+8e79 8e79 s k_G	equ	$380180
+8e79 8e79 s 
+8e79 8e79 s k_H	equ	$380201
+8e79 8e79 s k_I	equ	$380202
+8e79 8e79 s k_J	equ	$380204
+8e79 8e79 s k_K	equ	$380208
+8e79 8e79 s k_L	equ	$380210
+8e79 8e79 s k_M	equ	$380220
+8e79 8e79 s k_N	equ	$380240
+8e79 8e79 s k_O	equ	$380280
+8e79 8e79 s 
+8e79 8e79 s k_P	equ	$380401
+8e79 8e79 s k_Q	equ	$380402
+8e79 8e79 s k_R	equ	$380404
+8e79 8e79 s k_S	equ	$380408
+8e79 8e79 s k_T	equ	$380410
+8e79 8e79 s k_U	equ	$380420
+8e79 8e79 s k_V	equ	$380440
+8e79 8e79 s k_W	equ	$380480
+8e79 8e79 s 
+8e79 8e79 s k_X	equ	$380801
+8e79 8e79 s k_Y	equ	$380802
+8e79 8e79 s k_Z	equ	$380804
+8e79 8e79 s 
+8e79 8e79 s k_0	equ	$381001
+8e79 8e79 s k_1	equ	$381002
+8e79 8e79 s k_2	equ	$381004
+8e79 8e79 s k_3	equ	$381008
+8e79 8e79 s k_4	equ	$381010
+8e79 8e79 s k_5	equ	$381020
+8e79 8e79 s k_6	equ	$381040
+8e79 8e79 s k_7	equ	$381080
+8e79 8e79 s 
+8e79 8e79 s k_8	equ	$382001
+8e79 8e79 s k_9	equ	$382002
+8e79 8e79 s k_colon	equ	$382004
+8e79 8e79 s k_semi	equ	$382008
+8e79 8e79 s k_comma	equ	$382010
+8e79 8e79 s k_dash	equ	$382020
+8e79 8e79 s k_dot	equ	$382040
+8e79 8e79 s k_slash	equ	$382080
+8e79 8e79 s 
+8e79 8e79 s k_enter	equ	$384001
+8e79 8e79 s k_clear	equ	$384002
+8e79 8e79 s k_break	equ	$384004
+8e79 8e79 s k_up	equ	$384008
+8e79 8e79 s k_down	equ	$384010
+8e79 8e79 s k_left	equ	$384020
+8e79 8e79 s k_right	equ	$384040
+8e79 8e79 s k_space	equ	$384080
+8e79 8e79 s 
+8e79 8e79 s k_shift	equ	$388001
+8e79 8e79 s 
+8e79 8e79 s 
+8e79 8e79 s main:
+8e79 8e79 s 
+8e79 8e79 d dbff
+8e79 8e79 u 02 01
+8e79 8e79 s 	in  a,($ff)
+8e7b 8e7b d f610
+8e7b 8e7b u 02 01
+8e7b 8e7b s 	or  a,$10 		; enable IO on Model III 
+8e7d 8e7d s 	; and a,~$20 		; disable video wait states M III 
+8e7d 8e7d d e6bf
+8e7d 8e7d u 02 01
+8e7d 8e7d s 	and a,~$40 		; slode mode M4 
+8e7f 8e7f d d3ec
+8e7f 8e7f u 02 01
+8e7f 8e7f s 	out ($ec),a
+8e81 8e81 s 
+8e81 8e81 d 21c480
+8e81 8e81 u 03 01
+8e81 8e81 s 	ld	hl,data 
+8e84 8e84 d 115788
+8e84 8e84 u 03 01
+8e84 8e84 s 	ld	de,tracks1
+8e87 8e87 d 018001
+8e87 8e87 u 03 01
+8e87 8e87 s 	ld	bc,6*64 
+8e8a 8e8a d edb0
+8e8a 8e8a u 02 01
+8e8a 8e8a s 	ldir
+8e8c 8e8c s 
+8e8c 8e8c d 21c480
+8e8c 8e8c u 03 01
+8e8c 8e8c s 	ld	hl,data 
+8e8f 8e8f d 11578b
+8e8f 8e8f u 03 01
+8e8f 8e8f s 	ld	de,tracksoff1
+8e92 8e92 d 018001
+8e92 8e92 u 03 01
+8e92 8e92 s 	ld	bc,6*64 
+8e95 8e95 d edb0
+8e95 8e95 u 02 01
+8e95 8e95 s 	ldir
+8e97 8e97 s 
+8e97 8e97 d 21c480
+8e97 8e97 u 03 01
+8e97 8e97 s 	ld	hl,data 
+8e9a 8e9a d 11d789
+8e9a 8e9a u 03 01
+8e9a 8e9a s 	ld	de,tracks2 
+8e9d 8e9d d 018001
+8e9d 8e9d u 03 01
+8e9d 8e9d s 	ld	bc,6*64 
+8ea0 8ea0 d edb0
+8ea0 8ea0 u 02 01
+8ea0 8ea0 s 	ldir
+8ea2 8ea2 s 
+8ea2 8ea2 d 21c480
+8ea2 8ea2 u 03 01
+8ea2 8ea2 s 	ld	hl,data 
+8ea5 8ea5 d 11d78c
+8ea5 8ea5 u 03 01
+8ea5 8ea5 s 	ld	de,tracksoff2
+8ea8 8ea8 d 018001
+8ea8 8ea8 u 03 01
+8ea8 8ea8 s 	ld	bc,6*64 
+8eab 8eab d edb0
+8eab 8eab u 02 01
+8eab 8eab s 	ldir
+8ead 8ead s 
+8ead 8ead s main2:
+8ead 8ead s 
+8ead 8ead d 21003c
+8ead 8ead u 03 01
+8ead 8ead s 	ld	hl,$3c00
+8eb0 8eb0 d 11013c
+8eb0 8eb0 u 03 01
+8eb0 8eb0 s 	ld	de,$3c00+1
+8eb3 8eb3 d 01ff03
+8eb3 8eb3 u 03 01
+8eb3 8eb3 s 	ld	bc,1024-1
+8eb6 8eb6 d 3620
+8eb6 8eb6 u 02 01
+8eb6 8eb6 s 	ld	(hl),' '
+8eb8 8eb8 d edb0
+8eb8 8eb8 u 02 01
+8eb8 8eb8 s 	ldir
+8eba 8eba s 
+8eba 8eba d 210480
+8eba 8eba u 03 01
+8eba 8eba s 	ld	hl,title
+8ebd 8ebd d 11003c
+8ebd 8ebd u 03 01
+8ebd 8ebd s 	ld	de,$3c00
+8ec0 8ec0 d 010004
+8ec0 8ec0 u 03 01
+8ec0 8ec0 s 	ld	bc,1024
+8ec3 8ec3 d edb0
+8ec3 8ec3 u 02 01
+8ec3 8ec3 s 	ldir
+8ec5 8ec5 s 
+8ec5 8ec5 s 
+8ec5 8ec5 d cd5f96
+8ec5 8ec5 u 03 01
+8ec5 8ec5 s 	call screenupdate
+8ec8 8ec8 d cd7696
+8ec8 8ec8 u 03 01
+8ec8 8ec8 s 	call showcursor
+8ecb 8ecb d cd3196
+8ecb 8ecb u 03 01
+8ecb 8ecb s 	call showplaycursor
+8ece 8ece d cdb396
+8ece 8ece u 03 01
+8ece 8ece s 	call showtempo
+8ed1 8ed1 s 
+8ed1 8ed1 s loop:
+8ed1 8ed1 d 3a4a88
+8ed1 8ed1 u 03 01
+8ed1 8ed1 s 	ld a, (status) ; stopped ? 
+8ed4 8ed4 d b7
+8ed4 8ed4 u 01 01
+8ed4 8ed4 s 	or a
+8ed5 8ed5 d ca488f
+8ed5 8ed5 u 03 01
+8ed5 8ed5 s 	jp z, nostep
+8ed8 8ed8 s 	
+8ed8 8ed8 d 3a4c88
+8ed8 8ed8 u 03 01
+8ed8 8ed8 s 	ld a, (delayc)
+8edb 8edb d 3c
+8edb 8edb u 01 01
+8edb 8edb s 	inc a
+8edc 8edc d 214c88
+8edc 8edc u 03 01
+8edc 8edc s 	ld hl,delayc
+8edf 8edf d 77
+8edf 8edf u 01 01
+8edf 8edf s 	ld (hl), a
+8ee0 8ee0 d 47
+8ee0 8ee0 u 01 01
+8ee0 8ee0 s 	ld b, a
+8ee1 8ee1 d 3a4d88
+8ee1 8ee1 u 03 01
+8ee1 8ee1 s 	ld a, (tempo) 
+8ee4 8ee4 d b8
+8ee4 8ee4 u 01 01
+8ee4 8ee4 s 	cp b
+8ee5 8ee5 d c2488f
+8ee5 8ee5 u 03 01
+8ee5 8ee5 s 	jp nz, nostep
+8ee8 8ee8 s 	
+8ee8 8ee8 s 	;;  inc note pointer
+8ee8 8ee8 d cde695
+8ee8 8ee8 u 03 01
+8ee8 8ee8 s 	call nextnote
+8eeb 8eeb d cd3196
+8eeb 8eeb u 03 01
+8eeb 8eeb s 	call showplaycursor
+8eee 8eee d cda697
+8eee 8eee u 03 01
+8eee 8eee s 	call playnotes
+8ef1 8ef1 s 
+8ef1 8ef1 d 3e00
+8ef1 8ef1 u 02 01
+8ef1 8ef1 s 	ld a,0
+8ef3 8ef3 d 324c88
+8ef3 8ef3 u 03 01
+8ef3 8ef3 s 	ld (delayc),a
+8ef6 8ef6 s 
+8ef6 8ef6 d 3a4b88
+8ef6 8ef6 u 03 01
+8ef6 8ef6 s 	ld a,(track)
+8ef9 8ef9 d b7
+8ef9 8ef9 u 01 01
+8ef9 8ef9 s 	or a
+8efa 8efa d ca488f
+8efa 8efa u 03 01
+8efa 8efa s 	jp z, nostep
+8efd 8efd s 
+8efd 8efd s 	;; tracked - set screen cursor x to playcursor x
+8efd 8efd s 
+8efd 8efd d 3a778e
+8efd 8efd u 03 01
+8efd 8efd s 	ld a,(trackpos)
+8f00 8f00 d cb77
+8f00 8f00 u 02 01
+8f00 8f00 s 	bit 6,a
+8f02 8f02 d 201e
+8f02 8f02 u 02 01
+8f02 8f02 s 	jr nz,trackcury ; > 64 inc y
+8f04 8f04 s 
+8f04 8f04 d cbb7
+8f04 8f04 u 02 01
+8f04 8f04 s 	res 6,a
+8f06 8f06 d 324788
+8f06 8f06 u 03 01
+8f06 8f06 s 	ld (cursorx),a
+8f09 8f09 d 32758e
+8f09 8f09 u 03 01
+8f09 8f09 s 	ld (memcursorx),a
+8f0c 8f0c s 	
+8f0c 8f0c d 3a4888
+8f0c 8f0c u 03 01
+8f0c 8f0c s 	ld a,(cursory)
+8f0f 8f0f d fe0a
+8f0f 8f0f u 02 01
+8f0f 8f0f s 	cp 10
+8f11 8f11 d 382b
+8f11 8f11 u 02 01
+8f11 8f11 s 	jr c, showtrackcur
+8f13 8f13 s 
+8f13 8f13 s 	
+8f13 8f13 d d607
+8f13 8f13 u 02 01
+8f13 8f13 s 	sub 7
+8f15 8f15 d 324888
+8f15 8f15 u 03 01
+8f15 8f15 s 	ld (cursory), a
+8f18 8f18 d 3a768e
+8f18 8f18 u 03 01
+8f18 8f18 s 	ld a,(memcursory)
+8f1b 8f1b d d606
+8f1b 8f1b u 02 01
+8f1b 8f1b s 	sub 6
+8f1d 8f1d d 32768e
+8f1d 8f1d u 03 01
+8f1d 8f1d s 	ld (memcursory),a
+8f20 8f20 s 	
+8f20 8f20 d 181c
+8f20 8f20 u 02 01
+8f20 8f20 s 	jr showtrackcur	
+8f22 8f22 s 
+8f22 8f22 s trackcury:
+8f22 8f22 d cbb7
+8f22 8f22 u 02 01
+8f22 8f22 s 	res 6,a	
+8f24 8f24 s 	
+8f24 8f24 d 324788
+8f24 8f24 u 03 01
+8f24 8f24 s 	ld (cursorx),a
+8f27 8f27 d 32758e
+8f27 8f27 u 03 01
+8f27 8f27 s 	ld (memcursorx),a
+8f2a 8f2a s 
+8f2a 8f2a d 3a4888
+8f2a 8f2a u 03 01
+8f2a 8f2a s 	ld a,(cursory)
+8f2d 8f2d d fe0a
+8f2d 8f2d u 02 01
+8f2d 8f2d s 	cp 10
+8f2f 8f2f d 300d
+8f2f 8f2f u 02 01
+8f2f 8f2f s 	jr nc,showtrackcur
+8f31 8f31 s 	
+8f31 8f31 d c607
+8f31 8f31 u 02 01
+8f31 8f31 s 	add 7	
+8f33 8f33 d 324888
+8f33 8f33 u 03 01
+8f33 8f33 s 	ld (cursory),a
+8f36 8f36 d 3a768e
+8f36 8f36 u 03 01
+8f36 8f36 s 	ld a,(memcursory)
+8f39 8f39 d c606
+8f39 8f39 u 02 01
+8f39 8f39 s 	add 6 
+8f3b 8f3b d 32768e
+8f3b 8f3b u 03 01
+8f3b 8f3b s 	ld (memcursory),a
+8f3e 8f3e s 	
+8f3e 8f3e s 
+8f3e 8f3e s showtrackcur:
+8f3e 8f3e d 214988
+8f3e 8f3e u 03 01
+8f3e 8f3e s 	ld hl, blink
+8f41 8f41 d 367f
+8f41 8f41 u 02 01
+8f41 8f41 s 	ld (hl), 127
+8f43 8f43 s 
+8f43 8f43 d cd7696
+8f43 8f43 u 03 01
+8f43 8f43 s 	call showcursor
+8f46 8f46 s 
+8f46 8f46 d 1816
+8f46 8f46 u 02 01
+8f46 8f46 s 	jr scan 
+8f48 8f48 s 	
+8f48 8f48 s nostep:
+8f48 8f48 s 
+8f48 8f48 d 3a4988
+8f48 8f48 u 03 01
+8f48 8f48 s 	ld a,(blink)
+8f4b 8f4b d 3c
+8f4b 8f4b u 01 01
+8f4b 8f4b s 	inc a
+8f4c 8f4c d 324988
+8f4c 8f4c u 03 01
+8f4c 8f4c s 	ld (blink), a
+8f4f 8f4f s 
+8f4f 8f4f d b7
+8f4f 8f4f u 01 01
+8f4f 8f4f s 	or a
+8f50 8f50 d c2568f
+8f50 8f50 u 03 01
+8f50 8f50 s 	jp nz, cur1
+8f53 8f53 d cd7696
+8f53 8f53 u 03 01
+8f53 8f53 s 	call showcursor
+8f56 8f56 s 
+8f56 8f56 s cur1:	 
+8f56 8f56 d fe7f
+8f56 8f56 u 02 01
+8f56 8f56 s 	cp 127
+8f58 8f58 d c25e8f
+8f58 8f58 u 03 01
+8f58 8f58 s 	jp nz, scan  
+8f5b 8f5b d cd7696
+8f5b 8f5b u 03 01
+8f5b 8f5b s 	call showcursor
+8f5e 8f5e s 		
+8f5e 8f5e s scan:
+8f5e 8f5e s 	
+8f5e 8f5e d 3a4a88
+8f5e 8f5e u 03 01
+8f5e 8f5e s 	ld a, (status) 
+8f61 8f61 d b7
+8f61 8f61 u 01 01
+8f61 8f61 s 	or a
+8f62 8f62 d 2021
+8f62 8f62 u 02 01
+8f62 8f62 s 	jr nz,scancont
+8f64 8f64 s 
+8f64 8f64 s 	;; here we only sample if the tracking is stopped!
+8f64 8f64 s 
+8f64 8f64 d cdf790
+8f64 8f64 u 03 01
+8f64 8f64 s 	call midiin
+8f67 8f67 d b7
+8f67 8f67 u 01 01
+8f67 8f67 s 	or a
+8f68 8f68 d 2803
+8f68 8f68 u 02 01
+8f68 8f68 s 	jr z, keyscan
+8f6a 8f6a s 
+8f6a 8f6a s 	;; else, we got a note in the buffer: just treat this as setgridandsoundmidi for now
+8f6a 8f6a d c37593
+8f6a 8f6a u 03 01
+8f6a 8f6a s 	jp setgridandsoundmidi
+8f6d 8f6d s 
+8f6d 8f6d s keyscan:	 
+8f6d 8f6d s 
+8f6d 8f6d d cd2b00
+8f6d 8f6d u 03 01
+8f6d 8f6d s 	call @KBD
+8f70 8f70 d b7
+8f70 8f70 u 01 01
+8f70 8f70 s 	or a
+8f71 8f71 d cad18e
+8f71 8f71 u 03 01
+8f71 8f71 s 	jp z,loop
+8f74 8f74 s 
+8f74 8f74 d fe20
+8f74 8f74 u 02 01
+8f74 8f74 s         cp ' ' ; space
+8f76 8f76 d ca6594
+8f76 8f76 u 03 01
+8f76 8f76 s 	jp z,setgridkey 
+8f79 8f79 s 
+8f79 8f79 d fe0d
+8f79 8f79 u 02 01
+8f79 8f79 s 	cp 13 ; enter
+8f7b 8f7b d caab93
+8f7b 8f7b u 03 01
+8f7b 8f7b s 	jp z,setgridandsoundkey
+8f7e 8f7e s 
+8f7e 8f7e d fe1f
+8f7e 8f7e u 02 01
+8f7e 8f7e s 	cp 31 ; clear 
+8f80 8f80 d cac194
+8f80 8f80 u 03 01
+8f80 8f80 s 	jp z,erasegrid
+8f83 8f83 s 
+8f83 8f83 d 1810
+8f83 8f83 u 02 01
+8f83 8f83 s 	jr scancont1
+8f85 8f85 s 
+8f85 8f85 s scancont:
+8f85 8f85 s 
+8f85 8f85 d cdf790
+8f85 8f85 u 03 01
+8f85 8f85 s 	call midiin
+8f88 8f88 d b7
+8f88 8f88 u 01 01
+8f88 8f88 s 	or a
+8f89 8f89 d 2803
+8f89 8f89 u 02 01
+8f89 8f89 s 	jr z, keyscan1 
+8f8b 8f8b s 
+8f8b 8f8b s 	;; else, we got a note in the buffer: just treat this as setgridandsound for now
+8f8b 8f8b d c37593
+8f8b 8f8b u 03 01
+8f8b 8f8b s 	jp setgridandsoundmidi
+8f8e 8f8e s 
+8f8e 8f8e s keyscan1:	 
+8f8e 8f8e s 
+8f8e 8f8e d cd2b00
+8f8e 8f8e u 03 01
+8f8e 8f8e s 	call @KBD
+8f91 8f91 d b7
+8f91 8f91 u 01 01
+8f91 8f91 s 	or a
+8f92 8f92 d cad18e
+8f92 8f92 u 03 01
+8f92 8f92 s 	jp z,loop
+8f95 8f95 s 
+8f95 8f95 s scancont1:
+8f95 8f95 s 
+8f95 8f95 d fe5a
+8f95 8f95 u 02 01
+8f95 8f95 s 	cp 'Z' 
+8f97 8f97 d ca4295
+8f97 8f97 u 03 01
+8f97 8f97 s 	jp z,left
+8f9a 8f9a d fe59
+8f9a 8f9a u 02 01
+8f9a 8f9a s 	cp 'Y' 
+8f9c 8f9c d ca4295
+8f9c 8f9c u 03 01
+8f9c 8f9c s 	jp z,left
+8f9f 8f9f d fe41
+8f9f 8f9f u 02 01
+8f9f 8f9f s 	cp 'A' 
+8fa1 8fa1 d ca7291
+8fa1 8fa1 u 03 01
+8fa1 8fa1 s 	jp z,prevbar
+8fa4 8fa4 d fe43
+8fa4 8fa4 u 02 01
+8fa4 8fa4 s 	cp 'C'
+8fa6 8fa6 d ca5495
+8fa6 8fa6 u 03 01
+8fa6 8fa6 s 	jp z,right
+8fa9 8fa9 d fe44
+8fa9 8fa9 u 02 01
+8fa9 8fa9 s 	cp 'D'
+8fab 8fab d ca5b91
+8fab 8fab u 03 01
+8fab 8fab s 	jp z,nextbar
+8fae 8fae d fe57
+8fae 8fae u 02 01
+8fae 8fae s 	cp 'W'
+8fb0 8fb0 d ca6795
+8fb0 8fb0 u 03 01
+8fb0 8fb0 s 	jp z,up
+8fb3 8fb3 d fe58
+8fb3 8fb3 u 02 01
+8fb3 8fb3 s 	cp 'X' 
+8fb5 8fb5 d ca8495
+8fb5 8fb5 u 03 01
+8fb5 8fb5 s 	jp z,down
+8fb8 8fb8 s 
+8fb8 8fb8 d fe2c
+8fb8 8fb8 u 02 01
+8fb8 8fb8 s 	cp ',' 
+8fba 8fba d ca8f92
+8fba 8fba u 03 01
+8fba 8fba s 	jp z,faster	
+8fbd 8fbd d fe2e
+8fbd 8fbd u 02 01
+8fbd 8fbd s 	cp '.'
+8fbf 8fbf d cac492
+8fbf 8fbf u 03 01
+8fbf 8fbf s 	jp z,slower 
+8fc2 8fc2 d fe4e
+8fc2 8fc2 u 02 01
+8fc2 8fc2 s 	cp 'N' 
+8fc4 8fc4 d caa992
+8fc4 8fc4 u 03 01
+8fc4 8fc4 s 	jp z,faster1
+8fc7 8fc7 d fe4d
+8fc7 8fc7 u 02 01
+8fc7 8fc7 s 	cp 'M' 
+8fc9 8fc9 d cade92
+8fc9 8fc9 u 03 01
+8fc9 8fc9 s 	jp z,slower1 
+8fcc 8fcc s 		
+8fcc 8fcc d fe50
+8fcc 8fcc u 02 01
+8fcc 8fcc s 	cp 'P' 
+8fce 8fce d caf194
+8fce 8fce u 03 01
+8fce 8fce s 	jp z,startstop
+8fd1 8fd1 s 
+8fd1 8fd1 d fe54
+8fd1 8fd1 u 02 01
+8fd1 8fd1 s 	cp 'T'
+8fd3 8fd3 d ca1b95
+8fd3 8fd3 u 03 01
+8fd3 8fd3 s 	jp z,trackstatus
+8fd6 8fd6 s 	
+8fd6 8fd6 d fe08
+8fd6 8fd6 u 02 01
+8fd6 8fd6 s 	cp KCURLEFT
+8fd8 8fd8 d ca2193
+8fd8 8fd8 u 03 01
+8fd8 8fd8 s 	jp z,drumnodown
+8fdb 8fdb s 
+8fdb 8fdb d fe09
+8fdb 8fdb u 02 01
+8fdb 8fdb s 	cp KCURRIGHT
+8fdd 8fdd d ca1793
+8fdd 8fdd u 03 01
+8fdd 8fdd s 	jp z,drumnoup 
+8fe0 8fe0 s 
+8fe0 8fe0 d fe2b
+8fe0 8fe0 u 02 01
+8fe0 8fe0 s 	cp '+'
+8fe2 8fe2 d ca2b93
+8fe2 8fe2 u 03 01
+8fe2 8fe2 s 	jp z,channelup
+8fe5 8fe5 s 
+8fe5 8fe5 d fe2d
+8fe5 8fe5 u 02 01
+8fe5 8fe5 s 	cp '-'
+8fe7 8fe7 d ca3593
+8fe7 8fe7 u 03 01
+8fe7 8fe7 s 	jp z,channeldown
+8fea 8fea s 
+8fea 8fea d fe55
+8fea 8fea u 02 01
+8fea 8fea s 	cp 'U'
+8fec 8fec d ca5093
+8fec 8fec u 03 01
+8fec 8fec s 	jp z,instrumentdown
+8fef 8fef s 
+8fef 8fef d fe49
+8fef 8fef u 02 01
+8fef 8fef s 	cp 'I'
+8ff1 8ff1 d ca3f93
+8ff1 8ff1 u 03 01
+8ff1 8ff1 s 	jp z,instrumentup
+8ff4 8ff4 s 
+8ff4 8ff4 d fe4a
+8ff4 8ff4 u 02 01
+8ff4 8ff4 s 	cp 'J'
+8ff6 8ff6 d ca6b93
+8ff6 8ff6 u 03 01
+8ff6 8ff6 s 	jp z,velocitydown
+8ff9 8ff9 s 
+8ff9 8ff9 d fe4b
+8ff9 8ff9 u 02 01
+8ff9 8ff9 s 	cp 'K'
+8ffb 8ffb d ca6193
+8ffb 8ffb u 03 01
+8ffb 8ffb s 	jp z,velocityup
+8ffe 8ffe s 
+8ffe 8ffe d fe5b
+8ffe 8ffe u 02 01
+8ffe 8ffe s 	cp KCURUP 
+9000 9000 d ca5b91
+9000 9000 u 03 01
+9000 9000 s 	jp z,nextbar
+9003 9003 s 
+9003 9003 d fe0a
+9003 9003 u 02 01
+9003 9003 s 	cp KCURDOWN 
+9005 9005 d ca7291
+9005 9005 u 03 01
+9005 9005 s 	jp z,prevbar
+9008 9008 s 
+9008 9008 d fe31
+9008 9008 u 02 01
+9008 9008 s 	cp '1'
+900a 900a d ca8791
+900a 900a u 03 01
+900a 900a s 	jp z,bar1
+900d 900d s 
+900d 900d d fe32
+900d 900d u 02 01
+900d 900d s 	cp '2'
+900f 900f d caa891
+900f 900f u 03 01
+900f 900f s 	jp z,bar2
+9012 9012 s 
+9012 9012 d fe33
+9012 9012 u 02 01
+9012 9012 s 	cp '3'
+9014 9014 d cac991
+9014 9014 u 03 01
+9014 9014 s 	jp z,bar3
+9017 9017 s 
+9017 9017 d fe34
+9017 9017 u 02 01
+9017 9017 s 	cp '4'
+9019 9019 d caea91
+9019 9019 u 03 01
+9019 9019 s 	jp z,bar4
+901c 901c s 
+901c 901c d fe35
+901c 901c u 02 01
+901c 901c s 	cp '5'
+901e 901e d ca0b92
+901e 901e u 03 01
+901e 901e s 	jp z,bar5
+9021 9021 s 
+9021 9021 d fe36
+9021 9021 u 02 01
+9021 9021 s 	cp '6'
+9023 9023 d ca2c92
+9023 9023 u 03 01
+9023 9023 s 	jp z,bar6
+9026 9026 s 
+9026 9026 d fe37
+9026 9026 u 02 01
+9026 9026 s 	cp '7'
+9028 9028 d ca4d92
+9028 9028 u 03 01
+9028 9028 s 	jp z,bar7
+902b 902b s 
+902b 902b d fe38
+902b 902b u 02 01
+902b 902b s 	cp '8'
+902d 902d d ca6e92
+902d 902d u 03 01
+902d 902d s 	jp z,bar8
+9030 9030 s 
+9030 9030 d fe51
+9030 9030 u 02 01
+9030 9030 s 	cp 'Q'
+9032 9032 d ca5891
+9032 9032 u 03 01
+9032 9032 s 	jp z,quit
+9035 9035 s 
+9035 9035 d fe48
+9035 9035 u 02 01
+9035 9035 s 	cp 'H'
+9037 9037 d ca3491
+9037 9037 u 03 01
+9037 9037 s 	jp z,help
+903a 903a s 
+903a 903a d fe4c
+903a 903a u 02 01
+903a 903a s 	cp 'L'
+903c 903c d ca5291
+903c 903c u 03 01
+903c 903c s 	jp z,load
+903f 903f s 
+903f 903f d fe53
+903f 903f u 02 01
+903f 903f s 	cp 'S'
+9041 9041 d ca5591
+9041 9041 u 03 01
+9041 9041 s 	jp z,save
+9044 9044 s 
+9044 9044 d fe47
+9044 9044 u 02 01
+9044 9044 s 	cp 'G'
+9046 9046 d ca8890
+9046 9046 u 03 01
+9046 9046 s 	jp z,chgridres
+9049 9049 s 
+9049 9049 d fe42
+9049 9049 u 02 01
+9049 9049 s 	cp 'B'
+904b 904b d cadf90
+904b 904b u 03 01
+904b 904b s 	jp z,chgnumbars 
+904e 904e s 
+904e 904e d fe21
+904e 904e u 02 01
+904e 904e s 	cp '!'
+9050 9050 d caf992
+9050 9050 u 03 01
+9050 9050 s 	jp z,midipanic
+9053 9053 s 
+9053 9053 d fe2a
+9053 9053 u 02 01
+9053 9053 s 	cp '*'
+9055 9055 d ca7990
+9055 9055 u 03 01
+9055 9055 s 	jp z,chggatelength
+9058 9058 s 
+9058 9058 s 
+9058 9058 d c3d18e
+9058 9058 u 03 01
+9058 9058 s 	jp loop 
+905b 905b s 	
+905b 905b s 	;;  do a screen update after keypress and continue 
+905b 905b s cont:
+905b 905b d cd5f96
+905b 905b u 03 01
+905b 905b s 	call screenupdate
+905e 905e d cd5397
+905e 905e u 03 01
+905e 905e s 	call showtrack
+9061 9061 d cd1d97
+9061 9061 u 03 01
+9061 9061 s 	call showtrackdrum
+9064 9064 d cd2b97
+9064 9064 u 03 01
+9064 9064 s 	call showtrackchannel
+9067 9067 d cd3797
+9067 9067 u 03 01
+9067 9067 s 	call showtrackinstrument
+906a 906a d cd4597
+906a 906a u 03 01
+906a 906a s 	call showtrackvelocity 
+906d 906d d cddb98
+906d 906d u 03 01
+906d 906d s 	call showgridres
+9070 9070 d cdf798
+9070 9070 u 03 01
+9070 9070 s 	call showbars
+9073 9073 d cde998
+9073 9073 u 03 01
+9073 9073 s 	call showgate		
+9076 9076 s 	
+9076 9076 d c3d18e
+9076 9076 u 03 01
+9076 9076 s 	jp loop
+9079 9079 s 	
+9079 9079 s chggatelength:
+9079 9079 d cdf396
+9079 9079 u 03 01
+9079 9079 s 	call gettrackgate
+907c 907c d cb27
+907c 907c u 02 01
+907c 907c s 	sla a 
+907e 907e d e61f
+907e 907e u 02 01
+907e 907e s 	and $1f
+9080 9080 d 2002
+9080 9080 u 02 01
+9080 9080 s 	jr nz,chggatelength1
+9082 9082 d 3e01
+9082 9082 u 02 01
+9082 9082 s 	ld a,1
+9084 9084 s 	
+9084 9084 s chggatelength1:
+9084 9084 d 77
+9084 9084 u 01 01
+9084 9084 s 	ld (hl), a
+9085 9085 d c35b90
+9085 9085 u 03 01
+9085 9085 s 	jp cont
+9088 9088 s 	
+9088 9088 s chgridres:
+9088 9088 d 3a5088
+9088 9088 u 03 01
+9088 9088 s 	ld a,(gridres)
+908b 908b d cb27
+908b 908b u 02 01
+908b 908b s 	sla a 
+908d 908d d e61f
+908d 908d u 02 01
+908d 908d s 	and $1f
+908f 908f d 2002
+908f 908f u 02 01
+908f 908f s 	jr nz,chgridres1
+9091 9091 d 3e01
+9091 9091 u 02 01
+9091 9091 s 	ld a,1
+9093 9093 s 	
+9093 9093 s chgridres1: 
+9093 9093 d 325088
+9093 9093 u 03 01
+9093 9093 s 	ld (gridres),a
+9096 9096 s 	
+9096 9096 d fe01
+9096 9096 u 02 01
+9096 9096 s 	cp a,1
+9098 9098 d 2008
+9098 9098 u 02 01
+9098 9098 s 	jr nz, gridres2
+909a 909a d 3eff
+909a 909a u 02 01
+909a 909a s 	ld a,11111111b
+909c 909c d 325688
+909c 909c u 03 01
+909c 909c s 	ld (quantpat), a	
+909f 909f d c35b90
+909f 909f u 03 01
+909f 909f s 	jp cont
+90a2 90a2 s 	
+90a2 90a2 s gridres2:
+90a2 90a2 d fe02
+90a2 90a2 u 02 01
+90a2 90a2 s 	cp a,2
+90a4 90a4 d 2008
+90a4 90a4 u 02 01
+90a4 90a4 s 	jr nz, gridres4
+90a6 90a6 d 3efe
+90a6 90a6 u 02 01
+90a6 90a6 s 	ld a,11111110b
+90a8 90a8 d 325688
+90a8 90a8 u 03 01
+90a8 90a8 s 	ld (quantpat), a	
+90ab 90ab d c35b90
+90ab 90ab u 03 01
+90ab 90ab s 	jp cont
+90ae 90ae s 
+90ae 90ae s gridres4:
+90ae 90ae d fe04
+90ae 90ae u 02 01
+90ae 90ae s 	cp a,4
+90b0 90b0 d 2008
+90b0 90b0 u 02 01
+90b0 90b0 s 	jr nz, gridres8
+90b2 90b2 d 3efc
+90b2 90b2 u 02 01
+90b2 90b2 s 	ld a,11111100b
+90b4 90b4 d 325688
+90b4 90b4 u 03 01
+90b4 90b4 s 	ld (quantpat), a	
+90b7 90b7 d c35b90
+90b7 90b7 u 03 01
+90b7 90b7 s 	jp cont
+90ba 90ba s 
+90ba 90ba s gridres8:
+90ba 90ba d fe08
+90ba 90ba u 02 01
+90ba 90ba s 	cp a,8
+90bc 90bc d 2008
+90bc 90bc u 02 01
+90bc 90bc s 	jr nz, gridres16
+90be 90be d 3ef8
+90be 90be u 02 01
+90be 90be s 	ld a,11111000b
+90c0 90c0 d 325688
+90c0 90c0 u 03 01
+90c0 90c0 s 	ld (quantpat), a	
+90c3 90c3 d c35b90
+90c3 90c3 u 03 01
+90c3 90c3 s 	jp cont
+90c6 90c6 s 
+90c6 90c6 s gridres16:
+90c6 90c6 d fe10
+90c6 90c6 u 02 01
+90c6 90c6 s 	cp a,16
+90c8 90c8 d 2008
+90c8 90c8 u 02 01
+90c8 90c8 s 	jr nz, gridres32
+90ca 90ca d 3ef0
+90ca 90ca u 02 01
+90ca 90ca s 	ld a,11110000b
+90cc 90cc d 325688
+90cc 90cc u 03 01
+90cc 90cc s 	ld (quantpat), a	
+90cf 90cf d c35b90
+90cf 90cf u 03 01
+90cf 90cf s 	jp cont
+90d2 90d2 s 
+90d2 90d2 s gridres32:
+90d2 90d2 d fe20
+90d2 90d2 u 02 01
+90d2 90d2 s 	cp a,32
+90d4 90d4 d c25b90
+90d4 90d4 u 03 01
+90d4 90d4 s 	jp nz, cont 
+90d7 90d7 d 3ee0
+90d7 90d7 u 02 01
+90d7 90d7 s 	ld a,11100000b
+90d9 90d9 d 325688
+90d9 90d9 u 03 01
+90d9 90d9 s 	ld (quantpat), a	
+90dc 90dc d c35b90
+90dc 90dc u 03 01
+90dc 90dc s 	jp cont
+90df 90df s 
+90df 90df s 
+90df 90df s chgnumbars:
+90df 90df d 3a4e88
+90df 90df u 03 01
+90df 90df s 	ld a,(numbars)
+90e2 90e2 d 3d
+90e2 90e2 u 01 01
+90e2 90e2 s 	dec a 
+90e3 90e3 d 3c
+90e3 90e3 u 01 01
+90e3 90e3 s 	inc a
+90e4 90e4 d e607
+90e4 90e4 u 02 01
+90e4 90e4 s 	and $07
+90e6 90e6 d 3c
+90e6 90e6 u 01 01
+90e6 90e6 s 	inc a	
+90e7 90e7 d 324e88
+90e7 90e7 u 03 01
+90e7 90e7 s 	ld (numbars),a
+90ea 90ea s 
+90ea 90ea d 47
+90ea 90ea u 01 01
+90ea 90ea s 	ld b,a
+90eb 90eb d 3e00
+90eb 90eb u 02 01
+90eb 90eb s 	ld a,0
+90ed 90ed s countticks:	
+90ed 90ed d c610
+90ed 90ed u 02 01
+90ed 90ed s 	add 16 
+90ef 90ef d 10fc
+90ef 90ef u 02 01
+90ef 90ef s 	djnz countticks
+90f1 90f1 s 
+90f1 90f1 d 324f88
+90f1 90f1 u 03 01
+90f1 90f1 s 	ld (numticks),a
+90f4 90f4 d c35b90
+90f4 90f4 u 03 01
+90f4 90f4 s 	jp cont
+90f7 90f7 s 
+90f7 90f7 s midiin:
+90f7 90f7 s 
+90f7 90f7 d db09
+90f7 90f7 u 02 01
+90f7 90f7 s 	in a,(9)
+90f9 90f9 d b7
+90f9 90f9 u 01 01
+90f9 90f9 s 	or a
+90fa 90fa d c8
+90fa 90fa u 01 01
+90fa 90fa s 	ret z
+90fb 90fb s 
+90fb 90fb s 	;;  byte available
+90fb 90fb s 
+90fb 90fb d db08
+90fb 90fb u 02 01
+90fb 90fb s 	in a,(8)
+90fd 90fd d cb7f
+90fd 90fd u 02 01
+90fd 90fd s 	bit 7,a
+90ff 90ff d 201d
+90ff 90ff u 02 01
+90ff 90ff s 	jr nz, midicommand
+9101 9101 s 	
+9101 9101 d 47
+9101 9101 u 01 01
+9101 9101 s 	ld b, a 
+9102 9102 s 	;; MIDI data byte
+9102 9102 d 3a5188
+9102 9102 u 03 01
+9102 9102 s 	ld a, (midicount)
+9105 9105 d b7
+9105 9105 u 01 01
+9105 9105 s 	or a 
+9106 9106 d c8
+9106 9106 u 01 01
+9106 9106 s 	ret z
+9107 9107 s 
+9107 9107 s 	;; note byte?
+9107 9107 d fe01
+9107 9107 u 02 01
+9107 9107 s 	cp 1
+9109 9109 d 200c
+9109 9109 u 02 01
+9109 9109 s 	jr nz, velcheck
+910b 910b s 
+910b 910b d 78
+910b 910b u 01 01
+910b 910b s 	ld a, b 
+910c 910c d 325288
+910c 910c u 03 01
+910c 910c s 	ld (curnote), a
+910f 910f d 3e02
+910f 910f u 02 01
+910f 910f s 	ld a, 2 
+9111 9111 d 325188
+9111 9111 u 03 01
+9111 9111 s 	ld (midicount), a
+9114 9114 s 
+9114 9114 d 3e00
+9114 9114 u 02 01
+9114 9114 s 	ld a, 0 
+9116 9116 s 
+9116 9116 d c9
+9116 9116 u 01 01
+9116 9116 s 	ret
+9117 9117 s 
+9117 9117 s velcheck:
+9117 9117 d 78
+9117 9117 u 01 01
+9117 9117 s 	ld a, b
+9118 9118 d 325388
+9118 9118 u 03 01
+9118 9118 s 	ld (curvelocity), a
+911b 911b s 
+911b 911b s 	; signal message complete -> note / vel available
+911b 911b d 3e01
+911b 911b u 02 01
+911b 911b s 	ld a, 1
+911d 911d s 
+911d 911d d c9
+911d 911d u 01 01
+911d 911d s 	ret 
+911e 911e s 
+911e 911e s midicommand:	 
+911e 911e s 
+911e 911e d 47
+911e 911e u 01 01
+911e 911e s 	ld b, a 
+911f 911f d 3e00
+911f 911f u 02 01
+911f 911f s 	ld a, 0 
+9121 9121 d 325188
+9121 9121 u 03 01
+9121 9121 s 	ld (midicount), a
+9124 9124 s 
+9124 9124 d 78
+9124 9124 u 01 01
+9124 9124 s 	ld a, b
+9125 9125 s 	;; note on? 
+9125 9125 d fe90
+9125 9125 u 02 01
+9125 9125 s 	cp $90 
+9127 9127 d 2803
+9127 9127 u 02 01
+9127 9127 s 	jr z, midinoteon
+9129 9129 s 
+9129 9129 d 3e00
+9129 9129 u 02 01
+9129 9129 s 	ld a, 0
+912b 912b d c9
+912b 912b u 01 01
+912b 912b s 	ret 
+912c 912c s 
+912c 912c s midinoteon:	 
+912c 912c s 
+912c 912c s 	;;  note on!
+912c 912c d 3e01
+912c 912c u 02 01
+912c 912c s 	ld a, 1
+912e 912e d 325188
+912e 912e u 03 01
+912e 912e s 	ld (midicount), a
+9131 9131 s 
+9131 9131 d 3e00
+9131 9131 u 02 01
+9131 9131 s 	ld a, 0
+9133 9133 s 	
+9133 9133 d c9
+9133 9133 u 01 01
+9133 9133 s 	ret	
+9134 9134 s 
+9134 9134 s 
+9134 9134 s help:
+9134 9134 s 
+9134 9134 d 21003c
+9134 9134 u 03 01
+9134 9134 s 	ld	hl,$3c00
+9137 9137 d 11013c
+9137 9137 u 03 01
+9137 9137 s 	ld	de,$3c00+1
+913a 913a d 01ff03
+913a 913a u 03 01
+913a 913a s 	ld	bc,1024-1
+913d 913d d 3620
+913d 913d u 02 01
+913d 913d s 	ld	(hl),' '
+913f 913f d edb0
+913f 913f u 02 01
+913f 913f s 	ldir
+9141 9141 s 
+9141 9141 d 210484
+9141 9141 u 03 01
+9141 9141 s 	ld	hl,helpt
+9144 9144 d 11003c
+9144 9144 u 03 01
+9144 9144 s 	ld	de,$3c00
+9147 9147 d 010004
+9147 9147 u 03 01
+9147 9147 s 	ld	bc,1024 
+914a 914a d edb0
+914a 914a u 02 01
+914a 914a s 	ldir
+914c 914c s 
+914c 914c d cd4900
+914c 914c u 03 01
+914c 914c s 	call @KEY
+914f 914f s 	
+914f 914f d c3ad8e
+914f 914f u 03 01
+914f 914f s 	jp main2
+9152 9152 s 
+9152 9152 s load:
+9152 9152 d c3d18e
+9152 9152 u 03 01
+9152 9152 s 	jp loop 
+9155 9155 s 
+9155 9155 s save:
+9155 9155 d c3d18e
+9155 9155 u 03 01
+9155 9155 s 	jp loop 
+9158 9158 s 	
+9158 9158 s quit:
+9158 9158 d cd2d40
+9158 9158 u 03 01
+9158 9158 s 	call @EXIT
+915b 915b s 	
+915b 915b s nextbar:
+915b 915b d 3a4788
+915b 915b u 03 01
+915b 915b s 	ld a,(cursorx)
+915e 915e d 215088
+915e 915e u 03 01
+915e 915e s 	ld hl,gridres
+9161 9161 d 46
+9161 9161 u 01 01
+9161 9161 s 	ld b,(hl)
+9162 9162 d 80
+9162 9162 u 01 01
+9162 9162 s 	add a,b
+9163 9163 d fe40
+9163 9163 u 02 01
+9163 9163 s 	cp 64
+9165 9165 d d25b90
+9165 9165 u 03 01
+9165 9165 s 	jp nc, cont
+9168 9168 d 324788
+9168 9168 u 03 01
+9168 9168 s 	ld (cursorx),a
+916b 916b d 21758e
+916b 916b u 03 01
+916b 916b s 	ld hl,memcursorx 
+916e 916e d 77
+916e 916e u 01 01
+916e 916e s 	ld (hl),a
+916f 916f d c35b90
+916f 916f u 03 01
+916f 916f s 	jp cont
+9172 9172 s 
+9172 9172 s prevbar:
+9172 9172 d 3a4788
+9172 9172 u 03 01
+9172 9172 s 	ld a,(cursorx)
+9175 9175 d 215088
+9175 9175 u 03 01
+9175 9175 s 	ld hl,gridres
+9178 9178 d 46
+9178 9178 u 01 01
+9178 9178 s 	ld b,(hl)
+9179 9179 d 90
+9179 9179 u 01 01
+9179 9179 s 	sub a,b
+917a 917a d da5b90
+917a 917a u 03 01
+917a 917a s 	jp c, cont
+917d 917d d 324788
+917d 917d u 03 01
+917d 917d s 	ld (cursorx),a
+9180 9180 d 21758e
+9180 9180 u 03 01
+9180 9180 s 	ld hl,memcursorx 
+9183 9183 d 77
+9183 9183 u 01 01
+9183 9183 s 	ld (hl),a
+9184 9184 d c35b90
+9184 9184 u 03 01
+9184 9184 s 	jp cont
+9187 9187 s 
+9187 9187 s setbar1x macro
+9187 9187 s 	ld (cursorx), a
+9187 9187 s 	ld hl,memcursorx 
+9187 9187 s 	ld (hl),a
+9187 9187 s 
+9187 9187 s 	ld a, (cursory)
+9187 9187 s 	cp 9
+9187 9187 s 	jp c,cont
+9187 9187 s 	; else change y cursor 
+9187 9187 s 	sub 7 
+9187 9187 s 	ld (cursory),a
+9187 9187 s 	
+9187 9187 s 	ld a,(memcursory) 
+9187 9187 s 	sub 6
+9187 9187 s 	ld (memcursory),a
+9187 9187 s 
+9187 9187 s 	jp cont
+9187 9187 s 	endm
+9187 9187 s 
+9187 9187 s 
+9187 9187 s setbar2x macro
+9187 9187 s 	ld (cursorx), a
+9187 9187 s 	ld hl,memcursorx 
+9187 9187 s 	ld (hl),a
+9187 9187 s 
+9187 9187 s 	ld a, (cursory)
+9187 9187 s 	cp 10
+9187 9187 s 	jp nc,cont
+9187 9187 s 	; else change y cursor 
+9187 9187 s 	add 7 
+9187 9187 s 	ld (cursory),a
+9187 9187 s 	
+9187 9187 s 	ld a,(memcursory) 
+9187 9187 s 	add 6
+9187 9187 s 	ld (memcursory),a
+9187 9187 s 
+9187 9187 s 	jp cont
+9187 9187 s 	endm 
+9187 9187 s 
+9187 9187 s bar1:
+9187 9187 d 3e00
+9187 9187 u 02 01
+9187 9187 s 	ld a,0
+9189 9189 s 	setbar1x 
+9189 9189 d 324788
+9189 9189 u 03 01
+9189 9189 s 	ld (cursorx), a
+918c 918c d 21758e
+918c 918c u 03 01
+918c 918c s 	ld hl,memcursorx 
+918f 918f d 77
+918f 918f u 01 01
+918f 918f s 	ld (hl),a
+9190 9190 s 
+9190 9190 d 3a4888
+9190 9190 u 03 01
+9190 9190 s 	ld a, (cursory)
+9193 9193 d fe09
+9193 9193 u 02 01
+9193 9193 s 	cp 9
+9195 9195 d da5b90
+9195 9195 u 03 01
+9195 9195 s 	jp c,cont
+9198 9198 s 	; else change y cursor 
+9198 9198 d d607
+9198 9198 u 02 01
+9198 9198 s 	sub 7 
+919a 919a d 324888
+919a 919a u 03 01
+919a 919a s 	ld (cursory),a
+919d 919d s 	
+919d 919d d 3a768e
+919d 919d u 03 01
+919d 919d s 	ld a,(memcursory) 
+91a0 91a0 d d606
+91a0 91a0 u 02 01
+91a0 91a0 s 	sub 6
+91a2 91a2 d 32768e
+91a2 91a2 u 03 01
+91a2 91a2 s 	ld (memcursory),a
+91a5 91a5 s 
+91a5 91a5 d c35b90
+91a5 91a5 u 03 01
+91a5 91a5 s 	jp cont
+91a8 91a8 s 	endm
+91a8 91a8 s 	
+91a8 91a8 s bar2:	
+91a8 91a8 d 3e10
+91a8 91a8 u 02 01
+91a8 91a8 s 	ld a,16
+91aa 91aa s 	setbar1x 
+91aa 91aa d 324788
+91aa 91aa u 03 01
+91aa 91aa s 	ld (cursorx), a
+91ad 91ad d 21758e
+91ad 91ad u 03 01
+91ad 91ad s 	ld hl,memcursorx 
+91b0 91b0 d 77
+91b0 91b0 u 01 01
+91b0 91b0 s 	ld (hl),a
+91b1 91b1 s 
+91b1 91b1 d 3a4888
+91b1 91b1 u 03 01
+91b1 91b1 s 	ld a, (cursory)
+91b4 91b4 d fe09
+91b4 91b4 u 02 01
+91b4 91b4 s 	cp 9
+91b6 91b6 d da5b90
+91b6 91b6 u 03 01
+91b6 91b6 s 	jp c,cont
+91b9 91b9 s 	; else change y cursor 
+91b9 91b9 d d607
+91b9 91b9 u 02 01
+91b9 91b9 s 	sub 7 
+91bb 91bb d 324888
+91bb 91bb u 03 01
+91bb 91bb s 	ld (cursory),a
+91be 91be s 	
+91be 91be d 3a768e
+91be 91be u 03 01
+91be 91be s 	ld a,(memcursory) 
+91c1 91c1 d d606
+91c1 91c1 u 02 01
+91c1 91c1 s 	sub 6
+91c3 91c3 d 32768e
+91c3 91c3 u 03 01
+91c3 91c3 s 	ld (memcursory),a
+91c6 91c6 s 
+91c6 91c6 d c35b90
+91c6 91c6 u 03 01
+91c6 91c6 s 	jp cont
+91c9 91c9 s 	endm
+91c9 91c9 s 
+91c9 91c9 s bar3:
+91c9 91c9 d 3e20
+91c9 91c9 u 02 01
+91c9 91c9 s 	ld a,32
+91cb 91cb s 	setbar1x 
+91cb 91cb d 324788
+91cb 91cb u 03 01
+91cb 91cb s 	ld (cursorx), a
+91ce 91ce d 21758e
+91ce 91ce u 03 01
+91ce 91ce s 	ld hl,memcursorx 
+91d1 91d1 d 77
+91d1 91d1 u 01 01
+91d1 91d1 s 	ld (hl),a
+91d2 91d2 s 
+91d2 91d2 d 3a4888
+91d2 91d2 u 03 01
+91d2 91d2 s 	ld a, (cursory)
+91d5 91d5 d fe09
+91d5 91d5 u 02 01
+91d5 91d5 s 	cp 9
+91d7 91d7 d da5b90
+91d7 91d7 u 03 01
+91d7 91d7 s 	jp c,cont
+91da 91da s 	; else change y cursor 
+91da 91da d d607
+91da 91da u 02 01
+91da 91da s 	sub 7 
+91dc 91dc d 324888
+91dc 91dc u 03 01
+91dc 91dc s 	ld (cursory),a
+91df 91df s 	
+91df 91df d 3a768e
+91df 91df u 03 01
+91df 91df s 	ld a,(memcursory) 
+91e2 91e2 d d606
+91e2 91e2 u 02 01
+91e2 91e2 s 	sub 6
+91e4 91e4 d 32768e
+91e4 91e4 u 03 01
+91e4 91e4 s 	ld (memcursory),a
+91e7 91e7 s 
+91e7 91e7 d c35b90
+91e7 91e7 u 03 01
+91e7 91e7 s 	jp cont
+91ea 91ea s 	endm
+91ea 91ea s 
+91ea 91ea s bar4:
+91ea 91ea d 3e30
+91ea 91ea u 02 01
+91ea 91ea s 	ld a,48
+91ec 91ec s 	setbar1x 
+91ec 91ec d 324788
+91ec 91ec u 03 01
+91ec 91ec s 	ld (cursorx), a
+91ef 91ef d 21758e
+91ef 91ef u 03 01
+91ef 91ef s 	ld hl,memcursorx 
+91f2 91f2 d 77
+91f2 91f2 u 01 01
+91f2 91f2 s 	ld (hl),a
+91f3 91f3 s 
+91f3 91f3 d 3a4888
+91f3 91f3 u 03 01
+91f3 91f3 s 	ld a, (cursory)
+91f6 91f6 d fe09
+91f6 91f6 u 02 01
+91f6 91f6 s 	cp 9
+91f8 91f8 d da5b90
+91f8 91f8 u 03 01
+91f8 91f8 s 	jp c,cont
+91fb 91fb s 	; else change y cursor 
+91fb 91fb d d607
+91fb 91fb u 02 01
+91fb 91fb s 	sub 7 
+91fd 91fd d 324888
+91fd 91fd u 03 01
+91fd 91fd s 	ld (cursory),a
+9200 9200 s 	
+9200 9200 d 3a768e
+9200 9200 u 03 01
+9200 9200 s 	ld a,(memcursory) 
+9203 9203 d d606
+9203 9203 u 02 01
+9203 9203 s 	sub 6
+9205 9205 d 32768e
+9205 9205 u 03 01
+9205 9205 s 	ld (memcursory),a
+9208 9208 s 
+9208 9208 d c35b90
+9208 9208 u 03 01
+9208 9208 s 	jp cont
+920b 920b s 	endm
+920b 920b s 
+920b 920b s bar5:
+920b 920b d 3e00
+920b 920b u 02 01
+920b 920b s 	ld a,0
+920d 920d s 	setbar2x 
+920d 920d d 324788
+920d 920d u 03 01
+920d 920d s 	ld (cursorx), a
+9210 9210 d 21758e
+9210 9210 u 03 01
+9210 9210 s 	ld hl,memcursorx 
+9213 9213 d 77
+9213 9213 u 01 01
+9213 9213 s 	ld (hl),a
+9214 9214 s 
+9214 9214 d 3a4888
+9214 9214 u 03 01
+9214 9214 s 	ld a, (cursory)
+9217 9217 d fe0a
+9217 9217 u 02 01
+9217 9217 s 	cp 10
+9219 9219 d d25b90
+9219 9219 u 03 01
+9219 9219 s 	jp nc,cont
+921c 921c s 	; else change y cursor 
+921c 921c d c607
+921c 921c u 02 01
+921c 921c s 	add 7 
+921e 921e d 324888
+921e 921e u 03 01
+921e 921e s 	ld (cursory),a
+9221 9221 s 	
+9221 9221 d 3a768e
+9221 9221 u 03 01
+9221 9221 s 	ld a,(memcursory) 
+9224 9224 d c606
+9224 9224 u 02 01
+9224 9224 s 	add 6
+9226 9226 d 32768e
+9226 9226 u 03 01
+9226 9226 s 	ld (memcursory),a
+9229 9229 s 
+9229 9229 d c35b90
+9229 9229 u 03 01
+9229 9229 s 	jp cont
+922c 922c s 	endm
+922c 922c s 
+922c 922c s bar6:
+922c 922c d 3e10
+922c 922c u 02 01
+922c 922c s 	ld a,16
+922e 922e s 	setbar2x
+922e 922e d 324788
+922e 922e u 03 01
+922e 922e s 	ld (cursorx), a
+9231 9231 d 21758e
+9231 9231 u 03 01
+9231 9231 s 	ld hl,memcursorx 
+9234 9234 d 77
+9234 9234 u 01 01
+9234 9234 s 	ld (hl),a
+9235 9235 s 
+9235 9235 d 3a4888
+9235 9235 u 03 01
+9235 9235 s 	ld a, (cursory)
+9238 9238 d fe0a
+9238 9238 u 02 01
+9238 9238 s 	cp 10
+923a 923a d d25b90
+923a 923a u 03 01
+923a 923a s 	jp nc,cont
+923d 923d s 	; else change y cursor 
+923d 923d d c607
+923d 923d u 02 01
+923d 923d s 	add 7 
+923f 923f d 324888
+923f 923f u 03 01
+923f 923f s 	ld (cursory),a
+9242 9242 s 	
+9242 9242 d 3a768e
+9242 9242 u 03 01
+9242 9242 s 	ld a,(memcursory) 
+9245 9245 d c606
+9245 9245 u 02 01
+9245 9245 s 	add 6
+9247 9247 d 32768e
+9247 9247 u 03 01
+9247 9247 s 	ld (memcursory),a
+924a 924a s 
+924a 924a d c35b90
+924a 924a u 03 01
+924a 924a s 	jp cont
+924d 924d s 	endm
+924d 924d s 	
+924d 924d s bar7:
+924d 924d d 3e20
+924d 924d u 02 01
+924d 924d s 	ld a,32
+924f 924f s 	setbar2x
+924f 924f d 324788
+924f 924f u 03 01
+924f 924f s 	ld (cursorx), a
+9252 9252 d 21758e
+9252 9252 u 03 01
+9252 9252 s 	ld hl,memcursorx 
+9255 9255 d 77
+9255 9255 u 01 01
+9255 9255 s 	ld (hl),a
+9256 9256 s 
+9256 9256 d 3a4888
+9256 9256 u 03 01
+9256 9256 s 	ld a, (cursory)
+9259 9259 d fe0a
+9259 9259 u 02 01
+9259 9259 s 	cp 10
+925b 925b d d25b90
+925b 925b u 03 01
+925b 925b s 	jp nc,cont
+925e 925e s 	; else change y cursor 
+925e 925e d c607
+925e 925e u 02 01
+925e 925e s 	add 7 
+9260 9260 d 324888
+9260 9260 u 03 01
+9260 9260 s 	ld (cursory),a
+9263 9263 s 	
+9263 9263 d 3a768e
+9263 9263 u 03 01
+9263 9263 s 	ld a,(memcursory) 
+9266 9266 d c606
+9266 9266 u 02 01
+9266 9266 s 	add 6
+9268 9268 d 32768e
+9268 9268 u 03 01
+9268 9268 s 	ld (memcursory),a
+926b 926b s 
+926b 926b d c35b90
+926b 926b u 03 01
+926b 926b s 	jp cont
+926e 926e s 	endm
+926e 926e s 	
+926e 926e s bar8:
+926e 926e d 3e30
+926e 926e u 02 01
+926e 926e s 	ld a,48
+9270 9270 s 	setbar2x 
+9270 9270 d 324788
+9270 9270 u 03 01
+9270 9270 s 	ld (cursorx), a
+9273 9273 d 21758e
+9273 9273 u 03 01
+9273 9273 s 	ld hl,memcursorx 
+9276 9276 d 77
+9276 9276 u 01 01
+9276 9276 s 	ld (hl),a
+9277 9277 s 
+9277 9277 d 3a4888
+9277 9277 u 03 01
+9277 9277 s 	ld a, (cursory)
+927a 927a d fe0a
+927a 927a u 02 01
+927a 927a s 	cp 10
+927c 927c d d25b90
+927c 927c u 03 01
+927c 927c s 	jp nc,cont
+927f 927f s 	; else change y cursor 
+927f 927f d c607
+927f 927f u 02 01
+927f 927f s 	add 7 
+9281 9281 d 324888
+9281 9281 u 03 01
+9281 9281 s 	ld (cursory),a
+9284 9284 s 	
+9284 9284 d 3a768e
+9284 9284 u 03 01
+9284 9284 s 	ld a,(memcursory) 
+9287 9287 d c606
+9287 9287 u 02 01
+9287 9287 s 	add 6
+9289 9289 d 32768e
+9289 9289 u 03 01
+9289 9289 s 	ld (memcursory),a
+928c 928c s 
+928c 928c d c35b90
+928c 928c u 03 01
+928c 928c s 	jp cont
+928f 928f s 	endm
+928f 928f s 
+928f 928f s faster:
+928f 928f d 3a4d88
+928f 928f u 03 01
+928f 928f s 	ld a,(tempo)
+9292 9292 d fe01
+9292 9292 u 02 01
+9292 9292 s 	cp 1 
+9294 9294 d ca5b90
+9294 9294 u 03 01
+9294 9294 s 	jp z,cont
+9297 9297 s 	
+9297 9297 d 3d
+9297 9297 u 01 01
+9297 9297 s 	dec a
+9298 9298 d 4f
+9298 9298 u 01 01
+9298 9298 s 	ld c,a
+9299 9299 d 324d88
+9299 9299 u 03 01
+9299 9299 s 	ld (tempo),a
+929c 929c d 3e00
+929c 929c u 02 01
+929c 929c s 	ld a,0
+929e 929e d 214c88
+929e 929e u 03 01
+929e 929e s 	ld hl,delayc
+92a1 92a1 d 3600
+92a1 92a1 u 02 01
+92a1 92a1 s 	ld (hl),0
+92a3 92a3 d cdb396
+92a3 92a3 u 03 01
+92a3 92a3 s 	call showtempo
+92a6 92a6 d c35b90
+92a6 92a6 u 03 01
+92a6 92a6 s 	jp cont
+92a9 92a9 s 
+92a9 92a9 s faster1:
+92a9 92a9 d 3a4d88
+92a9 92a9 u 03 01
+92a9 92a9 s 	ld a,(tempo)
+92ac 92ac d fe11
+92ac 92ac u 02 01
+92ac 92ac s 	cp $11
+92ae 92ae d da5b90
+92ae 92ae u 03 01
+92ae 92ae s 	jp c,cont
+92b1 92b1 s 	
+92b1 92b1 d d610
+92b1 92b1 u 02 01
+92b1 92b1 s 	sub $10
+92b3 92b3 d 4f
+92b3 92b3 u 01 01
+92b3 92b3 s 	ld c,a
+92b4 92b4 d 324d88
+92b4 92b4 u 03 01
+92b4 92b4 s 	ld (tempo),a
+92b7 92b7 d 3e00
+92b7 92b7 u 02 01
+92b7 92b7 s 	ld a,0
+92b9 92b9 d 214c88
+92b9 92b9 u 03 01
+92b9 92b9 s 	ld hl,delayc
+92bc 92bc d 3600
+92bc 92bc u 02 01
+92bc 92bc s 	ld (hl),0
+92be 92be d cdb396
+92be 92be u 03 01
+92be 92be s 	call showtempo
+92c1 92c1 d c35b90
+92c1 92c1 u 03 01
+92c1 92c1 s 	jp cont
+92c4 92c4 s 	
+92c4 92c4 s slower:
+92c4 92c4 d 3a4d88
+92c4 92c4 u 03 01
+92c4 92c4 s 	ld a,(tempo)
+92c7 92c7 d feff
+92c7 92c7 u 02 01
+92c7 92c7 s 	cp a,255
+92c9 92c9 d ca5b90
+92c9 92c9 u 03 01
+92c9 92c9 s 	jp z,cont
+92cc 92cc s 	
+92cc 92cc d 3c
+92cc 92cc u 01 01
+92cc 92cc s 	inc a
+92cd 92cd d 4f
+92cd 92cd u 01 01
+92cd 92cd s 	ld c,a
+92ce 92ce d 324d88
+92ce 92ce u 03 01
+92ce 92ce s 	ld (tempo),a
+92d1 92d1 d 3e00
+92d1 92d1 u 02 01
+92d1 92d1 s 	ld a,0
+92d3 92d3 d 214c88
+92d3 92d3 u 03 01
+92d3 92d3 s 	ld hl,delayc
+92d6 92d6 d 3600
+92d6 92d6 u 02 01
+92d6 92d6 s 	ld (hl),0
+92d8 92d8 s 
+92d8 92d8 d cdb396
+92d8 92d8 u 03 01
+92d8 92d8 s 	call showtempo
+92db 92db d c35b90
+92db 92db u 03 01
+92db 92db s 	jp cont	
+92de 92de s 
+92de 92de s slower1:
+92de 92de d 3a4d88
+92de 92de u 03 01
+92de 92de s 	ld a,(tempo)
+92e1 92e1 d fef0
+92e1 92e1 u 02 01
+92e1 92e1 s 	cp a,$f0
+92e3 92e3 d d25b90
+92e3 92e3 u 03 01
+92e3 92e3 s 	jp nc,cont
+92e6 92e6 s 	
+92e6 92e6 d c610
+92e6 92e6 u 02 01
+92e6 92e6 s 	add $10
+92e8 92e8 d 4f
+92e8 92e8 u 01 01
+92e8 92e8 s 	ld c,a
+92e9 92e9 d 324d88
+92e9 92e9 u 03 01
+92e9 92e9 s 	ld (tempo),a
+92ec 92ec d 3e00
+92ec 92ec u 02 01
+92ec 92ec s 	ld a,0
+92ee 92ee d 214c88
+92ee 92ee u 03 01
+92ee 92ee s 	ld hl,delayc
+92f1 92f1 d 3600
+92f1 92f1 u 02 01
+92f1 92f1 s 	ld (hl),0
+92f3 92f3 s 
+92f3 92f3 d cdb396
+92f3 92f3 u 03 01
+92f3 92f3 s 	call showtempo
+92f6 92f6 d c35b90
+92f6 92f6 u 03 01
+92f6 92f6 s 	jp cont	
+92f9 92f9 s 
+92f9 92f9 s testsoundx macro 
+92f9 92f9 s 	;; call gettrackdrum
+92f9 92f9 s 	;; ld b,a
+92f9 92f9 s 
+92f9 92f9 s 	call gettrackchannel
+92f9 92f9 s 	ld (curchannel), a 
+92f9 92f9 s 	;; ld a,(curchannel)
+92f9 92f9 s 
+92f9 92f9 s 	;;ld hl, curnoteschannels
+92f9 92f9 s 	;;ld d,0
+92f9 92f9 s 	;;ld e,a
+92f9 92f9 s 	;;add hl,de
+92f9 92f9 s 
+92f9 92f9 s 	add $90 
+92f9 92f9 s 	out (8),a
+92f9 92f9 s   
+92f9 92f9 s 	call short_delay
+92f9 92f9 s 	ld a,(curnote)
+92f9 92f9 s 	out (8),a
+92f9 92f9 s 	;;ld (hl), a  		; store into CUR NOTES per CHANNEL for MIDI PANIC 
+92f9 92f9 s   
+92f9 92f9 s 	call short_delay
+92f9 92f9 s 	ld a,(curvelocity)
+92f9 92f9 s 	out (8),a
+92f9 92f9 s 
+92f9 92f9 s 	;;ld b,a
+92f9 92f9 s 	;;ld hl, curvelschannels 
+92f9 92f9 s 	;;ld d,0
+92f9 92f9 s 	;;ld e,b
+92f9 92f9 s 	;;add hl,de 
+92f9 92f9 s 	;;ld a,(curchannel)
+92f9 92f9 s 	;;ld (hl), a  		; store into CUR VELOCITIES per CHANNEL for MIDI PANIC 
+92f9 92f9 s 
+92f9 92f9 s 	endm 
+92f9 92f9 s 
+92f9 92f9 s midipanic:
+92f9 92f9 s 
+92f9 92f9 d 0610
+92f9 92f9 u 02 01
+92f9 92f9 s 	ld b, $10 
+92fb 92fb s 
+92fb 92fb s channeloff:
+92fb 92fb s 	;; ld a, b
+92fb 92fb s 	;; dec a
+92fb 92fb s 	;; add $80	
+92fb 92fb s 	;; out (8),a  		; MIDI NOTE OFF for MIDI Channel in B 
+92fb 92fb s 	;; call short_delay
+92fb 92fb s 
+92fb 92fb s 	;; ld a, b
+92fb 92fb s 	;; dec a
+92fb 92fb s 	;; ld hl, curnoteschannels ; retrieve last MIDI ON Message for Channel in B NOTE 
+92fb 92fb s 	;; ld d,0
+92fb 92fb s 	;; ld e,a
+92fb 92fb s 	;; add hl,de 
+92fb 92fb s 	
+92fb 92fb s 	;; ld a, (hl) 		; last MIDI NOTE ON Note
+92fb 92fb s 	;; out (8), a
+92fb 92fb s 	;; call short_delay
+92fb 92fb s 
+92fb 92fb s 	;; ld a, b
+92fb 92fb s 	;; dec a 
+92fb 92fb s 	;; ld hl, curvelschannels ; retrieve last MIDI ON Message for Channel in B VELOCITY
+92fb 92fb s 	;; ld d,0
+92fb 92fb s 	;; ld e,a 
+92fb 92fb s 	;; add hl,de 
+92fb 92fb s 	
+92fb 92fb s 	;; ld a, (hl) 		; last MIDI NOTE ON Velocity
+92fb 92fb s 	;; out (8), a
+92fb 92fb s 	;; call short_delay
+92fb 92fb s 
+92fb 92fb s 
+92fb 92fb d 78
+92fb 92fb u 01 01
+92fb 92fb s 	ld a, b
+92fc 92fc d 3d
+92fc 92fc u 01 01
+92fc 92fc s 	dec a
+92fd 92fd d c6b0
+92fd 92fd u 02 01
+92fd 92fd s 	add $b0	
+92ff 92ff d d308
+92ff 92ff u 02 01
+92ff 92ff s 	out (8),a  		; MIDI CC for Channel in a 
+9301 9301 d cd0399
+9301 9301 u 03 01
+9301 9301 s 	call short_delay
+9304 9304 s 
+9304 9304 d 3e7b
+9304 9304 u 02 01
+9304 9304 s 	ld a,123
+9306 9306 d d308
+9306 9306 u 02 01
+9306 9306 s 	out (8),a  		; MIDI NOTE OFF 
+9308 9308 d cd0399
+9308 9308 u 03 01
+9308 9308 s 	call short_delay
+930b 930b s 
+930b 930b d 3e00
+930b 930b u 02 01
+930b 930b s 	ld a,0
+930d 930d d d308
+930d 930d u 02 01
+930d 930d s 	out (8),a  		; Don't Care 
+930f 930f d cd0399
+930f 930f u 03 01
+930f 930f s 	call short_delay
+9312 9312 s 
+9312 9312 s 	
+9312 9312 s 	;;  repeat for all 16 Channels 
+9312 9312 d 10e7
+9312 9312 u 02 01
+9312 9312 s 	djnz channeloff
+9314 9314 s 	
+9314 9314 d c35b90
+9314 9314 u 03 01
+9314 9314 s 	jp cont
+9317 9317 s 	
+9317 9317 s drumnoup:
+9317 9317 d cdcc96
+9317 9317 u 03 01
+9317 9317 s 	call gettrackdrum
+931a 931a d 3c
+931a 931a u 01 01
+931a 931a s 	inc a 
+931b 931b d e67f
+931b 931b u 02 01
+931b 931b s 	and $7f
+931d 931d d 77
+931d 931d u 01 01
+931d 931d s 	ld (hl), a
+931e 931e d c35b90
+931e 931e u 03 01
+931e 931e s 	jp cont 
+9321 9321 s 
+9321 9321 s drumnodown:
+9321 9321 d cdcc96
+9321 9321 u 03 01
+9321 9321 s 	call gettrackdrum
+9324 9324 d 3d
+9324 9324 u 01 01
+9324 9324 s 	dec a 
+9325 9325 d e67f
+9325 9325 u 02 01
+9325 9325 s 	and $7f
+9327 9327 d 77
+9327 9327 u 01 01
+9327 9327 s 	ld (hl), a
+9328 9328 d c35b90
+9328 9328 u 03 01
+9328 9328 s 	jp cont
+932b 932b s 
+932b 932b s channelup:
+932b 932b d cdd996
+932b 932b u 03 01
+932b 932b s 	call gettrackchannel 
+932e 932e d 3c
+932e 932e u 01 01
+932e 932e s 	inc a 
+932f 932f d e60f
+932f 932f u 02 01
+932f 932f s 	and $0f
+9331 9331 d 77
+9331 9331 u 01 01
+9331 9331 s 	ld (hl), a
+9332 9332 d c35b90
+9332 9332 u 03 01
+9332 9332 s 	jp cont 
+9335 9335 s 
+9335 9335 s channeldown:
+9335 9335 d cdd996
+9335 9335 u 03 01
+9335 9335 s 	call gettrackchannel
+9338 9338 d 3d
+9338 9338 u 01 01
+9338 9338 s 	dec a 
+9339 9339 d e60f
+9339 9339 u 02 01
+9339 9339 s 	and $0f 
+933b 933b d 77
+933b 933b u 01 01
+933b 933b s 	ld (hl), a
+933c 933c d c35b90
+933c 933c u 03 01
+933c 933c s 	jp cont
+933f 933f s 
+933f 933f s instrumentup:
+933f 933f d cde696
+933f 933f u 03 01
+933f 933f s 	call gettrackinstrument
+9342 9342 d 3c
+9342 9342 u 01 01
+9342 9342 s 	inc a 
+9343 9343 d e67f
+9343 9343 u 02 01
+9343 9343 s 	and $7f
+9345 9345 d 77
+9345 9345 u 01 01
+9345 9345 s 	ld (hl), a
+9346 9346 s 
+9346 9346 d cdc196
+9346 9346 u 03 01
+9346 9346 s 	call gettracknr
+9349 9349 d 3d
+9349 9349 u 01 01
+9349 9349 s 	dec a
+934a 934a d cd5f97
+934a 934a u 03 01
+934a 934a s 	call setinstrument
+934d 934d s 	
+934d 934d d c35b90
+934d 934d u 03 01
+934d 934d s 	jp cont 
+9350 9350 s 
+9350 9350 s instrumentdown:	
+9350 9350 d cde696
+9350 9350 u 03 01
+9350 9350 s 	call gettrackinstrument
+9353 9353 d 3d
+9353 9353 u 01 01
+9353 9353 s 	dec a 
+9354 9354 d e67f
+9354 9354 u 02 01
+9354 9354 s 	and $7f
+9356 9356 d 77
+9356 9356 u 01 01
+9356 9356 s 	ld (hl), a
+9357 9357 s 
+9357 9357 d cdc196
+9357 9357 u 03 01
+9357 9357 s 	call gettracknr
+935a 935a d 3d
+935a 935a u 01 01
+935a 935a s 	dec a
+935b 935b d cd5f97
+935b 935b u 03 01
+935b 935b s 	call setinstrument
+935e 935e s 	
+935e 935e d c35b90
+935e 935e u 03 01
+935e 935e s 	jp cont
+9361 9361 s 
+9361 9361 s velocityup:
+9361 9361 d cd0097
+9361 9361 u 03 01
+9361 9361 s 	call gettrackvelocity
+9364 9364 d 3c
+9364 9364 u 01 01
+9364 9364 s 	inc a 
+9365 9365 d e67f
+9365 9365 u 02 01
+9365 9365 s 	and $7f
+9367 9367 d 77
+9367 9367 u 01 01
+9367 9367 s 	ld (hl), a
+9368 9368 d c35b90
+9368 9368 u 03 01
+9368 9368 s 	jp cont 
+936b 936b s 
+936b 936b s velocitydown:	
+936b 936b d cd0097
+936b 936b u 03 01
+936b 936b s 	call gettrackvelocity
+936e 936e d 3d
+936e 936e u 01 01
+936e 936e s 	dec a 
+936f 936f d e67f
+936f 936f u 02 01
+936f 936f s 	and $7f
+9371 9371 d 77
+9371 9371 u 01 01
+9371 9371 s 	ld (hl), a
+9372 9372 d c35b90
+9372 9372 u 03 01
+9372 9372 s 	jp cont
+9375 9375 s 
+9375 9375 s restorecellx macro 
+9375 9375 s 	ld a,(memcursorx)
+9375 9375 s 	
+9375 9375 s 	ld hl,data
+9375 9375 s 	ld d,0
+9375 9375 s 	ld e,a
+9375 9375 s 	add hl,de	
+9375 9375 s 	ld a,(hl)
+9375 9375 s 	endm 
+9375 9375 s 
+9375 9375 s setgridx macro
+9375 9375 s 	call memcursor
+9375 9375 s 	; ld (hl),SETSYM
+9375 9375 s 	ld a, (curnote)
+9375 9375 s 	add DISPMIDINOTEOFFSET 
+9375 9375 s 
+9375 9375 s 	ld (hl), a 
+9375 9375 s 	ld hl,lastcur
+9375 9375 s 	; ld (hl),SETSYM
+9375 9375 s 	ld (hl), a
+9375 9375 s 	endm 
+9375 9375 s 
+9375 9375 s erasegridx macro
+9375 9375 s 	call memcursor
+9375 9375 s 	ld a, (hl)
+9375 9375 s 	;;  erase
+9375 9375 s 	push hl
+9375 9375 s 	restorecellx 
+9375 9375 s 	pop hl
+9375 9375 s 	ld (hl),a
+9375 9375 s 	ld hl,lastcur
+9375 9375 s 	ld (hl),a 
+9375 9375 s 	endm 
+9375 9375 s 
+9375 9375 s gettrackdrumx macro 
+9375 9375 s 	call gettracknr
+9375 9375 s 	dec a
+9375 9375 s 	ld hl,drumnostracks
+9375 9375 s 	ld d,0
+9375 9375 s 	ld e,a
+9375 9375 s 	add hl, de 
+9375 9375 s 	ld a,(hl)
+9375 9375 s 	endm
+9375 9375 s 
+9375 9375 s gettrackchannelx macro 
+9375 9375 s 	call gettracknr
+9375 9375 s 	dec a
+9375 9375 s 	ld hl,channeltracks
+9375 9375 s 	ld d,0
+9375 9375 s 	ld e,a
+9375 9375 s 	add hl, de 
+9375 9375 s 	ld a,(hl)
+9375 9375 s 	endm
+9375 9375 s 
+9375 9375 s gettrackinstrumentx macro 
+9375 9375 s 	call gettracknr
+9375 9375 s 	dec a
+9375 9375 s 	ld hl,instrumenttracks
+9375 9375 s 	ld d,0
+9375 9375 s 	ld e,a
+9375 9375 s 	add hl, de 
+9375 9375 s 	ld a,(hl)
+9375 9375 s 	endm
+9375 9375 s 
+9375 9375 s gettrackgatex macro 
+9375 9375 s 	call gettracknr
+9375 9375 s 	dec a
+9375 9375 s 	ld hl,gatetracks
+9375 9375 s 	ld d,0
+9375 9375 s 	ld e,a
+9375 9375 s 	add hl, de 
+9375 9375 s 	ld a,(hl)
+9375 9375 s 	endm
+9375 9375 s 
+9375 9375 s gettrackvelocityx macro 
+9375 9375 s 	call gettracknr
+9375 9375 s 	dec a
+9375 9375 s 	ld hl,velocitytracks 
+9375 9375 s 	ld d,0
+9375 9375 s 	ld e,a
+9375 9375 s 	add hl, de 
+9375 9375 s 	ld a,(hl)
+9375 9375 s 	endm
+9375 9375 s 
+9375 9375 s setgridandsoundmidi:
+9375 9375 s 
+9375 9375 s 	;; we are taking MIDI channel and instrument
+9375 9375 s 	;; from the TRACK, and NOTE and VELOCITY from the MIDI message:
+9375 9375 s 	
+9375 9375 d cdd996
+9375 9375 u 03 01
+9375 9375 s 	call gettrackchannel
+9378 9378 d 325488
+9378 9378 u 03 01
+9378 9378 s 	ld (curchannel), a  
+937b 937b s 
+937b 937b d cde696
+937b 937b u 03 01
+937b 937b s 	call gettrackinstrument
+937e 937e d 325588
+937e 937e u 03 01
+937e 937e s 	ld (curinstrument), a  
+9381 9381 s 
+9381 9381 s 	testsoundx
+9381 9381 s 	;; call gettrackdrum
+9381 9381 s 	;; ld b,a
+9381 9381 s 
+9381 9381 d cdd996
+9381 9381 u 03 01
+9381 9381 s 	call gettrackchannel
+9384 9384 d 325488
+9384 9384 u 03 01
+9384 9384 s 	ld (curchannel), a 
+9387 9387 s 	;; ld a,(curchannel)
+9387 9387 s 
+9387 9387 s 	;;ld hl, curnoteschannels
+9387 9387 s 	;;ld d,0
+9387 9387 s 	;;ld e,a
+9387 9387 s 	;;add hl,de
+9387 9387 s 
+9387 9387 d c690
+9387 9387 u 02 01
+9387 9387 s 	add $90 
+9389 9389 d d308
+9389 9389 u 02 01
+9389 9389 s 	out (8),a
+938b 938b s   
+938b 938b d cd0399
+938b 938b u 03 01
+938b 938b s 	call short_delay
+938e 938e d 3a5288
+938e 938e u 03 01
+938e 938e s 	ld a,(curnote)
+9391 9391 d d308
+9391 9391 u 02 01
+9391 9391 s 	out (8),a
+9393 9393 s 	;;ld (hl), a  		; store into CUR NOTES per CHANNEL for MIDI PANIC 
+9393 9393 s   
+9393 9393 d cd0399
+9393 9393 u 03 01
+9393 9393 s 	call short_delay
+9396 9396 d 3a5388
+9396 9396 u 03 01
+9396 9396 s 	ld a,(curvelocity)
+9399 9399 d d308
+9399 9399 u 02 01
+9399 9399 s 	out (8),a
+939b 939b s 
+939b 939b s 	;;ld b,a
+939b 939b s 	;;ld hl, curvelschannels 
+939b 939b s 	;;ld d,0
+939b 939b s 	;;ld e,b
+939b 939b s 	;;add hl,de 
+939b 939b s 	;;ld a,(curchannel)
+939b 939b s 	;;ld (hl), a  		; store into CUR VELOCITIES per CHANNEL for MIDI PANIC 
+939b 939b s 
+939b 939b s 	endm
+939b 939b s 	setgridx 
+939b 939b d cdc295
+939b 939b u 03 01
+939b 939b s 	call memcursor
+939e 939e s 	; ld (hl),SETSYM
+939e 939e d 3a5288
+939e 939e u 03 01
+939e 939e s 	ld a, (curnote)
+93a1 93a1 d c661
+93a1 93a1 u 02 01
+93a1 93a1 s 	add DISPMIDINOTEOFFSET 
+93a3 93a3 s 
+93a3 93a3 d 77
+93a3 93a3 u 01 01
+93a3 93a3 s 	ld (hl), a 
+93a4 93a4 d 214488
+93a4 93a4 u 03 01
+93a4 93a4 s 	ld hl,lastcur
+93a7 93a7 s 	; ld (hl),SETSYM
+93a7 93a7 d 77
+93a7 93a7 u 01 01
+93a7 93a7 s 	ld (hl), a
+93a8 93a8 s 	endm
+93a8 93a8 s 
+93a8 93a8 d c35b90
+93a8 93a8 u 03 01
+93a8 93a8 s 	jp cont 
+93ab 93ab s 
+93ab 93ab s setgridandsoundkey:
+93ab 93ab s 
+93ab 93ab d cdd996
+93ab 93ab u 03 01
+93ab 93ab s 	call gettrackchannel
+93ae 93ae d 325488
+93ae 93ae u 03 01
+93ae 93ae s 	ld (curchannel), a  
+93b1 93b1 s 
+93b1 93b1 d cdcc96
+93b1 93b1 u 03 01
+93b1 93b1 s 	call gettrackdrum
+93b4 93b4 d 325288
+93b4 93b4 u 03 01
+93b4 93b4 s 	ld (curnote), a 
+93b7 93b7 s 
+93b7 93b7 d cd0097
+93b7 93b7 u 03 01
+93b7 93b7 s 	call gettrackvelocity
+93ba 93ba d 325388
+93ba 93ba u 03 01
+93ba 93ba s 	ld (curvelocity), a  
+93bd 93bd s 
+93bd 93bd d cde696
+93bd 93bd u 03 01
+93bd 93bd s 	call gettrackinstrument
+93c0 93c0 d 325588
+93c0 93c0 u 03 01
+93c0 93c0 s 	ld (curinstrument), a  
+93c3 93c3 s 	
+93c3 93c3 s 	testsoundx
+93c3 93c3 s 	;; call gettrackdrum
+93c3 93c3 s 	;; ld b,a
+93c3 93c3 s 
+93c3 93c3 d cdd996
+93c3 93c3 u 03 01
+93c3 93c3 s 	call gettrackchannel
+93c6 93c6 d 325488
+93c6 93c6 u 03 01
+93c6 93c6 s 	ld (curchannel), a 
+93c9 93c9 s 	;; ld a,(curchannel)
+93c9 93c9 s 
+93c9 93c9 s 	;;ld hl, curnoteschannels
+93c9 93c9 s 	;;ld d,0
+93c9 93c9 s 	;;ld e,a
+93c9 93c9 s 	;;add hl,de
+93c9 93c9 s 
+93c9 93c9 d c690
+93c9 93c9 u 02 01
+93c9 93c9 s 	add $90 
+93cb 93cb d d308
+93cb 93cb u 02 01
+93cb 93cb s 	out (8),a
+93cd 93cd s   
+93cd 93cd d cd0399
+93cd 93cd u 03 01
+93cd 93cd s 	call short_delay
+93d0 93d0 d 3a5288
+93d0 93d0 u 03 01
+93d0 93d0 s 	ld a,(curnote)
+93d3 93d3 d d308
+93d3 93d3 u 02 01
+93d3 93d3 s 	out (8),a
+93d5 93d5 s 	;;ld (hl), a  		; store into CUR NOTES per CHANNEL for MIDI PANIC 
+93d5 93d5 s   
+93d5 93d5 d cd0399
+93d5 93d5 u 03 01
+93d5 93d5 s 	call short_delay
+93d8 93d8 d 3a5388
+93d8 93d8 u 03 01
+93d8 93d8 s 	ld a,(curvelocity)
+93db 93db d d308
+93db 93db u 02 01
+93db 93db s 	out (8),a
+93dd 93dd s 
+93dd 93dd s 	;;ld b,a
+93dd 93dd s 	;;ld hl, curvelschannels 
+93dd 93dd s 	;;ld d,0
+93dd 93dd s 	;;ld e,b
+93dd 93dd s 	;;add hl,de 
+93dd 93dd s 	;;ld a,(curchannel)
+93dd 93dd s 	;;ld (hl), a  		; store into CUR VELOCITIES per CHANNEL for MIDI PANIC 
+93dd 93dd s 
+93dd 93dd s 	endm
+93dd 93dd s 	setgridx 
+93dd 93dd d cdc295
+93dd 93dd u 03 01
+93dd 93dd s 	call memcursor
+93e0 93e0 s 	; ld (hl),SETSYM
+93e0 93e0 d 3a5288
+93e0 93e0 u 03 01
+93e0 93e0 s 	ld a, (curnote)
+93e3 93e3 d c661
+93e3 93e3 u 02 01
+93e3 93e3 s 	add DISPMIDINOTEOFFSET 
+93e5 93e5 s 
+93e5 93e5 d 77
+93e5 93e5 u 01 01
+93e5 93e5 s 	ld (hl), a 
+93e6 93e6 d 214488
+93e6 93e6 u 03 01
+93e6 93e6 s 	ld hl,lastcur
+93e9 93e9 s 	; ld (hl),SETSYM
+93e9 93e9 d 77
+93e9 93e9 u 01 01
+93e9 93e9 s 	ld (hl), a
+93ea 93ea s 	endm
+93ea 93ea s 
+93ea 93ea d c35b90
+93ea 93ea u 03 01
+93ea 93ea s 	jp cont 
+93ed 93ed s 
+93ed 93ed s setgridandsoundr:
+93ed 93ed s 	
+93ed 93ed s 	testsoundx
+93ed 93ed s 	;; call gettrackdrum
+93ed 93ed s 	;; ld b,a
+93ed 93ed s 
+93ed 93ed d cdd996
+93ed 93ed u 03 01
+93ed 93ed s 	call gettrackchannel
+93f0 93f0 d 325488
+93f0 93f0 u 03 01
+93f0 93f0 s 	ld (curchannel), a 
+93f3 93f3 s 	;; ld a,(curchannel)
+93f3 93f3 s 
+93f3 93f3 s 	;;ld hl, curnoteschannels
+93f3 93f3 s 	;;ld d,0
+93f3 93f3 s 	;;ld e,a
+93f3 93f3 s 	;;add hl,de
+93f3 93f3 s 
+93f3 93f3 d c690
+93f3 93f3 u 02 01
+93f3 93f3 s 	add $90 
+93f5 93f5 d d308
+93f5 93f5 u 02 01
+93f5 93f5 s 	out (8),a
+93f7 93f7 s   
+93f7 93f7 d cd0399
+93f7 93f7 u 03 01
+93f7 93f7 s 	call short_delay
+93fa 93fa d 3a5288
+93fa 93fa u 03 01
+93fa 93fa s 	ld a,(curnote)
+93fd 93fd d d308
+93fd 93fd u 02 01
+93fd 93fd s 	out (8),a
+93ff 93ff s 	;;ld (hl), a  		; store into CUR NOTES per CHANNEL for MIDI PANIC 
+93ff 93ff s   
+93ff 93ff d cd0399
+93ff 93ff u 03 01
+93ff 93ff s 	call short_delay
+9402 9402 d 3a5388
+9402 9402 u 03 01
+9402 9402 s 	ld a,(curvelocity)
+9405 9405 d d308
+9405 9405 u 02 01
+9405 9405 s 	out (8),a
+9407 9407 s 
+9407 9407 s 	;;ld b,a
+9407 9407 s 	;;ld hl, curvelschannels 
+9407 9407 s 	;;ld d,0
+9407 9407 s 	;;ld e,b
+9407 9407 s 	;;add hl,de 
+9407 9407 s 	;;ld a,(curchannel)
+9407 9407 s 	;;ld (hl), a  		; store into CUR VELOCITIES per CHANNEL for MIDI PANIC 
+9407 9407 s 
+9407 9407 s 	endm
+9407 9407 s 	setgridx 
+9407 9407 d cdc295
+9407 9407 u 03 01
+9407 9407 s 	call memcursor
+940a 940a s 	; ld (hl),SETSYM
+940a 940a d 3a5288
+940a 940a u 03 01
+940a 940a s 	ld a, (curnote)
+940d 940d d c661
+940d 940d u 02 01
+940d 940d s 	add DISPMIDINOTEOFFSET 
+940f 940f s 
+940f 940f d 77
+940f 940f u 01 01
+940f 940f s 	ld (hl), a 
+9410 9410 d 214488
+9410 9410 u 03 01
+9410 9410 s 	ld hl,lastcur
+9413 9413 s 	; ld (hl),SETSYM
+9413 9413 d 77
+9413 9413 u 01 01
+9413 9413 s 	ld (hl), a
+9414 9414 s 	endm
+9414 9414 s 
+9414 9414 d c9
+9414 9414 u 01 01
+9414 9414 s 	ret
+9415 9415 s 
+9415 9415 s setgridandsoundkeyr:
+9415 9415 s 	
+9415 9415 d cdd996
+9415 9415 u 03 01
+9415 9415 s 	call gettrackchannel
+9418 9418 d 325488
+9418 9418 u 03 01
+9418 9418 s 	ld (curchannel), a  
+941b 941b s 
+941b 941b d cdcc96
+941b 941b u 03 01
+941b 941b s 	call gettrackdrum
+941e 941e d 325288
+941e 941e u 03 01
+941e 941e s 	ld (curnote), a 
+9421 9421 s 
+9421 9421 d cd0097
+9421 9421 u 03 01
+9421 9421 s 	call gettrackvelocity
+9424 9424 d 325388
+9424 9424 u 03 01
+9424 9424 s 	ld (curvelocity), a  
+9427 9427 s 	
+9427 9427 d cde696
+9427 9427 u 03 01
+9427 9427 s 	call gettrackinstrument
+942a 942a d 325588
+942a 942a u 03 01
+942a 942a s 	ld (curinstrument), a  
+942d 942d s 	
+942d 942d s 	testsoundx
+942d 942d s 	;; call gettrackdrum
+942d 942d s 	;; ld b,a
+942d 942d s 
+942d 942d d cdd996
+942d 942d u 03 01
+942d 942d s 	call gettrackchannel
+9430 9430 d 325488
+9430 9430 u 03 01
+9430 9430 s 	ld (curchannel), a 
+9433 9433 s 	;; ld a,(curchannel)
+9433 9433 s 
+9433 9433 s 	;;ld hl, curnoteschannels
+9433 9433 s 	;;ld d,0
+9433 9433 s 	;;ld e,a
+9433 9433 s 	;;add hl,de
+9433 9433 s 
+9433 9433 d c690
+9433 9433 u 02 01
+9433 9433 s 	add $90 
+9435 9435 d d308
+9435 9435 u 02 01
+9435 9435 s 	out (8),a
+9437 9437 s   
+9437 9437 d cd0399
+9437 9437 u 03 01
+9437 9437 s 	call short_delay
+943a 943a d 3a5288
+943a 943a u 03 01
+943a 943a s 	ld a,(curnote)
+943d 943d d d308
+943d 943d u 02 01
+943d 943d s 	out (8),a
+943f 943f s 	;;ld (hl), a  		; store into CUR NOTES per CHANNEL for MIDI PANIC 
+943f 943f s   
+943f 943f d cd0399
+943f 943f u 03 01
+943f 943f s 	call short_delay
+9442 9442 d 3a5388
+9442 9442 u 03 01
+9442 9442 s 	ld a,(curvelocity)
+9445 9445 d d308
+9445 9445 u 02 01
+9445 9445 s 	out (8),a
+9447 9447 s 
+9447 9447 s 	;;ld b,a
+9447 9447 s 	;;ld hl, curvelschannels 
+9447 9447 s 	;;ld d,0
+9447 9447 s 	;;ld e,b
+9447 9447 s 	;;add hl,de 
+9447 9447 s 	;;ld a,(curchannel)
+9447 9447 s 	;;ld (hl), a  		; store into CUR VELOCITIES per CHANNEL for MIDI PANIC 
+9447 9447 s 
+9447 9447 s 	endm
+9447 9447 s 	setgridx 
+9447 9447 d cdc295
+9447 9447 u 03 01
+9447 9447 s 	call memcursor
+944a 944a s 	; ld (hl),SETSYM
+944a 944a d 3a5288
+944a 944a u 03 01
+944a 944a s 	ld a, (curnote)
+944d 944d d c661
+944d 944d u 02 01
+944d 944d s 	add DISPMIDINOTEOFFSET 
+944f 944f s 
+944f 944f d 77
+944f 944f u 01 01
+944f 944f s 	ld (hl), a 
+9450 9450 d 214488
+9450 9450 u 03 01
+9450 9450 s 	ld hl,lastcur
+9453 9453 s 	; ld (hl),SETSYM
+9453 9453 d 77
+9453 9453 u 01 01
+9453 9453 s 	ld (hl), a
+9454 9454 s 	endm
+9454 9454 s 
+9454 9454 d c9
+9454 9454 u 01 01
+9454 9454 s 	ret
+9455 9455 s 
+9455 9455 s setgrid:
+9455 9455 s 	
+9455 9455 s 	setgridx 
+9455 9455 d cdc295
+9455 9455 u 03 01
+9455 9455 s 	call memcursor
+9458 9458 s 	; ld (hl),SETSYM
+9458 9458 d 3a5288
+9458 9458 u 03 01
+9458 9458 s 	ld a, (curnote)
+945b 945b d c661
+945b 945b u 02 01
+945b 945b s 	add DISPMIDINOTEOFFSET 
+945d 945d s 
+945d 945d d 77
+945d 945d u 01 01
+945d 945d s 	ld (hl), a 
+945e 945e d 214488
+945e 945e u 03 01
+945e 945e s 	ld hl,lastcur
+9461 9461 s 	; ld (hl),SETSYM
+9461 9461 d 77
+9461 9461 u 01 01
+9461 9461 s 	ld (hl), a
+9462 9462 s 	endm
+9462 9462 d c35b90
+9462 9462 u 03 01
+9462 9462 s 	jp cont
+9465 9465 s 
+9465 9465 s setgridkey:
+9465 9465 s 	
+9465 9465 d cdd996
+9465 9465 u 03 01
+9465 9465 s 	call gettrackchannel
+9468 9468 d 325488
+9468 9468 u 03 01
+9468 9468 s 	ld (curchannel), a  
+946b 946b s 
+946b 946b d cdcc96
+946b 946b u 03 01
+946b 946b s 	call gettrackdrum
+946e 946e d 325288
+946e 946e u 03 01
+946e 946e s 	ld (curnote), a 
+9471 9471 s 
+9471 9471 d cd0097
+9471 9471 u 03 01
+9471 9471 s 	call gettrackvelocity
+9474 9474 d 325388
+9474 9474 u 03 01
+9474 9474 s 	ld (curvelocity), a  
+9477 9477 s 	
+9477 9477 d cde696
+9477 9477 u 03 01
+9477 9477 s 	call gettrackinstrument
+947a 947a d 325588
+947a 947a u 03 01
+947a 947a s 	ld (curinstrument), a  
+947d 947d s 
+947d 947d s 	setgridx 
+947d 947d d cdc295
+947d 947d u 03 01
+947d 947d s 	call memcursor
+9480 9480 s 	; ld (hl),SETSYM
+9480 9480 d 3a5288
+9480 9480 u 03 01
+9480 9480 s 	ld a, (curnote)
+9483 9483 d c661
+9483 9483 u 02 01
+9483 9483 s 	add DISPMIDINOTEOFFSET 
+9485 9485 s 
+9485 9485 d 77
+9485 9485 u 01 01
+9485 9485 s 	ld (hl), a 
+9486 9486 d 214488
+9486 9486 u 03 01
+9486 9486 s 	ld hl,lastcur
+9489 9489 s 	; ld (hl),SETSYM
+9489 9489 d 77
+9489 9489 u 01 01
+9489 9489 s 	ld (hl), a
+948a 948a s 	endm
+948a 948a d c35b90
+948a 948a u 03 01
+948a 948a s 	jp cont
+948d 948d s 
+948d 948d s setgridr:
+948d 948d s 
+948d 948d s 	setgridx 
+948d 948d d cdc295
+948d 948d u 03 01
+948d 948d s 	call memcursor
+9490 9490 s 	; ld (hl),SETSYM
+9490 9490 d 3a5288
+9490 9490 u 03 01
+9490 9490 s 	ld a, (curnote)
+9493 9493 d c661
+9493 9493 u 02 01
+9493 9493 s 	add DISPMIDINOTEOFFSET 
+9495 9495 s 
+9495 9495 d 77
+9495 9495 u 01 01
+9495 9495 s 	ld (hl), a 
+9496 9496 d 214488
+9496 9496 u 03 01
+9496 9496 s 	ld hl,lastcur
+9499 9499 s 	; ld (hl),SETSYM
+9499 9499 d 77
+9499 9499 u 01 01
+9499 9499 s 	ld (hl), a
+949a 949a s 	endm
+949a 949a d c9
+949a 949a u 01 01
+949a 949a s 	ret
+949b 949b s 
+949b 949b s setgridkeyr:
+949b 949b s 
+949b 949b d cdd996
+949b 949b u 03 01
+949b 949b s 	call gettrackchannel
+949e 949e d 325488
+949e 949e u 03 01
+949e 949e s 	ld (curchannel), a  
+94a1 94a1 s 
+94a1 94a1 d cdcc96
+94a1 94a1 u 03 01
+94a1 94a1 s 	call gettrackdrum
+94a4 94a4 d 325288
+94a4 94a4 u 03 01
+94a4 94a4 s 	ld (curnote), a 
+94a7 94a7 s 
+94a7 94a7 d cd0097
+94a7 94a7 u 03 01
+94a7 94a7 s 	call gettrackvelocity
+94aa 94aa d 325388
+94aa 94aa u 03 01
+94aa 94aa s 	ld (curvelocity), a  
+94ad 94ad s 	
+94ad 94ad d cde696
+94ad 94ad u 03 01
+94ad 94ad s 	call gettrackinstrument
+94b0 94b0 d 325588
+94b0 94b0 u 03 01
+94b0 94b0 s 	ld (curinstrument), a  
+94b3 94b3 s 	
+94b3 94b3 s 	setgridx 
+94b3 94b3 d cdc295
+94b3 94b3 u 03 01
+94b3 94b3 s 	call memcursor
+94b6 94b6 s 	; ld (hl),SETSYM
+94b6 94b6 d 3a5288
+94b6 94b6 u 03 01
+94b6 94b6 s 	ld a, (curnote)
+94b9 94b9 d c661
+94b9 94b9 u 02 01
+94b9 94b9 s 	add DISPMIDINOTEOFFSET 
+94bb 94bb s 
+94bb 94bb d 77
+94bb 94bb u 01 01
+94bb 94bb s 	ld (hl), a 
+94bc 94bc d 214488
+94bc 94bc u 03 01
+94bc 94bc s 	ld hl,lastcur
+94bf 94bf s 	; ld (hl),SETSYM
+94bf 94bf d 77
+94bf 94bf u 01 01
+94bf 94bf s 	ld (hl), a
+94c0 94c0 s 	endm
+94c0 94c0 d c9
+94c0 94c0 u 01 01
+94c0 94c0 s 	ret
+94c1 94c1 s 
+94c1 94c1 s erasegrid:
+94c1 94c1 s 	
+94c1 94c1 s 	erasegridx 
+94c1 94c1 d cdc295
+94c1 94c1 u 03 01
+94c1 94c1 s 	call memcursor
+94c4 94c4 d 7e
+94c4 94c4 u 01 01
+94c4 94c4 s 	ld a, (hl)
+94c5 94c5 s 	;;  erase
+94c5 94c5 d e5
+94c5 94c5 u 01 01
+94c5 94c5 s 	push hl
+94c6 94c6 s 	restorecellx 
+94c6 94c6 d 3a758e
+94c6 94c6 u 03 01
+94c6 94c6 s 	ld a,(memcursorx)
+94c9 94c9 s 	
+94c9 94c9 d 21c480
+94c9 94c9 u 03 01
+94c9 94c9 s 	ld hl,data
+94cc 94cc d 1600
+94cc 94cc u 02 01
+94cc 94cc s 	ld d,0
+94ce 94ce d 5f
+94ce 94ce u 01 01
+94ce 94ce s 	ld e,a
+94cf 94cf d 19
+94cf 94cf u 01 01
+94cf 94cf s 	add hl,de	
+94d0 94d0 d 7e
+94d0 94d0 u 01 01
+94d0 94d0 s 	ld a,(hl)
+94d1 94d1 s 	endm
+94d1 94d1 d e1
+94d1 94d1 u 01 01
+94d1 94d1 s 	pop hl
+94d2 94d2 d 77
+94d2 94d2 u 01 01
+94d2 94d2 s 	ld (hl),a
+94d3 94d3 d 214488
+94d3 94d3 u 03 01
+94d3 94d3 s 	ld hl,lastcur
+94d6 94d6 d 77
+94d6 94d6 u 01 01
+94d6 94d6 s 	ld (hl),a 
+94d7 94d7 s 	endm
+94d7 94d7 d c35b90
+94d7 94d7 u 03 01
+94d7 94d7 s 	jp cont
+94da 94da s 
+94da 94da s erasegridr:
+94da 94da s 	
+94da 94da s 	erasegridx 
+94da 94da d cdc295
+94da 94da u 03 01
+94da 94da s 	call memcursor
+94dd 94dd d 7e
+94dd 94dd u 01 01
+94dd 94dd s 	ld a, (hl)
+94de 94de s 	;;  erase
+94de 94de d e5
+94de 94de u 01 01
+94de 94de s 	push hl
+94df 94df s 	restorecellx 
+94df 94df d 3a758e
+94df 94df u 03 01
+94df 94df s 	ld a,(memcursorx)
+94e2 94e2 s 	
+94e2 94e2 d 21c480
+94e2 94e2 u 03 01
+94e2 94e2 s 	ld hl,data
+94e5 94e5 d 1600
+94e5 94e5 u 02 01
+94e5 94e5 s 	ld d,0
+94e7 94e7 d 5f
+94e7 94e7 u 01 01
+94e7 94e7 s 	ld e,a
+94e8 94e8 d 19
+94e8 94e8 u 01 01
+94e8 94e8 s 	add hl,de	
+94e9 94e9 d 7e
+94e9 94e9 u 01 01
+94e9 94e9 s 	ld a,(hl)
+94ea 94ea s 	endm
+94ea 94ea d e1
+94ea 94ea u 01 01
+94ea 94ea s 	pop hl
+94eb 94eb d 77
+94eb 94eb u 01 01
+94eb 94eb s 	ld (hl),a
+94ec 94ec d 214488
+94ec 94ec u 03 01
+94ec 94ec s 	ld hl,lastcur
+94ef 94ef d 77
+94ef 94ef u 01 01
+94ef 94ef s 	ld (hl),a 
+94f0 94f0 s 	endm
+94f0 94f0 d c9
+94f0 94f0 u 01 01
+94f0 94f0 s 	ret 
+94f1 94f1 s 
+94f1 94f1 s startstop:
+94f1 94f1 d 3a4a88
+94f1 94f1 u 03 01
+94f1 94f1 s 	ld a,(status)
+94f4 94f4 d ee01
+94f4 94f4 u 02 01
+94f4 94f4 s 	xor 1
+94f6 94f6 d 324a88
+94f6 94f6 u 03 01
+94f6 94f6 s 	ld (status), a
+94f9 94f9 d b7
+94f9 94f9 u 01 01
+94f9 94f9 s 	or a
+94fa 94fa d 200e
+94fa 94fa u 02 01
+94fa 94fa s 	jr nz, showplay
+94fc 94fc s 	
+94fc 94fc d 11463c
+94fc 94fc u 03 01
+94fc 94fc s 	ld de,$3c00 + 64 + 6
+94ff 94ff d 210080
+94ff 94ff u 03 01
+94ff 94ff s 	ld hl,stopped 
+9502 9502 d 010100
+9502 9502 u 03 01
+9502 9502 s 	ld bc,1 
+9505 9505 d edb0
+9505 9505 u 02 01
+9505 9505 s 	ldir
+9507 9507 d c35b90
+9507 9507 u 03 01
+9507 9507 s 	jp cont
+950a 950a s 	
+950a 950a s showplay:
+950a 950a s 
+950a 950a d cd8797
+950a 950a u 03 01
+950a 950a s 	call setmiditrackinstruments
+950d 950d s 	
+950d 950d d 11463c
+950d 950d u 03 01
+950d 950d s 	ld de,$3c00 + 64 + 6
+9510 9510 d 210180
+9510 9510 u 03 01
+9510 9510 s 	ld hl,playing  
+9513 9513 d 010100
+9513 9513 u 03 01
+9513 9513 s 	ld bc,1
+9516 9516 d edb0
+9516 9516 u 02 01
+9516 9516 s 	ldir
+9518 9518 s 
+9518 9518 s 	
+9518 9518 d c35b90
+9518 9518 u 03 01
+9518 9518 s 	jp cont 
+951b 951b s 
+951b 951b s trackstatus:
+951b 951b d 3a4b88
+951b 951b u 03 01
+951b 951b s 	ld a,(track)
+951e 951e d ee01
+951e 951e u 02 01
+951e 951e s 	xor 1
+9520 9520 d 324b88
+9520 9520 u 03 01
+9520 9520 s 	ld (track), a
+9523 9523 d b7
+9523 9523 u 01 01
+9523 9523 s 	or a
+9524 9524 d 200e
+9524 9524 u 02 01
+9524 9524 s 	jr nz, showtrackstatus
+9526 9526 s 	
+9526 9526 d 11473c
+9526 9526 u 03 01
+9526 9526 s 	ld de,$3c00 + 64 + 7
+9529 9529 d 210280
+9529 9529 u 03 01
+9529 9529 s 	ld hl,free 
+952c 952c d 010100
+952c 952c u 03 01
+952c 952c s 	ld bc,1
+952f 952f d edb0
+952f 952f u 02 01
+952f 952f s 	ldir
+9531 9531 d c35b90
+9531 9531 u 03 01
+9531 9531 s 	jp cont
+9534 9534 s 	
+9534 9534 s showtrackstatus:	
+9534 9534 d 11473c
+9534 9534 u 03 01
+9534 9534 s 	ld de,$3c00 + 64 + 7
+9537 9537 d 210380
+9537 9537 u 03 01
+9537 9537 s 	ld hl,tracked   
+953a 953a d 010100
+953a 953a u 03 01
+953a 953a s 	ld bc,1
+953d 953d d edb0
+953d 953d u 02 01
+953d 953d s 	ldir
+953f 953f d c35b90
+953f 953f u 03 01
+953f 953f s 	jp cont 
+9542 9542 s 
+9542 9542 s 
+9542 9542 s left:	
+9542 9542 d 3a4788
+9542 9542 u 03 01
+9542 9542 s 	ld a,(cursorx)
+9545 9545 d b7
+9545 9545 u 01 01
+9545 9545 s 	or a
+9546 9546 d ca5b90
+9546 9546 u 03 01
+9546 9546 s 	jp z, cont
+9549 9549 d 3d
+9549 9549 u 01 01
+9549 9549 s 	dec a	
+954a 954a d 324788
+954a 954a u 03 01
+954a 954a s 	ld (cursorx),a
+954d 954d d 21758e
+954d 954d u 03 01
+954d 954d s 	ld hl,memcursorx 
+9550 9550 d 77
+9550 9550 u 01 01
+9550 9550 s 	ld (hl),a
+9551 9551 d c35b90
+9551 9551 u 03 01
+9551 9551 s 	jp cont
+9554 9554 s right:
+9554 9554 d 3a4788
+9554 9554 u 03 01
+9554 9554 s 	ld a,(cursorx)
+9557 9557 d fe3f
+9557 9557 u 02 01
+9557 9557 s 	cp 63
+9559 9559 d ca5b90
+9559 9559 u 03 01
+9559 9559 s 	jp z, cont
+955c 955c d 3c
+955c 955c u 01 01
+955c 955c s 	inc a
+955d 955d d 324788
+955d 955d u 03 01
+955d 955d s 	ld (cursorx),a
+9560 9560 d 21758e
+9560 9560 u 03 01
+9560 9560 s 	ld hl,memcursorx 
+9563 9563 d 77
+9563 9563 u 01 01
+9563 9563 s 	ld (hl),a
+9564 9564 d c35b90
+9564 9564 u 03 01
+9564 9564 s 	jp cont
+9567 9567 s up:
+9567 9567 d 3a4888
+9567 9567 u 03 01
+9567 9567 s 	ld a,(cursory)
+956a 956a d fe03
+956a 956a u 02 01
+956a 956a s 	cp 3
+956c 956c d ca5b90
+956c 956c u 03 01
+956c 956c s 	jp z, cont
+956f 956f d fe0a
+956f 956f u 02 01
+956f 956f s 	cp 10
+9571 9571 d 2004
+9571 9571 u 02 01
+9571 9571 s 	jr nz,up1
+9573 9573 d 3e08
+9573 9573 u 02 01
+9573 9573 s 	ld a,8
+9575 9575 d 1801
+9575 9575 u 02 01
+9575 9575 s 	jr up2
+9577 9577 s up1:	 
+9577 9577 d 3d
+9577 9577 u 01 01
+9577 9577 s 	dec a
+9578 9578 s 
+9578 9578 s up2:	
+9578 9578 d 324888
+9578 9578 u 03 01
+9578 9578 s 	ld (cursory),a
+957b 957b s 
+957b 957b d 21768e
+957b 957b u 03 01
+957b 957b s 	ld hl,memcursory
+957e 957e d 7e
+957e 957e u 01 01
+957e 957e s 	ld a,(hl)
+957f 957f d 3d
+957f 957f u 01 01
+957f 957f s 	dec a
+9580 9580 d 77
+9580 9580 u 01 01
+9580 9580 s 	ld (hl),a
+9581 9581 s 
+9581 9581 s 	;; call setinstrument
+9581 9581 s 	
+9581 9581 d c35b90
+9581 9581 u 03 01
+9581 9581 s 	jp cont
+9584 9584 s 
+9584 9584 s down:
+9584 9584 d 3a4888
+9584 9584 u 03 01
+9584 9584 s 	ld a,(cursory)
+9587 9587 d fe0f
+9587 9587 u 02 01
+9587 9587 s 	cp 15
+9589 9589 d ca5b90
+9589 9589 u 03 01
+9589 9589 s 	jp z, cont
+958c 958c d fe08
+958c 958c u 02 01
+958c 958c s 	cp 8
+958e 958e d 2004
+958e 958e u 02 01
+958e 958e s 	jr nz,down1
+9590 9590 d 3e0a
+9590 9590 u 02 01
+9590 9590 s 	ld a,10
+9592 9592 d 1801
+9592 9592 u 02 01
+9592 9592 s 	jr down2
+9594 9594 s down1:	
+9594 9594 d 3c
+9594 9594 u 01 01
+9594 9594 s 	inc a
+9595 9595 s down2:	 
+9595 9595 d 324888
+9595 9595 u 03 01
+9595 9595 s 	ld (cursory),a
+9598 9598 s 	
+9598 9598 d 21768e
+9598 9598 u 03 01
+9598 9598 s 	ld hl,memcursory 
+959b 959b d 7e
+959b 959b u 01 01
+959b 959b s 	ld a,(hl)
+959c 959c d 3c
+959c 959c u 01 01
+959c 959c s 	inc a
+959d 959d d 77
+959d 959d u 01 01
+959d 959d s 	ld (hl),a
+959e 959e s 
+959e 959e s 	;; call setinstrument
+959e 959e s 
+959e 959e d c35b90
+959e 959e u 03 01
+959e 959e s 	jp cont
+95a1 95a1 s 
+95a1 95a1 s 	
+95a1 95a1 s cursor:
+95a1 95a1 d 3a4988
+95a1 95a1 u 03 01
+95a1 95a1 s 	ld a,(blink)
+95a4 95a4 d 3c
+95a4 95a4 u 01 01
+95a4 95a4 s 	inc a
+95a5 95a5 d 324988
+95a5 95a5 u 03 01
+95a5 95a5 s 	ld (blink),a
+95a8 95a8 d 21003c
+95a8 95a8 u 03 01
+95a8 95a8 s 	ld hl,$3c00
+95ab 95ab d 3a4788
+95ab 95ab u 03 01
+95ab 95ab s 	ld a,(cursorx)
+95ae 95ae d b7
+95ae 95ae u 01 01
+95ae 95ae s 	or a
+95af 95af d 2804
+95af 95af u 02 01
+95af 95af s 	jr z, moveyup
+95b1 95b1 d 47
+95b1 95b1 u 01 01
+95b1 95b1 s 	ld b,a
+95b2 95b2 s movex:	
+95b2 95b2 d 23
+95b2 95b2 u 01 01
+95b2 95b2 s 	inc hl 
+95b3 95b3 d 10fd
+95b3 95b3 u 02 01
+95b3 95b3 s 	djnz movex
+95b5 95b5 s moveyup:	
+95b5 95b5 d 3a4888
+95b5 95b5 u 03 01
+95b5 95b5 s 	ld a,(cursory)
+95b8 95b8 d b7
+95b8 95b8 u 01 01
+95b8 95b8 s 	or a
+95b9 95b9 d c8
+95b9 95b9 u 01 01
+95b9 95b9 s 	ret z
+95ba 95ba d 47
+95ba 95ba u 01 01
+95ba 95ba s 	ld b,a
+95bb 95bb d 114000
+95bb 95bb u 03 01
+95bb 95bb s 	ld de,64
+95be 95be s movey:
+95be 95be d 19
+95be 95be u 01 01
+95be 95be s 	add hl,de 
+95bf 95bf d 10fd
+95bf 95bf u 02 01
+95bf 95bf s 	djnz movey
+95c1 95c1 d c9
+95c1 95c1 u 01 01
+95c1 95c1 s 	ret 
+95c2 95c2 s 
+95c2 95c2 s memcursor:
+95c2 95c2 d 215788
+95c2 95c2 u 03 01
+95c2 95c2 s 	ld hl,tracks1
+95c5 95c5 d 3a758e
+95c5 95c5 u 03 01
+95c5 95c5 s 	ld a,(memcursorx)
+95c8 95c8 d b7
+95c8 95c8 u 01 01
+95c8 95c8 s 	or a
+95c9 95c9 d 2804
+95c9 95c9 u 02 01
+95c9 95c9 s 	jr z, mmoveyup
+95cb 95cb d 47
+95cb 95cb u 01 01
+95cb 95cb s 	ld b,a
+95cc 95cc s mmovex:	
+95cc 95cc d 23
+95cc 95cc u 01 01
+95cc 95cc s 	inc hl 
+95cd 95cd d 10fd
+95cd 95cd u 02 01
+95cd 95cd s 	djnz mmovex
+95cf 95cf s mmoveyup:	
+95cf 95cf d 3a768e
+95cf 95cf u 03 01
+95cf 95cf s 	ld a,(memcursory)
+95d2 95d2 d b7
+95d2 95d2 u 01 01
+95d2 95d2 s 	or a
+95d3 95d3 d c8
+95d3 95d3 u 01 01
+95d3 95d3 s 	ret z
+95d4 95d4 d 47
+95d4 95d4 u 01 01
+95d4 95d4 s 	ld b,a
+95d5 95d5 d 114000
+95d5 95d5 u 03 01
+95d5 95d5 s 	ld de,64
+95d8 95d8 s mmovey:
+95d8 95d8 d 19
+95d8 95d8 u 01 01
+95d8 95d8 s 	add hl,de 
+95d9 95d9 d 10fd
+95d9 95d9 u 02 01
+95d9 95d9 s 	djnz mmovey
+95db 95db d c9
+95db 95db u 01 01
+95db 95db s 	ret 
+95dc 95dc s 
+95dc 95dc s 	
+95dc 95dc d 010000
+95dc 95dc u 03 01
+95dc 95dc s dly.01:	ld	bc,d10000th
+95df 95df s 	sett	0
+95df 95df d 0b
+95df 95df u 01 01
+95df 95df s dly:	dec	bc
+95e0 95e0 d 78
+95e0 95e0 u 01 01
+95e0 95e0 s 	ld	a,b
+95e1 95e1 d b1
+95e1 95e1 u 01 01
+95e1 95e1 s 	or	c
+95e2 95e2 d c2df95
+95e2 95e2 u 03 01
+95e2 95e2 s 	jp	nz,dly
+95e5 95e5 d c9
+95e5 95e5 u 01 01
+95e5 95e5 s 	ret
+95e6 95e6 s 
+95e6 95e6 s 
+95e6 95e6 s nextnote:
+95e6 95e6 s 
+95e6 95e6 d 3a788e
+95e6 95e6 u 03 01
+95e6 95e6 s 	ld a,(qtrackpos)
+95e9 95e9 d 3c
+95e9 95e9 u 01 01
+95e9 95e9 s 	inc a
+95ea 95ea d 47
+95ea 95ea u 01 01
+95ea 95ea s 	ld b,a
+95eb 95eb s 	
+95eb 95eb d 3a4f88
+95eb 95eb u 03 01
+95eb 95eb s 	ld a,(numticks)
+95ee 95ee d b8
+95ee 95ee u 01 01
+95ee 95ee s 	cp b
+95ef 95ef d 78
+95ef 95ef u 01 01
+95ef 95ef s 	ld a,b
+95f0 95f0 d 2002
+95f0 95f0 u 02 01
+95f0 95f0 s 	jr nz,nextnote0
+95f2 95f2 s 
+95f2 95f2 s 	; max tick number reached, set to 0
+95f2 95f2 d 3e00
+95f2 95f2 u 02 01
+95f2 95f2 s 	ld a, 0
+95f4 95f4 s 
+95f4 95f4 s nextnote0:
+95f4 95f4 d 32788e
+95f4 95f4 u 03 01
+95f4 95f4 s 	ld (qtrackpos),a
+95f7 95f7 s 
+95f7 95f7 d 47
+95f7 95f7 u 01 01
+95f7 95f7 s 	ld b, a
+95f8 95f8 d 3a5688
+95f8 95f8 u 03 01
+95f8 95f8 s 	ld a, (quantpat)
+95fb 95fb d a0
+95fb 95fb u 01 01
+95fb 95fb s 	and b
+95fc 95fc d 32778e
+95fc 95fc u 03 01
+95fc 95fc s 	ld (trackpos),a
+95ff 95ff s 
+95ff 95ff d b8
+95ff 95ff u 01 01
+95ff 95ff s 	cp b
+9600 9600 d 2810
+9600 9600 u 02 01
+9600 9600 s 	jr z, nextnote1
+9602 9602 s 
+9602 9602 s 	;; ENTER sample keyboard; this one makes noise,
+9602 9602 s 	;; ONLY sample when (qtrackpos) = (trackpos)
+9602 9602 s 
+9602 9602 d cdf790
+9602 9602 u 03 01
+9602 9602 s 	call midiin
+9605 9605 d fe01
+9605 9605 u 02 01
+9605 9605 s 	cp 1 
+9607 9607 d cced93
+9607 9607 u 03 01
+9607 9607 s 	call z,setgridandsoundr
+960a 960a s 
+960a 960a s 	keydown k_enter 
+960a 960a d 3a4038
+960a 960a u 03 01
+960a 960a s 	ld	a,(k_enter >> 8)
+960d 960d d e601
+960d 960d u 02 01
+960d 960d s 	and	k_enter % $100
+960f 960f s 	endm
+960f 960f d c41594
+960f 960f u 03 01
+960f 960f s 	call nz,setgridandsoundkeyr
+9612 9612 s 
+9612 9612 s nextnote1:
+9612 9612 s 
+9612 9612 s 	;; sample keyboard
+9612 9612 s 
+9612 9612 s 	keydown k_space 
+9612 9612 d 3a4038
+9612 9612 u 03 01
+9612 9612 s 	ld	a,(k_space >> 8)
+9615 9615 d e680
+9615 9615 u 02 01
+9615 9615 s 	and	k_space % $100
+9617 9617 s 	endm
+9617 9617 d c49b94
+9617 9617 u 03 01
+9617 9617 s 	call nz,setgridkeyr
+961a 961a s 
+961a 961a s 	keydown k_clear
+961a 961a d 3a4038
+961a 961a u 03 01
+961a 961a s 	ld	a,(k_clear >> 8)
+961d 961d d e602
+961d 961d u 02 01
+961d 961d s 	and	k_clear % $100
+961f 961f s 	endm
+961f 961f d c4da94
+961f 961f u 03 01
+961f 961f s 	call nz,erasegridr
+9622 9622 s 
+9622 9622 d 3a778e
+9622 9622 u 03 01
+9622 9622 s 	ld a, (trackpos)
+9625 9625 s 
+9625 9625 d cb7f
+9625 9625 u 02 01
+9625 9625 s 	bit 7,a
+9627 9627 d c8
+9627 9627 u 01 01
+9627 9627 s 	ret z
+9628 9628 s 	
+9628 9628 d 3e00
+9628 9628 u 02 01
+9628 9628 s 	ld a,0
+962a 962a d 32788e
+962a 962a u 03 01
+962a 962a s 	ld (qtrackpos),a
+962d 962d d 32778e
+962d 962d u 03 01
+962d 962d s 	ld (trackpos),a
+9630 9630 s 	
+9630 9630 d c9
+9630 9630 u 01 01
+9630 9630 s 	ret
+9631 9631 s 
+9631 9631 s showplaycursor:
+9631 9631 s 	
+9631 9631 d 218480
+9631 9631 u 03 01
+9631 9631 s 	ld	hl,title+2*64 
+9634 9634 d 11803c
+9634 9634 u 03 01
+9634 9634 s 	ld	de,$3c00+2*64 
+9637 9637 d 014000
+9637 9637 u 03 01
+9637 9637 s 	ld	bc,64 
+963a 963a d edb0
+963a 963a u 02 01
+963a 963a s 	ldir
+963c 963c s 
+963c 963c d 214482
+963c 963c u 03 01
+963c 963c s 	ld	hl,title+9*64 
+963f 963f d 11403e
+963f 963f u 03 01
+963f 963f s 	ld	de,$3c00+9*64 
+9642 9642 d 014000
+9642 9642 u 03 01
+9642 9642 s 	ld	bc,64 
+9645 9645 d edb0
+9645 9645 u 02 01
+9645 9645 s 	ldir
+9647 9647 s 
+9647 9647 d 3a788e
+9647 9647 u 03 01
+9647 9647 s 	ld a,(qtrackpos)
+964a 964a s 	
+964a 964a d 21803c
+964a 964a u 03 01
+964a 964a s 	ld hl,$3c00+2*64
+964d 964d d 5f
+964d 964d u 01 01
+964d 964d s 	ld e,a
+964e 964e d 1600
+964e 964e u 02 01
+964e 964e s 	ld d,0 
+9650 9650 d 19
+9650 9650 u 01 01
+9650 9650 s 	add hl,de
+9651 9651 s 
+9651 9651 d cb77
+9651 9651 u 02 01
+9651 9651 s 	bit 6,a
+9653 9653 d 2003
+9653 9653 u 02 01
+9653 9653 s 	jr nz,showcurtrack2
+9655 9655 s 	
+9655 9655 d 36aa
+9655 9655 u 02 01
+9655 9655 s 	ld (hl),POSMARKSYM
+9657 9657 d c9
+9657 9657 u 01 01
+9657 9657 s 	ret
+9658 9658 s showcurtrack2:
+9658 9658 d 118001
+9658 9658 u 03 01
+9658 9658 s 	ld de,6*64
+965b 965b d 19
+965b 965b u 01 01
+965b 965b s 	add hl,de
+965c 965c d 36aa
+965c 965c u 02 01
+965c 965c s 	ld (hl),POSMARKSYM
+965e 965e d c9
+965e 965e u 01 01
+965e 965e s 	ret
+965f 965f s 	
+965f 965f s 	
+965f 965f s d10000th	equ	1774080 / t($) / 10000
+965f 965f s 
+965f 965f s 	  
+965f 965f s screenupdate:
+965f 965f s 	
+965f 965f s 	;;  swap in track 1 
+965f 965f d 215788
+965f 965f u 03 01
+965f 965f s 	ld	hl,tracks1	
+9662 9662 d 11c03c
+9662 9662 u 03 01
+9662 9662 s 	ld	de,$3c00+3*64 
+9665 9665 d 018001
+9665 9665 u 03 01
+9665 9665 s 	ld	bc,6*64
+9668 9668 d edb0
+9668 9668 u 02 01
+9668 9668 s 	ldir
+966a 966a s 
+966a 966a s 	;;  swap in track 1 
+966a 966a d 21d789
+966a 966a u 03 01
+966a 966a s 	ld	hl,tracks2 
+966d 966d d 11803e
+966d 966d u 03 01
+966d 966d s 	ld	de,$3c00+10*64 
+9670 9670 d 018001
+9670 9670 u 03 01
+9670 9670 s 	ld	bc,6*64
+9673 9673 d edb0
+9673 9673 u 02 01
+9673 9673 s 	ldir
+9675 9675 s 
+9675 9675 d c9
+9675 9675 u 01 01
+9675 9675 s 	ret
+9676 9676 s 
+9676 9676 s showcursor:
+9676 9676 s 
+9676 9676 d 2a4588
+9676 9676 u 03 01
+9676 9676 s 	ld hl,(lastcurpos)
+9679 9679 d 3a4488
+9679 9679 u 03 01
+9679 9679 s 	ld a,(lastcur)
+967c 967c d 77
+967c 967c u 01 01
+967c 967c s 	ld (hl),a
+967d 967d d cda195
+967d 967d u 03 01
+967d 967d s 	call cursor
+9680 9680 d 224588
+9680 9680 u 03 01
+9680 9680 s 	ld (lastcurpos),hl
+9683 9683 d 7e
+9683 9683 u 01 01
+9683 9683 s 	ld a,(hl)
+9684 9684 d 324488
+9684 9684 u 03 01
+9684 9684 s 	ld (lastcur),a
+9687 9687 s 	
+9687 9687 d 3a4988
+9687 9687 u 03 01
+9687 9687 s 	ld a,(blink)
+968a 968a d fe7f
+968a 968a u 02 01
+968a 968a s 	cp a,127
+968c 968c d 3803
+968c 968c u 02 01
+968c 968c s 	jr c,cur2
+968e 968e d 3658
+968e 968e u 02 01
+968e 968e s 	ld (hl), CURSYM 
+9690 9690 d c9
+9690 9690 u 01 01
+9690 9690 s 	ret 
+9691 9691 s 
+9691 9691 s cur2:
+9691 9691 d e5
+9691 9691 u 01 01
+9691 9691 s 	push hl
+9692 9692 s 	restorecellx
+9692 9692 d 3a758e
+9692 9692 u 03 01
+9692 9692 s 	ld a,(memcursorx)
+9695 9695 s 	
+9695 9695 d 21c480
+9695 9695 u 03 01
+9695 9695 s 	ld hl,data
+9698 9698 d 1600
+9698 9698 u 02 01
+9698 9698 s 	ld d,0
+969a 969a d 5f
+969a 969a u 01 01
+969a 969a s 	ld e,a
+969b 969b d 19
+969b 969b u 01 01
+969b 969b s 	add hl,de	
+969c 969c d 7e
+969c 969c u 01 01
+969c 969c s 	ld a,(hl)
+969d 969d s 	endm
+969d 969d d e1
+969d 969d u 01 01
+969d 969d s 	pop hl 
+969e 969e d c9
+969e 969e u 01 01
+969e 969e s 	ret
+969f 969f s 	
+969f 969f s 	
+969f 969f s byte2ascii: 			; input c, output de ASCII 
+969f 969f d 79
+969f 969f u 01 01
+969f 969f s    ld a, c
+96a0 96a0 d 1f
+96a0 96a0 u 01 01
+96a0 96a0 s    rra
+96a1 96a1 d 1f
+96a1 96a1 u 01 01
+96a1 96a1 s    rra
+96a2 96a2 d 1f
+96a2 96a2 u 01 01
+96a2 96a2 s    rra
+96a3 96a3 d 1f
+96a3 96a3 u 01 01
+96a3 96a3 s    rra
+96a4 96a4 d cda996
+96a4 96a4 u 03 01
+96a4 96a4 s    call convnibble 
+96a7 96a7 d 57
+96a7 96a7 u 01 01
+96a7 96a7 s    ld d, a	
+96a8 96a8 d 79
+96a8 96a8 u 01 01
+96a8 96a8 s    ld  a,c
+96a9 96a9 s convnibble:
+96a9 96a9 d e60f
+96a9 96a9 u 02 01
+96a9 96a9 s    and  $0F
+96ab 96ab d c690
+96ab 96ab u 02 01
+96ab 96ab s    add  a,$90
+96ad 96ad d 27
+96ad 96ad u 01 01
+96ad 96ad s    daa
+96ae 96ae d ce40
+96ae 96ae u 02 01
+96ae 96ae s    adc  a,$40
+96b0 96b0 d 27
+96b0 96b0 u 01 01
+96b0 96b0 s    daa
+96b1 96b1 d 5f
+96b1 96b1 u 01 01
+96b1 96b1 s    ld e, a	
+96b2 96b2 d c9
+96b2 96b2 u 01 01
+96b2 96b2 s    ret
+96b3 96b3 s 
+96b3 96b3 s showtempo:
+96b3 96b3 d 3a4d88
+96b3 96b3 u 03 01
+96b3 96b3 s 	ld a,(tempo)
+96b6 96b6 d 4f
+96b6 96b6 u 01 01
+96b6 96b6 s 	ld c,a 
+96b7 96b7 d 21593c
+96b7 96b7 u 03 01
+96b7 96b7 s 	ld hl,$3c00+64+25
+96ba 96ba d cd9f96
+96ba 96ba u 03 01
+96ba 96ba s 	call byte2ascii
+96bd 96bd d 72
+96bd 96bd u 01 01
+96bd 96bd s 	ld (hl),d
+96be 96be d 23
+96be 96be u 01 01
+96be 96be s 	inc hl
+96bf 96bf d 73
+96bf 96bf u 01 01
+96bf 96bf s 	ld (hl),e
+96c0 96c0 d c9
+96c0 96c0 u 01 01
+96c0 96c0 s 	ret
+96c1 96c1 s 
+96c1 96c1 s gettracknr:
+96c1 96c1 d 3a768e
+96c1 96c1 u 03 01
+96c1 96c1 s 	ld a,(memcursory)
+96c4 96c4 d c601
+96c4 96c4 u 02 01
+96c4 96c4 s 	add 1
+96c6 96c6 d fe07
+96c6 96c6 u 02 01
+96c6 96c6 s 	cp 7
+96c8 96c8 d d8
+96c8 96c8 u 01 01
+96c8 96c8 s 	ret c
+96c9 96c9 d d606
+96c9 96c9 u 02 01
+96c9 96c9 s 	sub 6
+96cb 96cb d c9
+96cb 96cb u 01 01
+96cb 96cb s 	ret
+96cc 96cc s 
+96cc 96cc s 
+96cc 96cc s 
+96cc 96cc s gettrackdrum:
+96cc 96cc s 	gettrackdrumx
+96cc 96cc d cdc196
+96cc 96cc u 03 01
+96cc 96cc s 	call gettracknr
+96cf 96cf d 3d
+96cf 96cf u 01 01
+96cf 96cf s 	dec a
+96d0 96d0 d 21578e
+96d0 96d0 u 03 01
+96d0 96d0 s 	ld hl,drumnostracks
+96d3 96d3 d 1600
+96d3 96d3 u 02 01
+96d3 96d3 s 	ld d,0
+96d5 96d5 d 5f
+96d5 96d5 u 01 01
+96d5 96d5 s 	ld e,a
+96d6 96d6 d 19
+96d6 96d6 u 01 01
+96d6 96d6 s 	add hl, de 
+96d7 96d7 d 7e
+96d7 96d7 u 01 01
+96d7 96d7 s 	ld a,(hl)
+96d8 96d8 s 	endm
+96d8 96d8 d c9
+96d8 96d8 u 01 01
+96d8 96d8 s 	ret
+96d9 96d9 s 
+96d9 96d9 s gettrackchannel:
+96d9 96d9 s 	gettrackchannelx
+96d9 96d9 d cdc196
+96d9 96d9 u 03 01
+96d9 96d9 s 	call gettracknr
+96dc 96dc d 3d
+96dc 96dc u 01 01
+96dc 96dc s 	dec a
+96dd 96dd d 215d8e
+96dd 96dd u 03 01
+96dd 96dd s 	ld hl,channeltracks
+96e0 96e0 d 1600
+96e0 96e0 u 02 01
+96e0 96e0 s 	ld d,0
+96e2 96e2 d 5f
+96e2 96e2 u 01 01
+96e2 96e2 s 	ld e,a
+96e3 96e3 d 19
+96e3 96e3 u 01 01
+96e3 96e3 s 	add hl, de 
+96e4 96e4 d 7e
+96e4 96e4 u 01 01
+96e4 96e4 s 	ld a,(hl)
+96e5 96e5 s 	endm
+96e5 96e5 d c9
+96e5 96e5 u 01 01
+96e5 96e5 s 	ret
+96e6 96e6 s 
+96e6 96e6 s gettrackinstrument:	
+96e6 96e6 s 	gettrackinstrumentx 
+96e6 96e6 d cdc196
+96e6 96e6 u 03 01
+96e6 96e6 s 	call gettracknr
+96e9 96e9 d 3d
+96e9 96e9 u 01 01
+96e9 96e9 s 	dec a
+96ea 96ea d 21638e
+96ea 96ea u 03 01
+96ea 96ea s 	ld hl,instrumenttracks
+96ed 96ed d 1600
+96ed 96ed u 02 01
+96ed 96ed s 	ld d,0
+96ef 96ef d 5f
+96ef 96ef u 01 01
+96ef 96ef s 	ld e,a
+96f0 96f0 d 19
+96f0 96f0 u 01 01
+96f0 96f0 s 	add hl, de 
+96f1 96f1 d 7e
+96f1 96f1 u 01 01
+96f1 96f1 s 	ld a,(hl)
+96f2 96f2 s 	endm
+96f2 96f2 d c9
+96f2 96f2 u 01 01
+96f2 96f2 s 	ret
+96f3 96f3 s 
+96f3 96f3 s gettrackgate:	
+96f3 96f3 s 	gettrackgatex 
+96f3 96f3 d cdc196
+96f3 96f3 u 03 01
+96f3 96f3 s 	call gettracknr
+96f6 96f6 d 3d
+96f6 96f6 u 01 01
+96f6 96f6 s 	dec a
+96f7 96f7 d 216f8e
+96f7 96f7 u 03 01
+96f7 96f7 s 	ld hl,gatetracks
+96fa 96fa d 1600
+96fa 96fa u 02 01
+96fa 96fa s 	ld d,0
+96fc 96fc d 5f
+96fc 96fc u 01 01
+96fc 96fc s 	ld e,a
+96fd 96fd d 19
+96fd 96fd u 01 01
+96fd 96fd s 	add hl, de 
+96fe 96fe d 7e
+96fe 96fe u 01 01
+96fe 96fe s 	ld a,(hl)
+96ff 96ff s 	endm
+96ff 96ff d c9
+96ff 96ff u 01 01
+96ff 96ff s 	ret
+9700 9700 s 
+9700 9700 s gettrackvelocity:	
+9700 9700 s 	gettrackvelocityx
+9700 9700 d cdc196
+9700 9700 u 03 01
+9700 9700 s 	call gettracknr
+9703 9703 d 3d
+9703 9703 u 01 01
+9703 9703 s 	dec a
+9704 9704 d 21698e
+9704 9704 u 03 01
+9704 9704 s 	ld hl,velocitytracks 
+9707 9707 d 1600
+9707 9707 u 02 01
+9707 9707 s 	ld d,0
+9709 9709 d 5f
+9709 9709 u 01 01
+9709 9709 s 	ld e,a
+970a 970a d 19
+970a 970a u 01 01
+970a 970a s 	add hl, de 
+970b 970b d 7e
+970b 970b u 01 01
+970b 970b s 	ld a,(hl)
+970c 970c s 	endm
+970c 970c d c9
+970c 970c u 01 01
+970c 970c s 	ret
+970d 970d s 
+970d 970d s gettrackdrumreg: ; input: e register, starting at 0
+970d 970d d 21578e
+970d 970d u 03 01
+970d 970d s 	ld hl,drumnostracks
+9710 9710 d 1600
+9710 9710 u 02 01
+9710 9710 s 	ld d,0
+9712 9712 d 19
+9712 9712 u 01 01
+9712 9712 s 	add hl, de 
+9713 9713 d 46
+9713 9713 u 01 01
+9713 9713 s 	ld b,(hl)
+9714 9714 d c9
+9714 9714 u 01 01
+9714 9714 s 	ret
+9715 9715 s 
+9715 9715 s gettrackchannelreg: ; input: e register, starting at 0
+9715 9715 d 215d8e
+9715 9715 u 03 01
+9715 9715 s 	ld hl,channeltracks
+9718 9718 d 1600
+9718 9718 u 02 01
+9718 9718 s 	ld d,0
+971a 971a d 19
+971a 971a u 01 01
+971a 971a s 	add hl, de 
+971b 971b d 46
+971b 971b u 01 01
+971b 971b s 	ld b,(hl)
+971c 971c d c9
+971c 971c u 01 01
+971c 971c s 	ret
+971d 971d s 
+971d 971d s showtrackdrum:
+971d 971d d cdcc96
+971d 971d u 03 01
+971d 971d s 	call gettrackdrum
+9720 9720 d 4f
+9720 9720 u 01 01
+9720 9720 s 	ld c, a
+9721 9721 d 21743c
+9721 9721 u 03 01
+9721 9721 s 	ld hl,$3c00+64+52
+9724 9724 d cd9f96
+9724 9724 u 03 01
+9724 9724 s 	call byte2ascii
+9727 9727 d 72
+9727 9727 u 01 01
+9727 9727 s 	ld (hl),d
+9728 9728 d 23
+9728 9728 u 01 01
+9728 9728 s 	inc hl
+9729 9729 d 73
+9729 9729 u 01 01
+9729 9729 s 	ld (hl),e
+972a 972a d c9
+972a 972a u 01 01
+972a 972a s 	ret
+972b 972b s 
+972b 972b s showtrackchannel:
+972b 972b d cdd996
+972b 972b u 03 01
+972b 972b s 	call gettrackchannel 
+972e 972e d 4f
+972e 972e u 01 01
+972e 972e s 	ld c, a
+972f 972f d 216b3c
+972f 972f u 03 01
+972f 972f s 	ld hl,$3c00+64+43
+9732 9732 d cda996
+9732 9732 u 03 01
+9732 9732 s 	call convnibble 
+9735 9735 d 73
+9735 9735 u 01 01
+9735 9735 s 	ld (hl),e
+9736 9736 d c9
+9736 9736 u 01 01
+9736 9736 s 	ret
+9737 9737 s 
+9737 9737 s showtrackinstrument:
+9737 9737 d cde696
+9737 9737 u 03 01
+9737 9737 s 	call gettrackinstrument
+973a 973a d 4f
+973a 973a u 01 01
+973a 973a s 	ld c, a
+973b 973b d 216f3c
+973b 973b u 03 01
+973b 973b s 	ld hl,$3c00+64+47
+973e 973e d cd9f96
+973e 973e u 03 01
+973e 973e s 	call byte2ascii
+9741 9741 d 72
+9741 9741 u 01 01
+9741 9741 s 	ld (hl),d
+9742 9742 d 23
+9742 9742 u 01 01
+9742 9742 s 	inc hl
+9743 9743 d 73
+9743 9743 u 01 01
+9743 9743 s 	ld (hl),e
+9744 9744 d c9
+9744 9744 u 01 01
+9744 9744 s 	ret
+9745 9745 s 
+9745 9745 s showtrackvelocity:
+9745 9745 d cd0097
+9745 9745 u 03 01
+9745 9745 s 	call gettrackvelocity
+9748 9748 d 4f
+9748 9748 u 01 01
+9748 9748 s 	ld c, a
+9749 9749 d 21793c
+9749 9749 u 03 01
+9749 9749 s 	ld hl,$3c00+64+57
+974c 974c d cd9f96
+974c 974c u 03 01
+974c 974c s 	call byte2ascii
+974f 974f d 72
+974f 974f u 01 01
+974f 974f s 	ld (hl),d
+9750 9750 d 23
+9750 9750 u 01 01
+9750 9750 s 	inc hl
+9751 9751 d 73
+9751 9751 u 01 01
+9751 9751 s 	ld (hl),e
+9752 9752 d c9
+9752 9752 u 01 01
+9752 9752 s 	ret
+9753 9753 s 
+9753 9753 s showtrack:
+9753 9753 d cdc196
+9753 9753 u 03 01
+9753 9753 s 	call gettracknr 
+9756 9756 d 4f
+9756 9756 u 01 01
+9756 9756 s 	ld c,a 
+9757 9757 d 21513c
+9757 9757 u 03 01
+9757 9757 s 	ld hl,$3c00+64+17
+975a 975a d cda996
+975a 975a u 03 01
+975a 975a s 	call convnibble 
+975d 975d d 73
+975d 975d u 01 01
+975d 975d s 	ld (hl),e
+975e 975e d c9
+975e 975e u 01 01
+975e 975e s 	ret
+975f 975f s 
+975f 975f s setinstrument: 			; a has track number 
+975f 975f s 
+975f 975f d f5
+975f 975f u 01 01
+975f 975f s 	push af 
+9760 9760 d dd215d8e
+9760 9760 u 04 01
+9760 9760 s 	ld ix,channeltracks 	; retrieve MIDI channel for track a
+9764 9764 d 4f
+9764 9764 u 01 01
+9764 9764 s 	ld c,a
+9765 9765 d 0600
+9765 9765 u 02 01
+9765 9765 s 	ld b,0
+9767 9767 d dd09
+9767 9767 u 02 01
+9767 9767 s 	add ix,bc
+9769 9769 d dd7e00
+9769 9769 u 03 01
+9769 9769 s 	ld a,(ix) 		; MIDI channel for track a is now in a 
+976c 976c s 	
+976c 976c d 06c0
+976c 976c u 02 01
+976c 976c s 	ld b,$c0		; add $c0 for change instrument for MIDI channel in a 
+976e 976e d 80
+976e 976e u 01 01
+976e 976e s 	add a, b
+976f 976f d d308
+976f 976f u 02 01
+976f 976f s 	out (8),a  		; change instrument for channel in a 
+9771 9771 d cd0399
+9771 9771 u 03 01
+9771 9771 s 	call short_delay
+9774 9774 s 
+9774 9774 d f1
+9774 9774 u 01 01
+9774 9774 s 	pop af 
+9775 9775 d dd21638e
+9775 9775 u 04 01
+9775 9775 s 	ld ix,instrumenttracks	; retrieve instrument for track a 
+9779 9779 d 4f
+9779 9779 u 01 01
+9779 9779 s 	ld c,a
+977a 977a d 0600
+977a 977a u 02 01
+977a 977a s 	ld b,0
+977c 977c d dd09
+977c 977c u 02 01
+977c 977c s 	add ix,bc
+977e 977e d dd7e00
+977e 977e u 03 01
+977e 977e s 	ld a,(ix) 		; MIDI instrument for track a is now in a 
+9781 9781 s 
+9781 9781 d d308
+9781 9781 u 02 01
+9781 9781 s 	out (8),a		; change MIDI instrument to a 
+9783 9783 d cd0399
+9783 9783 u 03 01
+9783 9783 s 	call short_delay
+9786 9786 s  
+9786 9786 d c9
+9786 9786 u 01 01
+9786 9786 s 	ret
+9787 9787 s 
+9787 9787 s setmiditrackinstruments:
+9787 9787 s 
+9787 9787 d 3e00
+9787 9787 u 02 01
+9787 9787 s 	ld a, 0
+9789 9789 d cd5f97
+9789 9789 u 03 01
+9789 9789 s 	call setinstrument 
+978c 978c s 
+978c 978c d 3e01
+978c 978c u 02 01
+978c 978c s 	ld a, 1
+978e 978e d cd5f97
+978e 978e u 03 01
+978e 978e s 	call setinstrument 
+9791 9791 s 	
+9791 9791 d 3e02
+9791 9791 u 02 01
+9791 9791 s 	ld a, 2
+9793 9793 d cd5f97
+9793 9793 u 03 01
+9793 9793 s 	call setinstrument 
+9796 9796 s 	
+9796 9796 d 3e03
+9796 9796 u 02 01
+9796 9796 s 	ld a, 3
+9798 9798 d cd5f97
+9798 9798 u 03 01
+9798 9798 s 	call setinstrument 
+979b 979b s 	
+979b 979b d 3e04
+979b 979b u 02 01
+979b 979b s 	ld a, 4
+979d 979d d cd5f97
+979d 979d u 03 01
+979d 979d s 	call setinstrument 
+97a0 97a0 s 	
+97a0 97a0 d 3e05
+97a0 97a0 u 02 01
+97a0 97a0 s 	ld a, 5
+97a2 97a2 d cd5f97
+97a2 97a2 u 03 01
+97a2 97a2 s 	call setinstrument 
+97a5 97a5 s 	
+97a5 97a5 d c9
+97a5 97a5 u 01 01
+97a5 97a5 s 	ret
+97a6 97a6 s 	
+97a6 97a6 s playnotes:
+97a6 97a6 d 3a788e
+97a6 97a6 u 03 01
+97a6 97a6 s 	ld a,(qtrackpos)
+97a9 97a9 s 	
+97a9 97a9 d cb77
+97a9 97a9 u 02 01
+97a9 97a9 s 	bit 6,a
+97ab 97ab d 2010
+97ab 97ab u 02 01
+97ab 97ab s 	jr nz,playhightracks ; > 64  
+97ad 97ad s 
+97ad 97ad d 21578b
+97ad 97ad u 03 01
+97ad 97ad s 	ld hl,tracksoff1	
+97b0 97b0 d cdcd97
+97b0 97b0 u 03 01
+97b0 97b0 s 	call stoptracks
+97b3 97b3 s 
+97b3 97b3 d 3a788e
+97b3 97b3 u 03 01
+97b3 97b3 s 	ld a,(qtrackpos)
+97b6 97b6 d 215788
+97b6 97b6 u 03 01
+97b6 97b6 s 	ld hl,tracks1	
+97b9 97b9 d cd2498
+97b9 97b9 u 03 01
+97b9 97b9 s 	call playtracks
+97bc 97bc s 
+97bc 97bc d c9
+97bc 97bc u 01 01
+97bc 97bc s 	ret
+97bd 97bd s 	
+97bd 97bd s playhightracks:
+97bd 97bd s 
+97bd 97bd d 21d78c
+97bd 97bd u 03 01
+97bd 97bd s 	ld hl,tracksoff2
+97c0 97c0 d cdcd97
+97c0 97c0 u 03 01
+97c0 97c0 s 	call stoptracks
+97c3 97c3 s 
+97c3 97c3 d 3a788e
+97c3 97c3 u 03 01
+97c3 97c3 s 	ld a,(qtrackpos)
+97c6 97c6 d 21d789
+97c6 97c6 u 03 01
+97c6 97c6 s 	ld hl,tracks2 
+97c9 97c9 d cd2498
+97c9 97c9 u 03 01
+97c9 97c9 s 	call playtracks
+97cc 97cc s 
+97cc 97cc d c9
+97cc 97cc u 01 01
+97cc 97cc s 	ret
+97cd 97cd s 
+97cd 97cd s 	
+97cd 97cd s stoptracks: 
+97cd 97cd s 	; add track index
+97cd 97cd s 	; clear bit 6
+97cd 97cd d cbb7
+97cd 97cd u 02 01
+97cd 97cd s 	res 6,a
+97cf 97cf d 5f
+97cf 97cf u 01 01
+97cf 97cf s 	ld e,a
+97d0 97d0 d 1600
+97d0 97d0 u 02 01
+97d0 97d0 s 	ld d,0
+97d2 97d2 d 19
+97d2 97d2 u 01 01
+97d2 97d2 s 	add hl,de
+97d3 97d3 d 014000
+97d3 97d3 u 03 01
+97d3 97d3 s 	ld bc,64
+97d6 97d6 s 
+97d6 97d6 d e5
+97d6 97d6 u 01 01
+97d6 97d6 s 	push hl
+97d7 97d7 d c5
+97d7 97d7 u 01 01
+97d7 97d7 s 	push bc
+97d8 97d8 s 	
+97d8 97d8 d 4e
+97d8 97d8 u 01 01
+97d8 97d8 s 	ld c,(hl) ; -> c is note off
+97d9 97d9 d 1600
+97d9 97d9 u 02 01
+97d9 97d9 s 	ld d,0
+97db 97db d 1e00
+97db 97db u 02 01
+97db 97db s 	ld e,0 ; e is track number 
+97dd 97dd d cdb498
+97dd 97dd u 03 01
+97dd 97dd s 	call stopnote
+97e0 97e0 s 
+97e0 97e0 d c1
+97e0 97e0 u 01 01
+97e0 97e0 s 	pop bc
+97e1 97e1 d e1
+97e1 97e1 u 01 01
+97e1 97e1 s 	pop hl
+97e2 97e2 s 	
+97e2 97e2 d 09
+97e2 97e2 u 01 01
+97e2 97e2 s 	add hl,bc
+97e3 97e3 s 
+97e3 97e3 d e5
+97e3 97e3 u 01 01
+97e3 97e3 s 	push hl
+97e4 97e4 d c5
+97e4 97e4 u 01 01
+97e4 97e4 s 	push bc
+97e5 97e5 s 
+97e5 97e5 d 4e
+97e5 97e5 u 01 01
+97e5 97e5 s 	ld c,(hl)
+97e6 97e6 d 1600
+97e6 97e6 u 02 01
+97e6 97e6 s 	ld d,0
+97e8 97e8 d 1e01
+97e8 97e8 u 02 01
+97e8 97e8 s 	ld e,1 
+97ea 97ea d cdb498
+97ea 97ea u 03 01
+97ea 97ea s 	call stopnote
+97ed 97ed s 
+97ed 97ed d c1
+97ed 97ed u 01 01
+97ed 97ed s 	pop bc
+97ee 97ee d e1
+97ee 97ee u 01 01
+97ee 97ee s 	pop hl
+97ef 97ef s 
+97ef 97ef d 09
+97ef 97ef u 01 01
+97ef 97ef s 	add hl,bc
+97f0 97f0 s 
+97f0 97f0 d e5
+97f0 97f0 u 01 01
+97f0 97f0 s 	push hl
+97f1 97f1 d c5
+97f1 97f1 u 01 01
+97f1 97f1 s 	push bc
+97f2 97f2 s 	
+97f2 97f2 d 4e
+97f2 97f2 u 01 01
+97f2 97f2 s 	ld c,(hl) 
+97f3 97f3 d 1600
+97f3 97f3 u 02 01
+97f3 97f3 s 	ld d,0
+97f5 97f5 d 1e02
+97f5 97f5 u 02 01
+97f5 97f5 s 	ld e,2
+97f7 97f7 d cdb498
+97f7 97f7 u 03 01
+97f7 97f7 s 	call stopnote
+97fa 97fa s 
+97fa 97fa d c1
+97fa 97fa u 01 01
+97fa 97fa s 	pop bc
+97fb 97fb d e1
+97fb 97fb u 01 01
+97fb 97fb s 	pop hl
+97fc 97fc s 
+97fc 97fc d 09
+97fc 97fc u 01 01
+97fc 97fc s 	add hl,bc
+97fd 97fd s 
+97fd 97fd d e5
+97fd 97fd u 01 01
+97fd 97fd s 	push hl
+97fe 97fe d c5
+97fe 97fe u 01 01
+97fe 97fe s 	push bc
+97ff 97ff s 
+97ff 97ff d 4e
+97ff 97ff u 01 01
+97ff 97ff s 	ld c,(hl) 
+9800 9800 d 1600
+9800 9800 u 02 01
+9800 9800 s 	ld d,0
+9802 9802 d 1e03
+9802 9802 u 02 01
+9802 9802 s 	ld e,3 
+9804 9804 d cdb498
+9804 9804 u 03 01
+9804 9804 s 	call stopnote
+9807 9807 s 
+9807 9807 d c1
+9807 9807 u 01 01
+9807 9807 s 	pop bc
+9808 9808 d e1
+9808 9808 u 01 01
+9808 9808 s 	pop hl
+9809 9809 s 
+9809 9809 d 09
+9809 9809 u 01 01
+9809 9809 s 	add hl,bc
+980a 980a s 
+980a 980a d e5
+980a 980a u 01 01
+980a 980a s 	push hl
+980b 980b d c5
+980b 980b u 01 01
+980b 980b s 	push bc
+980c 980c s 
+980c 980c d 4e
+980c 980c u 01 01
+980c 980c s 	ld c,(hl) 
+980d 980d d 1600
+980d 980d u 02 01
+980d 980d s 	ld d,0
+980f 980f d 1e04
+980f 980f u 02 01
+980f 980f s 	ld e,4 
+9811 9811 d cdb498
+9811 9811 u 03 01
+9811 9811 s 	call stopnote
+9814 9814 s 
+9814 9814 d c1
+9814 9814 u 01 01
+9814 9814 s 	pop bc
+9815 9815 d e1
+9815 9815 u 01 01
+9815 9815 s 	pop hl
+9816 9816 s 	
+9816 9816 d 09
+9816 9816 u 01 01
+9816 9816 s 	add hl,bc
+9817 9817 s 
+9817 9817 d e5
+9817 9817 u 01 01
+9817 9817 s 	push hl
+9818 9818 d c5
+9818 9818 u 01 01
+9818 9818 s 	push bc
+9819 9819 s 
+9819 9819 d 4e
+9819 9819 u 01 01
+9819 9819 s 	ld c,(hl) 
+981a 981a d 1600
+981a 981a u 02 01
+981a 981a s 	ld d,0
+981c 981c d 1e05
+981c 981c u 02 01
+981c 981c s 	ld e,5 
+981e 981e d cdb498
+981e 981e u 03 01
+981e 981e s 	call stopnote
+9821 9821 s 
+9821 9821 d c1
+9821 9821 u 01 01
+9821 9821 s 	pop bc	
+9822 9822 d e1
+9822 9822 u 01 01
+9822 9822 s 	pop hl
+9823 9823 s 	
+9823 9823 d c9
+9823 9823 u 01 01
+9823 9823 s 	ret
+9824 9824 s 	
+9824 9824 s playtracks: 
+9824 9824 s 	; add track index
+9824 9824 s 	; clear bit 6
+9824 9824 d cbb7
+9824 9824 u 02 01
+9824 9824 s 	res 6,a
+9826 9826 d 5f
+9826 9826 u 01 01
+9826 9826 s 	ld e,a
+9827 9827 d 1600
+9827 9827 u 02 01
+9827 9827 s 	ld d,0
+9829 9829 d 19
+9829 9829 u 01 01
+9829 9829 s 	add hl,de
+982a 982a d 014000
+982a 982a u 03 01
+982a 982a s 	ld bc,64
+982d 982d s 
+982d 982d d e5
+982d 982d u 01 01
+982d 982d s 	push hl
+982e 982e d c5
+982e 982e u 01 01
+982e 982e s 	push bc
+982f 982f s 	
+982f 982f d 4e
+982f 982f u 01 01
+982f 982f s 	ld c,(hl) ; -> c is note on
+9830 9830 d 1600
+9830 9830 u 02 01
+9830 9830 s 	ld d,0
+9832 9832 d 1e00
+9832 9832 u 02 01
+9832 9832 s 	ld e,0 ; e is track number 
+9834 9834 d cd7b98
+9834 9834 u 03 01
+9834 9834 s 	call playnote
+9837 9837 s 
+9837 9837 d c1
+9837 9837 u 01 01
+9837 9837 s 	pop bc
+9838 9838 d e1
+9838 9838 u 01 01
+9838 9838 s 	pop hl
+9839 9839 s 	
+9839 9839 d 09
+9839 9839 u 01 01
+9839 9839 s 	add hl,bc
+983a 983a s 
+983a 983a d e5
+983a 983a u 01 01
+983a 983a s 	push hl
+983b 983b d c5
+983b 983b u 01 01
+983b 983b s 	push bc
+983c 983c s 
+983c 983c d 4e
+983c 983c u 01 01
+983c 983c s 	ld c,(hl)
+983d 983d d 1600
+983d 983d u 02 01
+983d 983d s 	ld d,0
+983f 983f d 1e01
+983f 983f u 02 01
+983f 983f s 	ld e,1 
+9841 9841 d cd7b98
+9841 9841 u 03 01
+9841 9841 s 	call playnote
+9844 9844 s 
+9844 9844 d c1
+9844 9844 u 01 01
+9844 9844 s 	pop bc
+9845 9845 d e1
+9845 9845 u 01 01
+9845 9845 s 	pop hl
+9846 9846 s 
+9846 9846 d 09
+9846 9846 u 01 01
+9846 9846 s 	add hl,bc
+9847 9847 s 
+9847 9847 d e5
+9847 9847 u 01 01
+9847 9847 s 	push hl
+9848 9848 d c5
+9848 9848 u 01 01
+9848 9848 s 	push bc
+9849 9849 s 	
+9849 9849 d 4e
+9849 9849 u 01 01
+9849 9849 s 	ld c,(hl) 
+984a 984a d 1600
+984a 984a u 02 01
+984a 984a s 	ld d,0
+984c 984c d 1e02
+984c 984c u 02 01
+984c 984c s 	ld e,2
+984e 984e d cd7b98
+984e 984e u 03 01
+984e 984e s 	call playnote
+9851 9851 s 
+9851 9851 d c1
+9851 9851 u 01 01
+9851 9851 s 	pop bc
+9852 9852 d e1
+9852 9852 u 01 01
+9852 9852 s 	pop hl
+9853 9853 s 
+9853 9853 d 09
+9853 9853 u 01 01
+9853 9853 s 	add hl,bc
+9854 9854 s 
+9854 9854 d e5
+9854 9854 u 01 01
+9854 9854 s 	push hl
+9855 9855 d c5
+9855 9855 u 01 01
+9855 9855 s 	push bc
+9856 9856 s 
+9856 9856 d 4e
+9856 9856 u 01 01
+9856 9856 s 	ld c,(hl) 
+9857 9857 d 1600
+9857 9857 u 02 01
+9857 9857 s 	ld d,0
+9859 9859 d 1e03
+9859 9859 u 02 01
+9859 9859 s 	ld e,3 
+985b 985b d cd7b98
+985b 985b u 03 01
+985b 985b s 	call playnote
+985e 985e s 
+985e 985e d c1
+985e 985e u 01 01
+985e 985e s 	pop bc
+985f 985f d e1
+985f 985f u 01 01
+985f 985f s 	pop hl
+9860 9860 s 
+9860 9860 d 09
+9860 9860 u 01 01
+9860 9860 s 	add hl,bc
+9861 9861 s 
+9861 9861 d e5
+9861 9861 u 01 01
+9861 9861 s 	push hl
+9862 9862 d c5
+9862 9862 u 01 01
+9862 9862 s 	push bc
+9863 9863 s 
+9863 9863 d 4e
+9863 9863 u 01 01
+9863 9863 s 	ld c,(hl) 
+9864 9864 d 1600
+9864 9864 u 02 01
+9864 9864 s 	ld d,0
+9866 9866 d 1e04
+9866 9866 u 02 01
+9866 9866 s 	ld e,4 
+9868 9868 d cd7b98
+9868 9868 u 03 01
+9868 9868 s 	call playnote
+986b 986b s 
+986b 986b d c1
+986b 986b u 01 01
+986b 986b s 	pop bc
+986c 986c d e1
+986c 986c u 01 01
+986c 986c s 	pop hl
+986d 986d s 	
+986d 986d d 09
+986d 986d u 01 01
+986d 986d s 	add hl,bc
+986e 986e s 
+986e 986e d e5
+986e 986e u 01 01
+986e 986e s 	push hl
+986f 986f d c5
+986f 986f u 01 01
+986f 986f s 	push bc
+9870 9870 s 
+9870 9870 d 4e
+9870 9870 u 01 01
+9870 9870 s 	ld c,(hl) 
+9871 9871 d 1600
+9871 9871 u 02 01
+9871 9871 s 	ld d,0
+9873 9873 d 1e05
+9873 9873 u 02 01
+9873 9873 s 	ld e,5 
+9875 9875 d cd7b98
+9875 9875 u 03 01
+9875 9875 s 	call playnote
+9878 9878 s 
+9878 9878 d c1
+9878 9878 u 01 01
+9878 9878 s 	pop bc	
+9879 9879 d e1
+9879 9879 u 01 01
+9879 9879 s 	pop hl
+987a 987a s 	
+987a 987a d c9
+987a 987a u 01 01
+987a 987a s 	ret
+987b 987b s 	
+987b 987b s 	
+987b 987b s playnote: ; input note on in c; track number 0..5 in e 
+987b 987b s 	
+987b 987b d 79
+987b 987b u 01 01
+987b 987b s         ld a, c 		; note on <> 0? no; return 
+987c 987c d fe62
+987c 987c u 02 01
+987c 987c s 	cp DISPMIDINOTEOFFSET+1 
+987e 987e d d8
+987e 987e u 01 01
+987e 987e s 	ret c
+987f 987f s 
+987f 987f d c5
+987f 987f u 01 01
+987f 987f s 	push bc
+9880 9880 d e5
+9880 9880 u 01 01
+9880 9880 s 	push hl			; note pointer 
+9881 9881 s 	
+9881 9881 d 215d8e
+9881 9881 u 03 01
+9881 9881 s 	ld hl,channeltracks 	; determine MIDI channel for track in e 
+9884 9884 s 	;; ld d,0
+9884 9884 s 	;; ld e,e 
+9884 9884 d 19
+9884 9884 u 01 01
+9884 9884 s 	add hl, de 
+9885 9885 d 7e
+9885 9885 u 01 01
+9885 9885 s 	ld a,(hl) 		; MIDI channel for track in e
+9886 9886 s 
+9886 9886 d c690
+9886 9886 u 02 01
+9886 9886 s 	add $90			; MIDI NOTE ON for MIDI channel in a 
+9888 9888 d d308
+9888 9888 u 02 01
+9888 9888 s 	out (8),a
+988a 988a s 
+988a 988a d d5
+988a 988a u 01 01
+988a 988a s 	push de
+988b 988b d cd0399
+988b 988b u 03 01
+988b 988b s 	call short_delay
+988e 988e d d1
+988e 988e u 01 01
+988e 988e s 	pop de
+988f 988f s 
+988f 988f d 79
+988f 988f u 01 01
+988f 988f s 	ld a,c			; c has the note number -> MIDI out 
+9890 9890 d d661
+9890 9890 u 02 01
+9890 9890 s 	sub DISPMIDINOTEOFFSET		
+9892 9892 d d308
+9892 9892 u 02 01
+9892 9892 s 	out (8),a
+9894 9894 s 	
+9894 9894 d d5
+9894 9894 u 01 01
+9894 9894 s 	push de
+9895 9895 d cd0399
+9895 9895 u 03 01
+9895 9895 s 	call short_delay
+9898 9898 d d1
+9898 9898 u 01 01
+9898 9898 s 	pop de
+9899 9899 s 	
+9899 9899 d 216f8e
+9899 9899 u 03 01
+9899 9899 s 	ld hl,gatetracks
+989c 989c s 	;; ld d,0
+989c 989c s 	;; ld e,e		; track number
+989c 989c d 19
+989c 989c u 01 01
+989c 989c s 	add hl, de 
+989d 989d d 7e
+989d 989d u 01 01
+989d 989d s 	ld a,(hl)		; gate duration for track  
+989e 989e s 
+989e 989e d e1
+989e 989e u 01 01
+989e 989e s 	pop hl 			; get note pointer + 12*64 + gate duration to ... 
+989f 989f d d5
+989f 989f u 01 01
+989f 989f s 	push de
+98a0 98a0 s 	
+98a0 98a0 d 110003
+98a0 98a0 u 03 01
+98a0 98a0 s 	ld de, 12*64		; ... determine note off position in notes off grid 
+98a3 98a3 d 19
+98a3 98a3 u 01 01
+98a3 98a3 s 	add hl, de
+98a4 98a4 d 1600
+98a4 98a4 u 02 01
+98a4 98a4 s 	ld d, 0
+98a6 98a6 d 5f
+98a6 98a6 u 01 01
+98a6 98a6 s 	ld e, a
+98a7 98a7 d 19
+98a7 98a7 u 01 01
+98a7 98a7 s 	add hl, de
+98a8 98a8 s 
+98a8 98a8 d d1
+98a8 98a8 u 01 01
+98a8 98a8 s 	pop de
+98a9 98a9 d c1
+98a9 98a9 u 01 01
+98a9 98a9 s 	pop bc 
+98aa 98aa s 
+98aa 98aa d 79
+98aa 98aa u 01 01
+98aa 98aa s 	ld a, c			; get note number which was stored in c 
+98ab 98ab d 77
+98ab 98ab u 01 01
+98ab 98ab s 	ld (hl), a 		; store note in note off grid
+98ac 98ac s 
+98ac 98ac d 21698e
+98ac 98ac u 03 01
+98ac 98ac s 	ld hl,velocitytracks 	; determine MIDI velocity for track in e  
+98af 98af s 	;; ld d,0
+98af 98af s 	;; ld e,e 
+98af 98af d 19
+98af 98af u 01 01
+98af 98af s 	add hl, de 
+98b0 98b0 d 7e
+98b0 98b0 u 01 01
+98b0 98b0 s 	ld a,(hl) 		; MIDI velocity for track in e 
+98b1 98b1 d d308
+98b1 98b1 u 02 01
+98b1 98b1 s 	out (8),a
+98b3 98b3 s 	
+98b3 98b3 d c9
+98b3 98b3 u 01 01
+98b3 98b3 s 	ret 
+98b4 98b4 s 
+98b4 98b4 s stopnote: ; input note off in c; track number 0..5 in e 
+98b4 98b4 s 
+98b4 98b4 d 79
+98b4 98b4 u 01 01
+98b4 98b4 s         ld a, c 		; note on <> 0? no; return
+98b5 98b5 d b7
+98b5 98b5 u 01 01
+98b5 98b5 s 	or a 
+98b6 98b6 d c8
+98b6 98b6 u 01 01
+98b6 98b6 s 	ret z
+98b7 98b7 s 
+98b7 98b7 d 3600
+98b7 98b7 u 02 01
+98b7 98b7 s 	ld (hl), 0 		; hl = note pointer; erase note for now, will be rescheduled when played again!	
+98b9 98b9 s 
+98b9 98b9 d c5
+98b9 98b9 u 01 01
+98b9 98b9 s 	push bc
+98ba 98ba s 	
+98ba 98ba d 215d8e
+98ba 98ba u 03 01
+98ba 98ba s 	ld hl,channeltracks 	; determine MIDI channel for track in e 
+98bd 98bd s 	;; ld d,0
+98bd 98bd s 	;; ld e,e 
+98bd 98bd d 19
+98bd 98bd u 01 01
+98bd 98bd s 	add hl, de 
+98be 98be d 7e
+98be 98be u 01 01
+98be 98be s 	ld a,(hl) 		; MIDI channel for track in e
+98bf 98bf s 
+98bf 98bf d c680
+98bf 98bf u 02 01
+98bf 98bf s 	add $80			; MIDI NOTE ON for MIDI channel in a 
+98c1 98c1 d d308
+98c1 98c1 u 02 01
+98c1 98c1 s 	out (8),a
+98c3 98c3 s 
+98c3 98c3 d d5
+98c3 98c3 u 01 01
+98c3 98c3 s 	push de
+98c4 98c4 d cd0399
+98c4 98c4 u 03 01
+98c4 98c4 s 	call short_delay
+98c7 98c7 d d1
+98c7 98c7 u 01 01
+98c7 98c7 s 	pop de
+98c8 98c8 s 
+98c8 98c8 d 79
+98c8 98c8 u 01 01
+98c8 98c8 s 	ld a,c			; c has the note number -> MIDI out 
+98c9 98c9 d d661
+98c9 98c9 u 02 01
+98c9 98c9 s 	sub DISPMIDINOTEOFFSET		
+98cb 98cb d d308
+98cb 98cb u 02 01
+98cb 98cb s 	out (8),a
+98cd 98cd s 
+98cd 98cd d d5
+98cd 98cd u 01 01
+98cd 98cd s 	push de
+98ce 98ce d cd0399
+98ce 98ce u 03 01
+98ce 98ce s 	call short_delay
+98d1 98d1 d d1
+98d1 98d1 u 01 01
+98d1 98d1 s 	pop de 
+98d2 98d2 s 	
+98d2 98d2 d c1
+98d2 98d2 u 01 01
+98d2 98d2 s 	pop bc
+98d3 98d3 s 
+98d3 98d3 d 21698e
+98d3 98d3 u 03 01
+98d3 98d3 s 	ld hl,velocitytracks 	; determine MIDI velocity for track in e  
+98d6 98d6 s 	;; ld d,0
+98d6 98d6 s 	;; ld e,e 
+98d6 98d6 d 19
+98d6 98d6 u 01 01
+98d6 98d6 s 	add hl, de 
+98d7 98d7 d 7e
+98d7 98d7 u 01 01
+98d7 98d7 s 	ld a,(hl) 		; MIDI velocity for track in e 
+98d8 98d8 d d308
+98d8 98d8 u 02 01
+98d8 98d8 s 	out (8),a
+98da 98da s 	
+98da 98da d c9
+98da 98da u 01 01
+98da 98da s 	ret 
+98db 98db s 
+98db 98db s showgridres:
+98db 98db d 3a5088
+98db 98db u 03 01
+98db 98db s 	ld a,(gridres)
+98de 98de d 4f
+98de 98de u 01 01
+98de 98de s 	ld c, a
+98df 98df d 21643c
+98df 98df u 03 01
+98df 98df s 	ld hl,$3c00+64+36
+98e2 98e2 d cd9f96
+98e2 98e2 u 03 01
+98e2 98e2 s 	call byte2ascii
+98e5 98e5 d 72
+98e5 98e5 u 01 01
+98e5 98e5 s 	ld (hl),d
+98e6 98e6 d 23
+98e6 98e6 u 01 01
+98e6 98e6 s 	inc hl
+98e7 98e7 d 73
+98e7 98e7 u 01 01
+98e7 98e7 s 	ld (hl),e
+98e8 98e8 d c9
+98e8 98e8 u 01 01
+98e8 98e8 s 	ret
+98e9 98e9 s 
+98e9 98e9 s 
+98e9 98e9 s showgate:
+98e9 98e9 d cdf396
+98e9 98e9 u 03 01
+98e9 98e9 s 	call gettrackgate
+98ec 98ec d 4f
+98ec 98ec u 01 01
+98ec 98ec s 	ld c, a
+98ed 98ed d 217e3c
+98ed 98ed u 03 01
+98ed 98ed s 	ld hl,$3c00+64+62
+98f0 98f0 d cd9f96
+98f0 98f0 u 03 01
+98f0 98f0 s 	call byte2ascii
+98f3 98f3 d 72
+98f3 98f3 u 01 01
+98f3 98f3 s 	ld (hl),d
+98f4 98f4 d 23
+98f4 98f4 u 01 01
+98f4 98f4 s 	inc hl
+98f5 98f5 d 73
+98f5 98f5 u 01 01
+98f5 98f5 s 	ld (hl),e
+98f6 98f6 d c9
+98f6 98f6 u 01 01
+98f6 98f6 s 	ret
+98f7 98f7 s 	
+98f7 98f7 s showbars:
+98f7 98f7 d 3a4e88
+98f7 98f7 u 03 01
+98f7 98f7 s 	ld a,(numbars)
+98fa 98fa d 4f
+98fa 98fa u 01 01
+98fa 98fa s 	ld c, a
+98fb 98fb d 21603c
+98fb 98fb u 03 01
+98fb 98fb s 	ld hl,$3c00+64+32
+98fe 98fe d cda996
+98fe 98fe u 03 01
+98fe 98fe s 	call convnibble
+9901 9901 d 73
+9901 9901 u 01 01
+9901 9901 s 	ld (hl),e
+9902 9902 d c9
+9902 9902 u 01 01
+9902 9902 s 	ret
+9903 9903 s 
+9903 9903 s 
+9903 9903 s 
+9903 9903 s short_delay:
+9903 9903 d 11ff00
+9903 9903 u 03 01
+9903 9903 s     ld de,$00ff
+9906 9906 s delloop: 
+9906 9906 d 1b
+9906 9906 u 01 01
+9906 9906 s     dec de
+9907 9907 d 7a
+9907 9907 u 01 01
+9907 9907 s     ld a,d
+9908 9908 d b3
+9908 9908 u 01 01
+9908 9908 s     or e
+9909 9909 d c20699
+9909 9909 u 03 01
+9909 9909 s     jp nz,delloop
+990c 990c d c9
+990c 990c u 01 01
+990c 990c s     ret 
+990d 990d s 
+990d 990d s 	end main 
+8e79 e
+0033 v @DSP
+9567 a up
+8e69 a velocitytracks
+951b a trackstatus
+9631 a showplaycursor
+8e75 a memcursorx
+8e76 a memcursory
+8f22 a trackcury
+9079 a chggatelength
+9084 a chggatelength1
+98b4 a stopnote
+8e77 a trackpos
+8e78 a qtrackpos
+9700 a gettrackvelocity
+9787 a setmiditrackinstruments
+92de a slower1
+8003 a tracked
+80c4 a data
+8857 a tracks1
+89d7 a tracks2
+95df a dly
+9455 a setgrid
+384020 v k_left
+9594 a down1
+9595 a down2
+8001 a playing
+97cd a stoptracks
+8852 a curnote
+382008 v k_semi
+93ab a setgridandsoundkey
+90ed a countticks
+8002 a free
+8f48 a nostep
+9753 a showtrack
+8e6f a gatetracks
+933f a instrumentup
+95a1 a cursor
+96c1 a gettracknr
+0058 v CURSYM
+96f3 a gettrackgate
+8e57 a drumnostracks
+9158 a quit
+9577 a up1
+9578 a up2
+9554 a right
+95f4 a nextnote0
+9612 a nextnote1
+8000 a stopped
+8e63 a instrumenttracks
+9676 a showcursor
+96a9 a convnibble
+9350 a instrumentdown
+005b v KCURUP
+9172 a prevbar
+8f85 a scancont
+90f7 a midiin
+0009 v KCURRIGHT
+94f1 a startstop
+975f a setinstrument
+384080 v k_space
+002b v @KBD
+0049 v @KEY
+9335 a channeldown
+8855 a curinstrument
+95b5 a moveyup
+9737 a showtrackinstrument
+9715 a gettrackchannelreg
+8851 a midicount
+8844 a lastcur
+92a9 a faster1
+8e79 a main
+95b2 a movex
+95be a movey
+8854 a curchannel
+8f8e a keyscan1
+950a a showplay
+8849 a blink
+381001 v k_0
+381002 v k_1
+381004 v k_2
+381008 v k_3
+381010 v k_4
+381020 v k_5
+381040 v k_6
+381080 v k_7
+382001 v k_8
+382002 v k_9
+380101 v k_@
+380102 v k_A
+380104 v k_B
+380108 v k_C
+380110 v k_D
+380120 v k_E
+380140 v k_F
+380180 v k_G
+380201 v k_H
+380202 v k_I
+380204 v k_J
+380208 v k_K
+380210 v k_L
+380220 v k_M
+380240 v k_N
+380280 v k_O
+380401 v k_P
+380402 v k_Q
+380404 v k_R
+380408 v k_S
+380410 v k_T
+380420 v k_U
+380440 v k_V
+380480 v k_W
+380801 v k_X
+380802 v k_Y
+380804 v k_Z
+402d v @EXIT
+8404 a helpt
+8f6d a keyscan
+9542 a left
+384010 v k_down
+928f a faster
+90c6 a gridres16
+90d2 a gridres32
+93ed a setgridandsoundr
+949b a setgridkeyr
+95e6 a nextnote
+9375 a setgridandsoundmidi
+8004 a title
+94da a erasegridr
+008f v SETSYM
+0000 v d10000th
+8e5d a channeltracks
+95c2 a memcursor
+884e a numbars
+98db a showgridres
+8850 a gridres
+97a6 a playnotes
+384001 v k_enter
+96cc a gettrackdrum
+884d a tempo
+388001 v k_shift
+965f a screenupdate
+9155 a save
+905b a cont
+9117 a velcheck
+98e9 a showgate
+92c4 a slower
+9088 a chgridres
+382040 v k_dot
+000d v ENTER
+92fb a channeloff
+969f a byte2ascii
+972b a showtrackchannel
+8f5e a scan
+8853 a curvelocity
+96d9 a gettrackchannel
+970d a gettrackdrumreg
+4467 v @DSPLY
+95cf a mmoveyup
+0008 v KCURLEFT
+94c1 a erasegrid
+382004 v k_colon
+8845 a lastcurpos
+911e a midicommand
+95cc a mmovex
+95d8 a mmovey
+90a2 a gridres2
+90ae a gridres4
+90ba a gridres8
+884f a numticks
+00aa v POSMARKSYM
+90df a chgnumbars
+9824 a playtracks
+9584 a down
+382010 v k_comma
+915b a nextbar
+936b a velocitydown
+8ead a main2
+971d a showtrackdrum
+96e6 a gettrackinstrument
+382020 v k_dash
+382080 v k_slash
+9187 a bar1
+91a8 a bar2
+91c9 a bar3
+91ea a bar4
+920b a bar5
+922c a bar6
+924d a bar7
+926e a bar8
+384040 v k_right
+932b a channelup
+884c a delayc
+0061 v DISPMIDINOTEOFFSET
+948d a setgridr
+9534 a showtrackstatus
+9903 a short_delay
+8847 a cursorx
+8848 a cursory
+9361 a velocityup
+9134 a help
+96b3 a showtempo
+9321 a drumnodown
+884b a track
+8f56 a cur1
+9691 a cur2
+8b57 a tracksoff1
+8cd7 a tracksoff2
+9465 a setgridkey
+9152 a load
+8f3e a showtrackcur
+98f7 a showbars
+9745 a showtrackvelocity
+8ed1 a loop
+92f9 a midipanic
+384002 v k_clear
+9317 a drumnoup
+987b a playnote
+9906 a delloop
+9093 a chgridres1
+8f95 a scancont1
+95dc a dly.01
+884a a status
+384004 v k_break
+9415 a setgridandsoundkeyr
+97bd a playhightracks
+384008 v k_up
+9658 a showcurtrack2
+000a v KCURDOWN
+912c a midinoteon
+8856 a quantpat

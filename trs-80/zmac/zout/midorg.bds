@@ -1,0 +1,3203 @@
+binary-debuggable-source
+0000 0000 f midorg.asm
+0000 0000 s ;
+0000 0000 s ; midorg.z - MIDI Organ for TRS-80 
+0000 0000 s ;
+5200 5200 s 	org	$5200
+5200 5200 s 
+5200 5200 s @EXIT		equ	$402d
+5200 5200 s @KEY    	equ 	$0049 
+5200 5200 s 
+5200 5200 d 2a2a2a2a204d4944492f3830204f5247414e2056312e30202d20284329203230323420472e5048494c4c4950532026204c414d4244414d494b454c202a2a2a2a
+5200 5200 u 40 02
+5200 5200 s title:	ascii   "**** MIDI/80 ORGAN V1.0 - (C) 2024 G.PHILLIPS & LAMBDAMIKEL ****"
+5240 5240 d 2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d
+5240 5240 u 40 02
+5240 5240 s 	ascii   "----------------------------------------------------------------"
+5280 5280 d 2020205f5f5f5f5f205f5f5f5f5f202020202020205f5f5f5f5f205f5f5f5f5f205f5f5f5f5f202020202020205f5f5f5f5f205f5f5f5f5f2020202020202020
+5280 5280 u 40 02
+5280 5280 s 	ascii   "   _____ _____       _____ _____ _____       _____ _____        "
+52c0 52c0 d 2020207c2a632723207c2a6427237c202020207c2a662723207c2a672723207c2a612723207c20202020207c2a632727237c2a642727237c2020202020202020
+52c0 52c0 u 40 02
+52c0 52c0 s 	ascii   "   |*c'# |*d'#|    |*f'# |*g'# |*a'# |     |*c''#|*d''#|        "
+5300 5300 d 20205f7c5f5f325f5f7c5f5f335f7c5f5f5f5f7c5f5f355f5f7c5f5f365f5f7c5f5f375f5f7c5f5f5f5f5f7c5f5f395f5f7c5f5f305f5f7c5f205f5f5f5f2020
+5300 5300 u 40 02
+5300 5300 s 	ascii   "  _|__2__|__3_|____|__5__|__6__|__7__|_____|__9__|__0__|_ ____  "
+5340 5340 d 207c2a63277c2a206427207c2a6527207c2a6627207c2a206727207c2a206127207c2a206227207c2a632727207c2a642727207c2a652727207c2a6627277c20
+5340 5340 u 40 02
+5340 5340 s 	ascii   " |*c'|* d' |*e' |*f' |* g' |* a' |* b' |*c'' |*d'' |*e'' |*f''| "
+5380 5380 d 207c5f515f7c5f5f575f5f7c5f455f5f7c5f525f5f7c5f5f545f5f7c5f5f595f5f7c5f5f555f5f7c5f5f495f5f7c5f5f4f5f5f7c5f5f505f5f7c5f5f405f7c20
+5380 5380 u 40 02
+5380 5380 s 	ascii   " |_Q_|__W__|_E__|_R__|__T__|__Y__|__U__|__I__|__O__|__P__|__@_| "
+53c0 53c0 d 20202020205f5f5f5f5f205f5f5f5f5f202020202020205f5f5f5f5f205f5f5f5f5f205f5f5f5f5f202020202020205f5f5f5f5f205f5f5f5f5f202020202020
+53c0 53c0 u 40 02
+53c0 53c0 s 	ascii   "     _____ _____       _____ _____ _____       _____ _____      "
+5400 5400 d 202020207c2a206323207c2a206423207c20202020207c2a206623207c2a206723207c2a206123207c20202020207c2a632723207c2a642723207c2020202020
+5400 5400 u 40 02
+5400 5400 s 	ascii	"    |* c# |* d# |     |* f# |* g# |* a# |     |*c'# |*d'# |     "
+5440 5440 d 2020205f7c5f5f535f5f7c5f5f445f5f7c5f5f5f5f5f7c5f5f475f5f7c5f5f485f5f7c5f5f4a5f5f7c5f5f5f5f5f7c5f5f4c5f5f7c5f5f3b5f5f7c5f20202020
+5440 5440 u 40 02
+5440 5440 s 	ascii   "   _|__S__|__D__|_____|__G__|__H__|__J__|_____|__L__|__;__|_    "
+5480 5480 d 20207c2a63207c2a206420207c2a206520207c2a206620207c2a206720207c2a206120207c2a206220207c2a632720207c2a642720207c2a652720207c202020
+5480 5480 u 40 02
+5480 5480 s 	ascii   "  |*c |* d  |* e  |* f  |* g  |* a  |* b  |*c'  |*d'  |*e'  |   " 
+54c0 54c0 d 20207c5f5a5f7c5f5f585f5f7c5f5f435f5f7c5f5f565f5f7c5f5f425f5f7c5f5f4e5f5f7c5f5f4d5f5f7c5f5f2c5f5f7c5f5f2e5f5f7c5f5f2f5f5f7c202020
+54c0 54c0 u 40 02
+54c0 54c0 s 	ascii	"  |_Z_|__X__|__C__|__V__|__B__|__N__|__M__|__,__|__.__|__/__|   "
+5500 5500 d 20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020
+5500 5500 u 40 02
+5500 5500 s 	ascii   "                                                                "
+5540 5540 d 425245414b3a51554954204c2f523a494e5354522055502f444f574e3a564f4c2053504143452f454e543a4348414e4e454c2041462f31343a4f4354202b2f2d
+5540 5540 u 40 02
+5540 5540 s 	ascii   "BREAK:QUIT L/R:INSTR UP/DOWN:VOL SPACE/ENT:CHANNEL AF/14:OCT +/-" 
+5580 5580 d 435552203c4f43542f4d494449204348414e4e454c2f494e5354522f564f4c3e3a203c58582f58582f58582f58583e202d202058582f58582f58582f58582020
+5580 5580 u 40 02
+5580 5580 s 	ascii   "CUR <OCT/MIDI CHANNEL/INSTR/VOL>: <XX/XX/XX/XX> -  XX/XX/XX/XX  "
+55c0 55c0 d 2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d2d
+55c0 55c0 u 40 02
+55c0 55c0 s 	ascii   "----------------------------------------------------------------"
+5600 5600 s 
+5600 5600 s title_len equ $-title
+5600 5600 s 
+5600 5600 s 
+5600 5600 d 00
+5600 5600 u 01 02
+5600 5600 s current	byte 0
+5601 5601 d 00
+5601 5601 u 01 02
+5601 5601 s chan1	byte 0
+5602 5602 d 01
+5602 5602 u 01 02
+5602 5602 s chan2	byte 1
+5603 5603 d 30
+5603 5603 u 01 02
+5603 5603 s oct1	byte 48
+5604 5604 d 3c
+5604 5604 u 01 02
+5604 5604 s oct2	byte 60
+5605 5605 d 000102030405060708090a0b0c0d0e0f
+5605 5605 u 10 02
+5605 5605 s instr1	byte 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+5615 5615 d 000102030405060708090a0b0c0d0e0f
+5615 5615 u 10 02
+5615 5615 s instr2	byte 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+5625 5625 d 7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f
+5625 5625 u 10 02
+5625 5625 s vol1	byte 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127
+5635 5635 d 7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f
+5635 5635 u 10 02
+5635 5635 s vol2	byte 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127
+5645 5645 s 
+5645 5645 s start:
+5645 5645 s 
+5645 5645 d dbff
+5645 5645 u 02 01
+5645 5645 s 	in  a,($ff)
+5647 5647 d f610
+5647 5647 u 02 01
+5647 5647 s 	or  a,$10 		; enable IO on Model III 
+5649 5649 s 	; and a,~$20 		; disable video wait states M III 
+5649 5649 d e6bf
+5649 5649 u 02 01
+5649 5649 s 	and a,~$40 		; slode mode M4 
+564b 564b d d3ec
+564b 564b u 02 01
+564b 564b s 	out ($ec),a
+564d 564d s 
+564d 564d d 210052
+564d 564d u 03 01
+564d 564d s 	ld	hl,title
+5650 5650 d 11003c
+5650 5650 u 03 01
+5650 5650 s 	ld	de,$3c00
+5653 5653 d 010004
+5653 5653 u 03 01
+5653 5653 s 	ld	bc,title_len
+5656 5656 d edb0
+5656 5656 u 02 01
+5656 5656 s 	ldir
+5658 5658 s 	
+5658 5658 s 	
+5658 5658 s defstep	macro	n,stp
+5658 5658 s step_&n	equ	stp
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s ; Get the MIDI note numbers for 32 notes as step_0 .. step_31 
+5658 5658 s 
+5658 5658 s 	nt = 0
+5658 5658 s 	note = 0 		; we'll add octave offsets... 
+5658 5658 s 	rept	32
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_0	equ	0
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_1	equ	1
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_2	equ	2
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_3	equ	3
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_4	equ	4
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_5	equ	5
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_6	equ	6
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_7	equ	7
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_8	equ	8
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_9	equ	9
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_10	equ	10
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_11	equ	11
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_12	equ	12
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_13	equ	13
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_14	equ	14
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_15	equ	15
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_16	equ	16
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_17	equ	17
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_18	equ	18
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_19	equ	19
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_20	equ	20
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_21	equ	21
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_22	equ	22
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_23	equ	23
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_24	equ	24
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_25	equ	25
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_26	equ	26
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_27	equ	27
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_28	equ	28
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_29	equ	29
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_30	equ	30
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	defstep	%nt,%note
+5658 5658 s step_31	equ	31
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s 	nt++
+5658 5658 s 	note++ 
+5658 5658 s 
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s ; Define these sensibly
+5658 5658 s 
+5658 5658 s st_c0	equ	step_0
+5658 5658 s st_c0@	equ	step_1
+5658 5658 s st_d0	equ	step_2
+5658 5658 s st_d0@	equ	step_3
+5658 5658 s st_e0	equ	step_4
+5658 5658 s st_f0	equ	step_5
+5658 5658 s st_f0@	equ	step_6
+5658 5658 s st_g0	equ	step_7
+5658 5658 s st_g0@	equ	step_8
+5658 5658 s st_a0	equ	step_9
+5658 5658 s st_a0@	equ	step_10
+5658 5658 s st_b0	equ	step_11
+5658 5658 s 
+5658 5658 s st_c1	equ	step_12
+5658 5658 s st_c1@	equ	step_13
+5658 5658 s st_d1	equ	step_14
+5658 5658 s st_d1@	equ	step_15
+5658 5658 s st_e1	equ	step_16
+5658 5658 s st_f1	equ	step_17
+5658 5658 s st_f1@	equ	step_18
+5658 5658 s st_g1	equ	step_19
+5658 5658 s st_g1@	equ	step_20
+5658 5658 s st_a1	equ	step_21
+5658 5658 s st_a1@	equ	step_22
+5658 5658 s st_b1	equ	step_23
+5658 5658 s 
+5658 5658 s st_c2	equ	step_24
+5658 5658 s st_c2@	equ	step_25
+5658 5658 s st_d2	equ	step_26
+5658 5658 s st_d2@	equ	step_27
+5658 5658 s st_e2	equ	step_28
+5658 5658 s st_f2	equ	step_29
+5658 5658 s 
+5658 5658 s 
+5658 5658 s key	macro	addrmask,st,down
+5658 5658 s 	ld	b,st ;; changed to b by MW
+5658 5658 s 	ld	a,(addrmask >> 8)
+5658 5658 s 	and	addrmask % $100
+5658 5658 s 	call	nz,down
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s key_l	macro	addrmask,st
+5658 5658 s 	key	addrmask,st,key_down_lower
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s key_r	macro	addrmask,st
+5658 5658 s 	key	addrmask,st,key_down_upper
+5658 5658 s 	endm
+5658 5658 s 
+5658 5658 s ; Model 1 keyboard matrix.
+5658 5658 s ;        1   2   4   8  16  32  64  128
+5658 5658 s ; $3801	 @   A   B   C   D   E   F   G
+5658 5658 s ; $3802	 H   I   J   K   L   M   N   O
+5658 5658 s ; $3804	 P   Q   R   S   T   U   V   W
+5658 5658 s ; $3808	 X   Y   Z
+5658 5658 s ; $3810	 0   1   2   3   4   5   6   7
+5658 5658 s ; $3820	 8   9   :   ;   ,   -   .   /
+5658 5658 s ; $3840	ENT CLR BRK UP   DN  LT  RT SPC
+5658 5658 s ; $3880	SFT
+5658 5658 s 
+5658 5658 s k_@	equ	$380101
+5658 5658 s k_A	equ	$380102
+5658 5658 s k_B	equ	$380104
+5658 5658 s k_C	equ	$380108
+5658 5658 s k_D	equ	$380110
+5658 5658 s k_E	equ	$380120
+5658 5658 s k_F	equ	$380140
+5658 5658 s k_G	equ	$380180
+5658 5658 s 
+5658 5658 s k_H	equ	$380201
+5658 5658 s k_I	equ	$380202
+5658 5658 s k_J	equ	$380204
+5658 5658 s k_K	equ	$380208
+5658 5658 s k_L	equ	$380210
+5658 5658 s k_M	equ	$380220
+5658 5658 s k_N	equ	$380240
+5658 5658 s k_O	equ	$380280
+5658 5658 s 
+5658 5658 s k_P	equ	$380401
+5658 5658 s k_Q	equ	$380402
+5658 5658 s k_R	equ	$380404
+5658 5658 s k_S	equ	$380408
+5658 5658 s k_T	equ	$380410
+5658 5658 s k_U	equ	$380420
+5658 5658 s k_V	equ	$380440
+5658 5658 s k_W	equ	$380480
+5658 5658 s 
+5658 5658 s k_X	equ	$380801
+5658 5658 s k_Y	equ	$380802
+5658 5658 s k_Z	equ	$380804
+5658 5658 s 
+5658 5658 s k_0	equ	$381001
+5658 5658 s k_1	equ	$381002
+5658 5658 s k_2	equ	$381004
+5658 5658 s k_3	equ	$381008
+5658 5658 s k_4	equ	$381010
+5658 5658 s k_5	equ	$381020
+5658 5658 s k_6	equ	$381040
+5658 5658 s k_7	equ	$381080
+5658 5658 s 
+5658 5658 s k_8	equ	$382001
+5658 5658 s k_9	equ	$382002
+5658 5658 s k_colon	equ	$382004
+5658 5658 s k_semi	equ	$382008
+5658 5658 s k_comma	equ	$382010
+5658 5658 s k_dash	equ	$382020
+5658 5658 s k_dot	equ	$382040
+5658 5658 s k_slash	equ	$382080
+5658 5658 s 
+5658 5658 s k_enter	equ	$384001
+5658 5658 s k_clear	equ	$384002
+5658 5658 s k_break	equ	$384004
+5658 5658 s k_up	equ	$384008
+5658 5658 s k_down	equ	$384010
+5658 5658 s k_left	equ	$384020
+5658 5658 s k_right	equ	$384040
+5658 5658 s k_space	equ	$384080
+5658 5658 s 
+5658 5658 s k_shift	equ	$388001
+5658 5658 s 
+5658 5658 s init:
+5658 5658 s 
+5658 5658 d cd0b5c
+5658 5658 u 03 01
+5658 5658 s 	call screenupdate
+565b 565b d cd9a5c
+565b 565b u 03 01
+565b 565b s 	call setinstrument_lower
+565e 565e d cdba5c
+565e 565e u 03 01
+565e 565e s 	call setinstrument_upper
+5661 5661 s 	
+5661 5661 s main:	
+5661 5661 s 	key_l	k_Z,st_c0
+5661 5661 s 	key	k_Z,st_c0,key_down_lower
+5661 5661 d 0600
+5661 5661 u 02 01
+5661 5661 s 	ld	b,st_c0 ;; changed to b by MW
+5663 5663 d 3a0838
+5663 5663 u 03 01
+5663 5663 s 	ld	a,(k_Z >> 8)
+5666 5666 d e604
+5666 5666 u 02 01
+5666 5666 s 	and	k_Z % $100
+5668 5668 d c43a58
+5668 5668 u 03 01
+5668 5668 s 	call	nz,key_down_lower
+566b 566b s 	endm
+566b 566b s 	endm
+566b 566b s 	key_l	k_S,st_c0@
+566b 566b s 	key	k_S,st_c0@,key_down_lower
+566b 566b d 0601
+566b 566b u 02 01
+566b 566b s 	ld	b,st_c0@ ;; changed to b by MW
+566d 566d d 3a0438
+566d 566d u 03 01
+566d 566d s 	ld	a,(k_S >> 8)
+5670 5670 d e608
+5670 5670 u 02 01
+5670 5670 s 	and	k_S % $100
+5672 5672 d c43a58
+5672 5672 u 03 01
+5672 5672 s 	call	nz,key_down_lower
+5675 5675 s 	endm
+5675 5675 s 	endm
+5675 5675 s 	key_l	k_X,st_d0
+5675 5675 s 	key	k_X,st_d0,key_down_lower
+5675 5675 d 0602
+5675 5675 u 02 01
+5675 5675 s 	ld	b,st_d0 ;; changed to b by MW
+5677 5677 d 3a0838
+5677 5677 u 03 01
+5677 5677 s 	ld	a,(k_X >> 8)
+567a 567a d e601
+567a 567a u 02 01
+567a 567a s 	and	k_X % $100
+567c 567c d c43a58
+567c 567c u 03 01
+567c 567c s 	call	nz,key_down_lower
+567f 567f s 	endm
+567f 567f s 	endm
+567f 567f s 	key_l	k_D,st_d0@
+567f 567f s 	key	k_D,st_d0@,key_down_lower
+567f 567f d 0603
+567f 567f u 02 01
+567f 567f s 	ld	b,st_d0@ ;; changed to b by MW
+5681 5681 d 3a0138
+5681 5681 u 03 01
+5681 5681 s 	ld	a,(k_D >> 8)
+5684 5684 d e610
+5684 5684 u 02 01
+5684 5684 s 	and	k_D % $100
+5686 5686 d c43a58
+5686 5686 u 03 01
+5686 5686 s 	call	nz,key_down_lower
+5689 5689 s 	endm
+5689 5689 s 	endm
+5689 5689 s 	key_l	k_C,st_e0
+5689 5689 s 	key	k_C,st_e0,key_down_lower
+5689 5689 d 0604
+5689 5689 u 02 01
+5689 5689 s 	ld	b,st_e0 ;; changed to b by MW
+568b 568b d 3a0138
+568b 568b u 03 01
+568b 568b s 	ld	a,(k_C >> 8)
+568e 568e d e608
+568e 568e u 02 01
+568e 568e s 	and	k_C % $100
+5690 5690 d c43a58
+5690 5690 u 03 01
+5690 5690 s 	call	nz,key_down_lower
+5693 5693 s 	endm
+5693 5693 s 	endm
+5693 5693 s 	key_l	k_V,st_f0
+5693 5693 s 	key	k_V,st_f0,key_down_lower
+5693 5693 d 0605
+5693 5693 u 02 01
+5693 5693 s 	ld	b,st_f0 ;; changed to b by MW
+5695 5695 d 3a0438
+5695 5695 u 03 01
+5695 5695 s 	ld	a,(k_V >> 8)
+5698 5698 d e640
+5698 5698 u 02 01
+5698 5698 s 	and	k_V % $100
+569a 569a d c43a58
+569a 569a u 03 01
+569a 569a s 	call	nz,key_down_lower
+569d 569d s 	endm
+569d 569d s 	endm
+569d 569d s 	key_l	k_G,st_f0@
+569d 569d s 	key	k_G,st_f0@,key_down_lower
+569d 569d d 0606
+569d 569d u 02 01
+569d 569d s 	ld	b,st_f0@ ;; changed to b by MW
+569f 569f d 3a0138
+569f 569f u 03 01
+569f 569f s 	ld	a,(k_G >> 8)
+56a2 56a2 d e680
+56a2 56a2 u 02 01
+56a2 56a2 s 	and	k_G % $100
+56a4 56a4 d c43a58
+56a4 56a4 u 03 01
+56a4 56a4 s 	call	nz,key_down_lower
+56a7 56a7 s 	endm
+56a7 56a7 s 	endm
+56a7 56a7 s 	key_l	k_B,st_g0
+56a7 56a7 s 	key	k_B,st_g0,key_down_lower
+56a7 56a7 d 0607
+56a7 56a7 u 02 01
+56a7 56a7 s 	ld	b,st_g0 ;; changed to b by MW
+56a9 56a9 d 3a0138
+56a9 56a9 u 03 01
+56a9 56a9 s 	ld	a,(k_B >> 8)
+56ac 56ac d e604
+56ac 56ac u 02 01
+56ac 56ac s 	and	k_B % $100
+56ae 56ae d c43a58
+56ae 56ae u 03 01
+56ae 56ae s 	call	nz,key_down_lower
+56b1 56b1 s 	endm
+56b1 56b1 s 	endm
+56b1 56b1 s 	key_l	k_H,st_g0@
+56b1 56b1 s 	key	k_H,st_g0@,key_down_lower
+56b1 56b1 d 0608
+56b1 56b1 u 02 01
+56b1 56b1 s 	ld	b,st_g0@ ;; changed to b by MW
+56b3 56b3 d 3a0238
+56b3 56b3 u 03 01
+56b3 56b3 s 	ld	a,(k_H >> 8)
+56b6 56b6 d e601
+56b6 56b6 u 02 01
+56b6 56b6 s 	and	k_H % $100
+56b8 56b8 d c43a58
+56b8 56b8 u 03 01
+56b8 56b8 s 	call	nz,key_down_lower
+56bb 56bb s 	endm
+56bb 56bb s 	endm
+56bb 56bb s 	key_l	k_N,st_a0
+56bb 56bb s 	key	k_N,st_a0,key_down_lower
+56bb 56bb d 0609
+56bb 56bb u 02 01
+56bb 56bb s 	ld	b,st_a0 ;; changed to b by MW
+56bd 56bd d 3a0238
+56bd 56bd u 03 01
+56bd 56bd s 	ld	a,(k_N >> 8)
+56c0 56c0 d e640
+56c0 56c0 u 02 01
+56c0 56c0 s 	and	k_N % $100
+56c2 56c2 d c43a58
+56c2 56c2 u 03 01
+56c2 56c2 s 	call	nz,key_down_lower
+56c5 56c5 s 	endm
+56c5 56c5 s 	endm
+56c5 56c5 s 	key_l	k_J,st_a0@
+56c5 56c5 s 	key	k_J,st_a0@,key_down_lower
+56c5 56c5 d 060a
+56c5 56c5 u 02 01
+56c5 56c5 s 	ld	b,st_a0@ ;; changed to b by MW
+56c7 56c7 d 3a0238
+56c7 56c7 u 03 01
+56c7 56c7 s 	ld	a,(k_J >> 8)
+56ca 56ca d e604
+56ca 56ca u 02 01
+56ca 56ca s 	and	k_J % $100
+56cc 56cc d c43a58
+56cc 56cc u 03 01
+56cc 56cc s 	call	nz,key_down_lower
+56cf 56cf s 	endm
+56cf 56cf s 	endm
+56cf 56cf s 	key_l	k_M,st_b0
+56cf 56cf s 	key	k_M,st_b0,key_down_lower
+56cf 56cf d 060b
+56cf 56cf u 02 01
+56cf 56cf s 	ld	b,st_b0 ;; changed to b by MW
+56d1 56d1 d 3a0238
+56d1 56d1 u 03 01
+56d1 56d1 s 	ld	a,(k_M >> 8)
+56d4 56d4 d e620
+56d4 56d4 u 02 01
+56d4 56d4 s 	and	k_M % $100
+56d6 56d6 d c43a58
+56d6 56d6 u 03 01
+56d6 56d6 s 	call	nz,key_down_lower
+56d9 56d9 s 	endm
+56d9 56d9 s 	endm
+56d9 56d9 s 	key_l	k_comma,st_c1
+56d9 56d9 s 	key	k_comma,st_c1,key_down_lower
+56d9 56d9 d 060c
+56d9 56d9 u 02 01
+56d9 56d9 s 	ld	b,st_c1 ;; changed to b by MW
+56db 56db d 3a2038
+56db 56db u 03 01
+56db 56db s 	ld	a,(k_comma >> 8)
+56de 56de d e610
+56de 56de u 02 01
+56de 56de s 	and	k_comma % $100
+56e0 56e0 d c43a58
+56e0 56e0 u 03 01
+56e0 56e0 s 	call	nz,key_down_lower
+56e3 56e3 s 	endm
+56e3 56e3 s 	endm
+56e3 56e3 s 	key_l	k_L,st_c1@
+56e3 56e3 s 	key	k_L,st_c1@,key_down_lower
+56e3 56e3 d 060d
+56e3 56e3 u 02 01
+56e3 56e3 s 	ld	b,st_c1@ ;; changed to b by MW
+56e5 56e5 d 3a0238
+56e5 56e5 u 03 01
+56e5 56e5 s 	ld	a,(k_L >> 8)
+56e8 56e8 d e610
+56e8 56e8 u 02 01
+56e8 56e8 s 	and	k_L % $100
+56ea 56ea d c43a58
+56ea 56ea u 03 01
+56ea 56ea s 	call	nz,key_down_lower
+56ed 56ed s 	endm
+56ed 56ed s 	endm
+56ed 56ed s 	key_l	k_dot,st_d1
+56ed 56ed s 	key	k_dot,st_d1,key_down_lower
+56ed 56ed d 060e
+56ed 56ed u 02 01
+56ed 56ed s 	ld	b,st_d1 ;; changed to b by MW
+56ef 56ef d 3a2038
+56ef 56ef u 03 01
+56ef 56ef s 	ld	a,(k_dot >> 8)
+56f2 56f2 d e640
+56f2 56f2 u 02 01
+56f2 56f2 s 	and	k_dot % $100
+56f4 56f4 d c43a58
+56f4 56f4 u 03 01
+56f4 56f4 s 	call	nz,key_down_lower
+56f7 56f7 s 	endm
+56f7 56f7 s 	endm
+56f7 56f7 s 	key_l	k_semi,st_d1@
+56f7 56f7 s 	key	k_semi,st_d1@,key_down_lower
+56f7 56f7 d 060f
+56f7 56f7 u 02 01
+56f7 56f7 s 	ld	b,st_d1@ ;; changed to b by MW
+56f9 56f9 d 3a2038
+56f9 56f9 u 03 01
+56f9 56f9 s 	ld	a,(k_semi >> 8)
+56fc 56fc d e608
+56fc 56fc u 02 01
+56fc 56fc s 	and	k_semi % $100
+56fe 56fe d c43a58
+56fe 56fe u 03 01
+56fe 56fe s 	call	nz,key_down_lower
+5701 5701 s 	endm
+5701 5701 s 	endm
+5701 5701 s 	key_l	k_slash,st_e1
+5701 5701 s 	key	k_slash,st_e1,key_down_lower
+5701 5701 d 0610
+5701 5701 u 02 01
+5701 5701 s 	ld	b,st_e1 ;; changed to b by MW
+5703 5703 d 3a2038
+5703 5703 u 03 01
+5703 5703 s 	ld	a,(k_slash >> 8)
+5706 5706 d e680
+5706 5706 u 02 01
+5706 5706 s 	and	k_slash % $100
+5708 5708 d c43a58
+5708 5708 u 03 01
+5708 5708 s 	call	nz,key_down_lower
+570b 570b s 	endm
+570b 570b s 	endm
+570b 570b s 
+570b 570b s 	key_r	k_Q,st_c1
+570b 570b s 	key	k_Q,st_c1,key_down_upper
+570b 570b d 060c
+570b 570b u 02 01
+570b 570b s 	ld	b,st_c1 ;; changed to b by MW
+570d 570d d 3a0438
+570d 570d u 03 01
+570d 570d s 	ld	a,(k_Q >> 8)
+5710 5710 d e602
+5710 5710 u 02 01
+5710 5710 s 	and	k_Q % $100
+5712 5712 d c46058
+5712 5712 u 03 01
+5712 5712 s 	call	nz,key_down_upper
+5715 5715 s 	endm
+5715 5715 s 	endm
+5715 5715 s 	key_r	k_2,st_c1@
+5715 5715 s 	key	k_2,st_c1@,key_down_upper
+5715 5715 d 060d
+5715 5715 u 02 01
+5715 5715 s 	ld	b,st_c1@ ;; changed to b by MW
+5717 5717 d 3a1038
+5717 5717 u 03 01
+5717 5717 s 	ld	a,(k_2 >> 8)
+571a 571a d e604
+571a 571a u 02 01
+571a 571a s 	and	k_2 % $100
+571c 571c d c46058
+571c 571c u 03 01
+571c 571c s 	call	nz,key_down_upper
+571f 571f s 	endm
+571f 571f s 	endm
+571f 571f s 	key_r	k_W,st_d1
+571f 571f s 	key	k_W,st_d1,key_down_upper
+571f 571f d 060e
+571f 571f u 02 01
+571f 571f s 	ld	b,st_d1 ;; changed to b by MW
+5721 5721 d 3a0438
+5721 5721 u 03 01
+5721 5721 s 	ld	a,(k_W >> 8)
+5724 5724 d e680
+5724 5724 u 02 01
+5724 5724 s 	and	k_W % $100
+5726 5726 d c46058
+5726 5726 u 03 01
+5726 5726 s 	call	nz,key_down_upper
+5729 5729 s 	endm
+5729 5729 s 	endm
+5729 5729 s 	key_r	k_3,st_d1@
+5729 5729 s 	key	k_3,st_d1@,key_down_upper
+5729 5729 d 060f
+5729 5729 u 02 01
+5729 5729 s 	ld	b,st_d1@ ;; changed to b by MW
+572b 572b d 3a1038
+572b 572b u 03 01
+572b 572b s 	ld	a,(k_3 >> 8)
+572e 572e d e608
+572e 572e u 02 01
+572e 572e s 	and	k_3 % $100
+5730 5730 d c46058
+5730 5730 u 03 01
+5730 5730 s 	call	nz,key_down_upper
+5733 5733 s 	endm
+5733 5733 s 	endm
+5733 5733 s 	key_r	k_E,st_e1
+5733 5733 s 	key	k_E,st_e1,key_down_upper
+5733 5733 d 0610
+5733 5733 u 02 01
+5733 5733 s 	ld	b,st_e1 ;; changed to b by MW
+5735 5735 d 3a0138
+5735 5735 u 03 01
+5735 5735 s 	ld	a,(k_E >> 8)
+5738 5738 d e620
+5738 5738 u 02 01
+5738 5738 s 	and	k_E % $100
+573a 573a d c46058
+573a 573a u 03 01
+573a 573a s 	call	nz,key_down_upper
+573d 573d s 	endm
+573d 573d s 	endm
+573d 573d s 	key_r	k_R,st_f1
+573d 573d s 	key	k_R,st_f1,key_down_upper
+573d 573d d 0611
+573d 573d u 02 01
+573d 573d s 	ld	b,st_f1 ;; changed to b by MW
+573f 573f d 3a0438
+573f 573f u 03 01
+573f 573f s 	ld	a,(k_R >> 8)
+5742 5742 d e604
+5742 5742 u 02 01
+5742 5742 s 	and	k_R % $100
+5744 5744 d c46058
+5744 5744 u 03 01
+5744 5744 s 	call	nz,key_down_upper
+5747 5747 s 	endm
+5747 5747 s 	endm
+5747 5747 s 	key_r	k_5,st_f1@
+5747 5747 s 	key	k_5,st_f1@,key_down_upper
+5747 5747 d 0612
+5747 5747 u 02 01
+5747 5747 s 	ld	b,st_f1@ ;; changed to b by MW
+5749 5749 d 3a1038
+5749 5749 u 03 01
+5749 5749 s 	ld	a,(k_5 >> 8)
+574c 574c d e620
+574c 574c u 02 01
+574c 574c s 	and	k_5 % $100
+574e 574e d c46058
+574e 574e u 03 01
+574e 574e s 	call	nz,key_down_upper
+5751 5751 s 	endm
+5751 5751 s 	endm
+5751 5751 s 	key_r	k_T,st_g1
+5751 5751 s 	key	k_T,st_g1,key_down_upper
+5751 5751 d 0613
+5751 5751 u 02 01
+5751 5751 s 	ld	b,st_g1 ;; changed to b by MW
+5753 5753 d 3a0438
+5753 5753 u 03 01
+5753 5753 s 	ld	a,(k_T >> 8)
+5756 5756 d e610
+5756 5756 u 02 01
+5756 5756 s 	and	k_T % $100
+5758 5758 d c46058
+5758 5758 u 03 01
+5758 5758 s 	call	nz,key_down_upper
+575b 575b s 	endm
+575b 575b s 	endm
+575b 575b s 	key_r	k_6,st_g1@
+575b 575b s 	key	k_6,st_g1@,key_down_upper
+575b 575b d 0614
+575b 575b u 02 01
+575b 575b s 	ld	b,st_g1@ ;; changed to b by MW
+575d 575d d 3a1038
+575d 575d u 03 01
+575d 575d s 	ld	a,(k_6 >> 8)
+5760 5760 d e640
+5760 5760 u 02 01
+5760 5760 s 	and	k_6 % $100
+5762 5762 d c46058
+5762 5762 u 03 01
+5762 5762 s 	call	nz,key_down_upper
+5765 5765 s 	endm
+5765 5765 s 	endm
+5765 5765 s 	key_r	k_Y,st_a1
+5765 5765 s 	key	k_Y,st_a1,key_down_upper
+5765 5765 d 0615
+5765 5765 u 02 01
+5765 5765 s 	ld	b,st_a1 ;; changed to b by MW
+5767 5767 d 3a0838
+5767 5767 u 03 01
+5767 5767 s 	ld	a,(k_Y >> 8)
+576a 576a d e602
+576a 576a u 02 01
+576a 576a s 	and	k_Y % $100
+576c 576c d c46058
+576c 576c u 03 01
+576c 576c s 	call	nz,key_down_upper
+576f 576f s 	endm
+576f 576f s 	endm
+576f 576f s 	key_r	k_7,st_a1@
+576f 576f s 	key	k_7,st_a1@,key_down_upper
+576f 576f d 0616
+576f 576f u 02 01
+576f 576f s 	ld	b,st_a1@ ;; changed to b by MW
+5771 5771 d 3a1038
+5771 5771 u 03 01
+5771 5771 s 	ld	a,(k_7 >> 8)
+5774 5774 d e680
+5774 5774 u 02 01
+5774 5774 s 	and	k_7 % $100
+5776 5776 d c46058
+5776 5776 u 03 01
+5776 5776 s 	call	nz,key_down_upper
+5779 5779 s 	endm
+5779 5779 s 	endm
+5779 5779 s 	key_r	k_U,st_b1
+5779 5779 s 	key	k_U,st_b1,key_down_upper
+5779 5779 d 0617
+5779 5779 u 02 01
+5779 5779 s 	ld	b,st_b1 ;; changed to b by MW
+577b 577b d 3a0438
+577b 577b u 03 01
+577b 577b s 	ld	a,(k_U >> 8)
+577e 577e d e620
+577e 577e u 02 01
+577e 577e s 	and	k_U % $100
+5780 5780 d c46058
+5780 5780 u 03 01
+5780 5780 s 	call	nz,key_down_upper
+5783 5783 s 	endm
+5783 5783 s 	endm
+5783 5783 s 	key_r	k_I,st_c2
+5783 5783 s 	key	k_I,st_c2,key_down_upper
+5783 5783 d 0618
+5783 5783 u 02 01
+5783 5783 s 	ld	b,st_c2 ;; changed to b by MW
+5785 5785 d 3a0238
+5785 5785 u 03 01
+5785 5785 s 	ld	a,(k_I >> 8)
+5788 5788 d e602
+5788 5788 u 02 01
+5788 5788 s 	and	k_I % $100
+578a 578a d c46058
+578a 578a u 03 01
+578a 578a s 	call	nz,key_down_upper
+578d 578d s 	endm
+578d 578d s 	endm
+578d 578d s 	key_r	k_9,st_c2@
+578d 578d s 	key	k_9,st_c2@,key_down_upper
+578d 578d d 0619
+578d 578d u 02 01
+578d 578d s 	ld	b,st_c2@ ;; changed to b by MW
+578f 578f d 3a2038
+578f 578f u 03 01
+578f 578f s 	ld	a,(k_9 >> 8)
+5792 5792 d e602
+5792 5792 u 02 01
+5792 5792 s 	and	k_9 % $100
+5794 5794 d c46058
+5794 5794 u 03 01
+5794 5794 s 	call	nz,key_down_upper
+5797 5797 s 	endm
+5797 5797 s 	endm
+5797 5797 s 	key_r	k_O,st_d2
+5797 5797 s 	key	k_O,st_d2,key_down_upper
+5797 5797 d 061a
+5797 5797 u 02 01
+5797 5797 s 	ld	b,st_d2 ;; changed to b by MW
+5799 5799 d 3a0238
+5799 5799 u 03 01
+5799 5799 s 	ld	a,(k_O >> 8)
+579c 579c d e680
+579c 579c u 02 01
+579c 579c s 	and	k_O % $100
+579e 579e d c46058
+579e 579e u 03 01
+579e 579e s 	call	nz,key_down_upper
+57a1 57a1 s 	endm
+57a1 57a1 s 	endm
+57a1 57a1 s 	key_r	k_0,st_d2@
+57a1 57a1 s 	key	k_0,st_d2@,key_down_upper
+57a1 57a1 d 061b
+57a1 57a1 u 02 01
+57a1 57a1 s 	ld	b,st_d2@ ;; changed to b by MW
+57a3 57a3 d 3a1038
+57a3 57a3 u 03 01
+57a3 57a3 s 	ld	a,(k_0 >> 8)
+57a6 57a6 d e601
+57a6 57a6 u 02 01
+57a6 57a6 s 	and	k_0 % $100
+57a8 57a8 d c46058
+57a8 57a8 u 03 01
+57a8 57a8 s 	call	nz,key_down_upper
+57ab 57ab s 	endm
+57ab 57ab s 	endm
+57ab 57ab s 	key_r	k_P,st_e2
+57ab 57ab s 	key	k_P,st_e2,key_down_upper
+57ab 57ab d 061c
+57ab 57ab u 02 01
+57ab 57ab s 	ld	b,st_e2 ;; changed to b by MW
+57ad 57ad d 3a0438
+57ad 57ad u 03 01
+57ad 57ad s 	ld	a,(k_P >> 8)
+57b0 57b0 d e601
+57b0 57b0 u 02 01
+57b0 57b0 s 	and	k_P % $100
+57b2 57b2 d c46058
+57b2 57b2 u 03 01
+57b2 57b2 s 	call	nz,key_down_upper
+57b5 57b5 s 	endm
+57b5 57b5 s 	endm
+57b5 57b5 s 	key_r	k_@,st_f2
+57b5 57b5 s 	key	k_@,st_f2,key_down_upper
+57b5 57b5 d 061d
+57b5 57b5 u 02 01
+57b5 57b5 s 	ld	b,st_f2 ;; changed to b by MW
+57b7 57b7 d 3a0138
+57b7 57b7 u 03 01
+57b7 57b7 s 	ld	a,(k_@ >> 8)
+57ba 57ba d e601
+57ba 57ba u 02 01
+57ba 57ba s 	and	k_@ % $100
+57bc 57bc d c46058
+57bc 57bc u 03 01
+57bc 57bc s 	call	nz,key_down_upper
+57bf 57bf s 	endm
+57bf 57bf s 	endm
+57bf 57bf s 
+57bf 57bf s 	key	k_space,0,swap_channel_down
+57bf 57bf d 0600
+57bf 57bf u 02 01
+57bf 57bf s 	ld	b,0 ;; changed to b by MW
+57c1 57c1 d 3a4038
+57c1 57c1 u 03 01
+57c1 57c1 s 	ld	a,(k_space >> 8)
+57c4 57c4 d e680
+57c4 57c4 u 02 01
+57c4 57c4 s 	and	k_space % $100
+57c6 57c6 d c4fb59
+57c6 57c6 u 03 01
+57c6 57c6 s 	call	nz,swap_channel_down
+57c9 57c9 s 	endm
+57c9 57c9 s 	
+57c9 57c9 s 	key	k_enter,0,incr_channel_down
+57c9 57c9 d 0600
+57c9 57c9 u 02 01
+57c9 57c9 s 	ld	b,0 ;; changed to b by MW
+57cb 57cb d 3a4038
+57cb 57cb u 03 01
+57cb 57cb s 	ld	a,(k_enter >> 8)
+57ce 57ce d e601
+57ce 57ce u 02 01
+57ce 57ce s 	and	k_enter % $100
+57d0 57d0 d c4275a
+57d0 57d0 u 03 01
+57d0 57d0 s 	call	nz,incr_channel_down
+57d3 57d3 s 	endm
+57d3 57d3 s 	key	k_shift,0,decr_channel_down
+57d3 57d3 d 0600
+57d3 57d3 u 02 01
+57d3 57d3 s 	ld	b,0 ;; changed to b by MW
+57d5 57d5 d 3a8038
+57d5 57d5 u 03 01
+57d5 57d5 s 	ld	a,(k_shift >> 8)
+57d8 57d8 d e601
+57d8 57d8 u 02 01
+57d8 57d8 s 	and	k_shift % $100
+57da 57da d c46a5a
+57da 57da u 03 01
+57da 57da s 	call	nz,decr_channel_down
+57dd 57dd s 	endm
+57dd 57dd s 
+57dd 57dd s 	key	k_break,0,exit
+57dd 57dd d 0600
+57dd 57dd u 02 01
+57dd 57dd s 	ld	b,0 ;; changed to b by MW
+57df 57df d 3a4038
+57df 57df u 03 01
+57df 57df s 	ld	a,(k_break >> 8)
+57e2 57e2 d e604
+57e2 57e2 u 02 01
+57e2 57e2 s 	and	k_break % $100
+57e4 57e4 d c42a59
+57e4 57e4 u 03 01
+57e4 57e4 s 	call	nz,exit
+57e7 57e7 s 	endm
+57e7 57e7 s 	
+57e7 57e7 s 	key	k_left,0,decr_instr_down
+57e7 57e7 d 0600
+57e7 57e7 u 02 01
+57e7 57e7 s 	ld	b,0 ;; changed to b by MW
+57e9 57e9 d 3a4038
+57e9 57e9 u 03 01
+57e9 57e9 s 	ld	a,(k_left >> 8)
+57ec 57ec d e620
+57ec 57ec u 02 01
+57ec 57ec s 	and	k_left % $100
+57ee 57ee d c4fd5a
+57ee 57ee u 03 01
+57ee 57ee s 	call	nz,decr_instr_down
+57f1 57f1 s 	endm
+57f1 57f1 s 	key	k_right,0,incr_instr_down
+57f1 57f1 d 0600
+57f1 57f1 u 02 01
+57f1 57f1 s 	ld	b,0 ;; changed to b by MW
+57f3 57f3 d 3a4038
+57f3 57f3 u 03 01
+57f3 57f3 s 	ld	a,(k_right >> 8)
+57f6 57f6 d e640
+57f6 57f6 u 02 01
+57f6 57f6 s 	and	k_right % $100
+57f8 57f8 d c4ad5a
+57f8 57f8 u 03 01
+57f8 57f8 s 	call	nz,incr_instr_down
+57fb 57fb s 	endm
+57fb 57fb s 
+57fb 57fb s 	key	k_up,0,incr_vol_down
+57fb 57fb d 0600
+57fb 57fb u 02 01
+57fb 57fb s 	ld	b,0 ;; changed to b by MW
+57fd 57fd d 3a4038
+57fd 57fd u 03 01
+57fd 57fd s 	ld	a,(k_up >> 8)
+5800 5800 d e608
+5800 5800 u 02 01
+5800 5800 s 	and	k_up % $100
+5802 5802 d c44d5b
+5802 5802 u 03 01
+5802 5802 s 	call	nz,incr_vol_down
+5805 5805 s 	endm
+5805 5805 s 	key	k_down,0,decr_vol_down
+5805 5805 d 0600
+5805 5805 u 02 01
+5805 5805 s 	ld	b,0 ;; changed to b by MW
+5807 5807 d 3a4038
+5807 5807 u 03 01
+5807 5807 s 	ld	a,(k_down >> 8)
+580a 580a d e610
+580a 580a u 02 01
+580a 580a s 	and	k_down % $100
+580c 580c d c4975b
+580c 580c u 03 01
+580c 580c s 	call	nz,decr_vol_down
+580f 580f s 	endm
+580f 580f s 
+580f 580f s 	key	k_A,0,oct1_down_down
+580f 580f d 0600
+580f 580f u 02 01
+580f 580f s 	ld	b,0 ;; changed to b by MW
+5811 5811 d 3a0138
+5811 5811 u 03 01
+5811 5811 s 	ld	a,(k_A >> 8)
+5814 5814 d e602
+5814 5814 u 02 01
+5814 5814 s 	and	k_A % $100
+5816 5816 d c49559
+5816 5816 u 03 01
+5816 5816 s 	call	nz,oct1_down_down
+5819 5819 s 	endm
+5819 5819 s 	key	k_F,0,oct1_up_down
+5819 5819 d 0600
+5819 5819 u 02 01
+5819 5819 s 	ld	b,0 ;; changed to b by MW
+581b 581b d 3a0138
+581b 581b u 03 01
+581b 581b s 	ld	a,(k_F >> 8)
+581e 581e d e640
+581e 581e u 02 01
+581e 581e s 	and	k_F % $100
+5820 5820 d c42f59
+5820 5820 u 03 01
+5820 5820 s 	call	nz,oct1_up_down
+5823 5823 s 	endm
+5823 5823 s 
+5823 5823 s 	key	k_1,0,oct2_down_down
+5823 5823 d 0600
+5823 5823 u 02 01
+5823 5823 s 	ld	b,0 ;; changed to b by MW
+5825 5825 d 3a1038
+5825 5825 u 03 01
+5825 5825 s 	ld	a,(k_1 >> 8)
+5828 5828 d e602
+5828 5828 u 02 01
+5828 5828 s 	and	k_1 % $100
+582a 582a d c4c859
+582a 582a u 03 01
+582a 582a s 	call	nz,oct2_down_down
+582d 582d s 	endm
+582d 582d s 	key	k_4,0,oct2_up_down
+582d 582d d 0600
+582d 582d u 02 01
+582d 582d s 	ld	b,0 ;; changed to b by MW
+582f 582f d 3a1038
+582f 582f u 03 01
+582f 582f s 	ld	a,(k_4 >> 8)
+5832 5832 d e610
+5832 5832 u 02 01
+5832 5832 s 	and	k_4 % $100
+5834 5834 d c46259
+5834 5834 u 03 01
+5834 5834 s 	call	nz,oct2_up_down
+5837 5837 s 	endm
+5837 5837 s 
+5837 5837 d c36156
+5837 5837 u 03 01
+5837 5837 s 	jp	main
+583a 583a s 
+583a 583a s ; In the simple case a key goes down, it self modifies so that when it goes
+583a 583a s ; up it turns off 
+583a 583a s 
+583a 583a s call_nz	equ	$C4
+583a 583a s call_z	equ	$CC
+583a 583a s 
+583a 583a s key_down_lower:
+583a 583a d fde1
+583a 583a u 02 01
+583a 583a s 	pop	iy		; to self-modify key-down check, gets address where call nz,key_down happened 
+583c 583c d fd36fdcc
+583c 583c u 04 01
+583c 583c s 	ld	(iy-3),call_z	; trigger that op code there to a call_z, so when the key goes off, it calls key_up
+5840 5840 d fd36fe4d
+5840 5840 u 04 01
+5840 5840 s 	ld	(iy-2),low(key_up_lower)
+5844 5844 d fd36ff58
+5844 5844 u 04 01
+5844 5844 s 	ld	(iy-1),high(key_up_lower)
+5848 5848 s 
+5848 5848 d cd8658
+5848 5848 u 03 01
+5848 5848 s 	call note_on_lower
+584b 584b s 
+584b 584b d fde9
+584b 584b u 02 01
+584b 584b s 	jp	(iy)		; return to main key scan loop
+584d 584d s 
+584d 584d s key_up_lower:
+584d 584d d fde1
+584d 584d u 02 01
+584d 584d s 	pop	iy		; same idea, but swap call nz <-> call z
+584f 584f d fd36fdc4
+584f 584f u 04 01
+584f 584f s 	ld	(iy-3),call_nz
+5853 5853 d fd36fe3a
+5853 5853 u 04 01
+5853 5853 s 	ld	(iy-2),low(key_down_lower)
+5857 5857 d fd36ff58
+5857 5857 u 04 01
+5857 5857 s 	ld	(iy-1),high(key_down_lower)
+585b 585b s 
+585b 585b d cdd858
+585b 585b u 03 01
+585b 585b s 	call note_off_lower 
+585e 585e s 
+585e 585e d fde9
+585e 585e u 02 01
+585e 585e s 	jp	(iy)		
+5860 5860 s 
+5860 5860 s 
+5860 5860 s key_down_upper:
+5860 5860 d fde1
+5860 5860 u 02 01
+5860 5860 s 	pop	iy		; to self-modify key-down check, gets address where call nz,key_down happened 
+5862 5862 d fd36fdcc
+5862 5862 u 04 01
+5862 5862 s 	ld	(iy-3),call_z
+5866 5866 d fd36fe73
+5866 5866 u 04 01
+5866 5866 s 	ld	(iy-2),low(key_up_upper)
+586a 586a d fd36ff58
+586a 586a u 04 01
+586a 586a s 	ld	(iy-1),high(key_up_upper)
+586e 586e s 
+586e 586e d cdaf58
+586e 586e u 03 01
+586e 586e s 	call note_on_upper
+5871 5871 s 
+5871 5871 d fde9
+5871 5871 u 02 01
+5871 5871 s 	jp	(iy)		; return to main key scan loop
+5873 5873 s 
+5873 5873 s key_up_upper:
+5873 5873 d fde1
+5873 5873 u 02 01
+5873 5873 s 	pop	iy		; same idea, but swap call nz <-> call z
+5875 5875 d fd36fdc4
+5875 5875 u 04 01
+5875 5875 s 	ld	(iy-3),call_nz
+5879 5879 d fd36fe60
+5879 5879 u 04 01
+5879 5879 s 	ld	(iy-2),low(key_down_upper)
+587d 587d d fd36ff58
+587d 587d u 04 01
+587d 587d s 	ld	(iy-1),high(key_down_upper)
+5881 5881 s 
+5881 5881 d cd0159
+5881 5881 u 03 01
+5881 5881 s 	call note_off_upper
+5884 5884 s 
+5884 5884 d fde9
+5884 5884 u 02 01
+5884 5884 s 	jp	(iy)		
+5886 5886 s 
+5886 5886 s note_on_lower: 
+5886 5886 s 
+5886 5886 d 3a0156
+5886 5886 u 03 01
+5886 5886 s   ld a,(chan1)
+5889 5889 d 0e90
+5889 5889 u 02 01
+5889 5889 s   ld c,$90
+588b 588b d 81
+588b 588b u 01 01
+588b 588b s   add a, c
+588c 588c d d308
+588c 588c u 02 01
+588c 588c s   out (8),a
+588e 588e s   
+588e 588e d cde15b
+588e 588e u 03 01
+588e 588e s   call short_delay
+5891 5891 s 
+5891 5891 d 3a0356
+5891 5891 u 03 01
+5891 5891 s   ld a,(oct1)	
+5894 5894 d 80
+5894 5894 u 01 01
+5894 5894 s   add a, b
+5895 5895 d d308
+5895 5895 u 02 01
+5895 5895 s   out (8),a
+5897 5897 s   
+5897 5897 d cde15b
+5897 5897 u 03 01
+5897 5897 s   call short_delay
+589a 589a s 
+589a 589a d 3a0156
+589a 589a u 03 01
+589a 589a s   ld a,(chan1)
+589d 589d d 4f
+589d 589d u 01 01
+589d 589d s   ld c,a
+589e 589e d 0600
+589e 589e u 02 01
+589e 589e s   ld b,0
+58a0 58a0 d dd212556
+58a0 58a0 u 04 01
+58a0 58a0 s   ld ix,vol1
+58a4 58a4 d dd09
+58a4 58a4 u 02 01
+58a4 58a4 s   add ix,bc
+58a6 58a6 s 
+58a6 58a6 d dd7e00
+58a6 58a6 u 03 01
+58a6 58a6 s   ld a,(ix)
+58a9 58a9 d d308
+58a9 58a9 u 02 01
+58a9 58a9 s   out (8),a
+58ab 58ab s   
+58ab 58ab d cde15b
+58ab 58ab u 03 01
+58ab 58ab s   call short_delay  
+58ae 58ae s 
+58ae 58ae d c9
+58ae 58ae u 01 01
+58ae 58ae s   ret
+58af 58af s 
+58af 58af s note_on_upper:
+58af 58af s 
+58af 58af d 3a0256
+58af 58af u 03 01
+58af 58af s   ld a,(chan2)
+58b2 58b2 d 0e90
+58b2 58b2 u 02 01
+58b2 58b2 s   ld c,$90
+58b4 58b4 d 81
+58b4 58b4 u 01 01
+58b4 58b4 s   add a, c
+58b5 58b5 d d308
+58b5 58b5 u 02 01
+58b5 58b5 s   out (8),a
+58b7 58b7 s   
+58b7 58b7 d cde15b
+58b7 58b7 u 03 01
+58b7 58b7 s   call short_delay
+58ba 58ba s 
+58ba 58ba d 3a0456
+58ba 58ba u 03 01
+58ba 58ba s   ld a,(oct2)	
+58bd 58bd d 80
+58bd 58bd u 01 01
+58bd 58bd s   add a, b	
+58be 58be d d308
+58be 58be u 02 01
+58be 58be s   out (8),a
+58c0 58c0 s   
+58c0 58c0 d cde15b
+58c0 58c0 u 03 01
+58c0 58c0 s   call short_delay  
+58c3 58c3 s   
+58c3 58c3 d 3a0256
+58c3 58c3 u 03 01
+58c3 58c3 s   ld a,(chan2)
+58c6 58c6 d 4f
+58c6 58c6 u 01 01
+58c6 58c6 s   ld c,a
+58c7 58c7 d 0600
+58c7 58c7 u 02 01
+58c7 58c7 s   ld b,0
+58c9 58c9 d dd213556
+58c9 58c9 u 04 01
+58c9 58c9 s   ld ix,vol2
+58cd 58cd d dd09
+58cd 58cd u 02 01
+58cd 58cd s   add ix,bc
+58cf 58cf s 
+58cf 58cf d dd7e00
+58cf 58cf u 03 01
+58cf 58cf s   ld a,(ix)
+58d2 58d2 d d308
+58d2 58d2 u 02 01
+58d2 58d2 s   out (8),a
+58d4 58d4 s   
+58d4 58d4 d cde15b
+58d4 58d4 u 03 01
+58d4 58d4 s   call short_delay  
+58d7 58d7 s 
+58d7 58d7 d c9
+58d7 58d7 u 01 01
+58d7 58d7 s   ret
+58d8 58d8 s 
+58d8 58d8 s note_off_lower: 
+58d8 58d8 s 
+58d8 58d8 d 3a0156
+58d8 58d8 u 03 01
+58d8 58d8 s   ld a,(chan1)
+58db 58db d 0e80
+58db 58db u 02 01
+58db 58db s   ld c,$80
+58dd 58dd d 81
+58dd 58dd u 01 01
+58dd 58dd s   add a, c
+58de 58de d d308
+58de 58de u 02 01
+58de 58de s   out (8),a
+58e0 58e0 s   
+58e0 58e0 d cde15b
+58e0 58e0 u 03 01
+58e0 58e0 s   call short_delay
+58e3 58e3 s 
+58e3 58e3 d 3a0356
+58e3 58e3 u 03 01
+58e3 58e3 s   ld a,(oct1)	
+58e6 58e6 d 80
+58e6 58e6 u 01 01
+58e6 58e6 s   add a, b
+58e7 58e7 d d308
+58e7 58e7 u 02 01
+58e7 58e7 s   out (8),a
+58e9 58e9 s   
+58e9 58e9 d cde15b
+58e9 58e9 u 03 01
+58e9 58e9 s   call short_delay  
+58ec 58ec s 
+58ec 58ec d 3a0156
+58ec 58ec u 03 01
+58ec 58ec s   ld a,(chan1)
+58ef 58ef d 4f
+58ef 58ef u 01 01
+58ef 58ef s   ld c,a
+58f0 58f0 d 0600
+58f0 58f0 u 02 01
+58f0 58f0 s   ld b,0
+58f2 58f2 d dd212556
+58f2 58f2 u 04 01
+58f2 58f2 s   ld ix,vol1
+58f6 58f6 d dd09
+58f6 58f6 u 02 01
+58f6 58f6 s   add ix,bc
+58f8 58f8 s 
+58f8 58f8 d dd7e00
+58f8 58f8 u 03 01
+58f8 58f8 s   ld a,(ix)
+58fb 58fb d d308
+58fb 58fb u 02 01
+58fb 58fb s   out (8),a  
+58fd 58fd s   
+58fd 58fd d cde15b
+58fd 58fd u 03 01
+58fd 58fd s   call short_delay  
+5900 5900 s 
+5900 5900 d c9
+5900 5900 u 01 01
+5900 5900 s   ret  
+5901 5901 s 
+5901 5901 s 
+5901 5901 s note_off_upper: 
+5901 5901 s 
+5901 5901 d 3a0256
+5901 5901 u 03 01
+5901 5901 s   ld a,(chan2)
+5904 5904 d 0e80
+5904 5904 u 02 01
+5904 5904 s   ld c,$80
+5906 5906 d 81
+5906 5906 u 01 01
+5906 5906 s   add a, c
+5907 5907 d d308
+5907 5907 u 02 01
+5907 5907 s   out (8),a
+5909 5909 s   
+5909 5909 d cde15b
+5909 5909 u 03 01
+5909 5909 s   call short_delay
+590c 590c s   
+590c 590c d 3a0456
+590c 590c u 03 01
+590c 590c s   ld a,(oct2)	
+590f 590f d 80
+590f 590f u 01 01
+590f 590f s   add a, b
+5910 5910 d d308
+5910 5910 u 02 01
+5910 5910 s   out (8),a
+5912 5912 s   
+5912 5912 d cde15b
+5912 5912 u 03 01
+5912 5912 s   call short_delay  
+5915 5915 s 
+5915 5915 d 3a0256
+5915 5915 u 03 01
+5915 5915 s   ld a,(chan2)
+5918 5918 d 4f
+5918 5918 u 01 01
+5918 5918 s   ld c,a
+5919 5919 d 0600
+5919 5919 u 02 01
+5919 5919 s   ld b,0
+591b 591b d dd213556
+591b 591b u 04 01
+591b 591b s   ld ix,vol2
+591f 591f d dd09
+591f 591f u 02 01
+591f 591f s   add ix,bc
+5921 5921 s 
+5921 5921 d dd7e00
+5921 5921 u 03 01
+5921 5921 s   ld a,(ix)
+5924 5924 d d308
+5924 5924 u 02 01
+5924 5924 s   out (8),a  
+5926 5926 s   
+5926 5926 d cde15b
+5926 5926 u 03 01
+5926 5926 s   call short_delay  
+5929 5929 s 
+5929 5929 d c9
+5929 5929 u 01 01
+5929 5929 s   ret  
+592a 592a s 
+592a 592a s exit:
+592a 592a d fde1
+592a 592a u 02 01
+592a 592a s 	pop	iy
+592c 592c d cd2d40
+592c 592c u 03 01
+592c 592c s 	call @EXIT	
+592f 592f s 
+592f 592f s oct1_up_down:
+592f 592f s 
+592f 592f d fde1
+592f 592f u 02 01
+592f 592f s 	pop	iy
+5931 5931 s 
+5931 5931 d fd36fdcc
+5931 5931 u 04 01
+5931 5931 s 	ld	(iy-3),call_z
+5935 5935 d fd36fe52
+5935 5935 u 04 01
+5935 5935 s 	ld	(iy-2),low(oct1_up_up)
+5939 5939 d fd36ff59
+5939 5939 u 04 01
+5939 5939 s 	ld	(iy-1),high(oct1_up_up)
+593d 593d s 
+593d 593d d 3a0356
+593d 593d u 03 01
+593d 593d s 	ld a,(oct1)
+5940 5940 d fe60
+5940 5940 u 02 01
+5940 5940 s 	cp 96
+5942 5942 d d25059
+5942 5942 u 03 01
+5942 5942 s 	jp nc,oct1_up_exit
+5945 5945 s 	
+5945 5945 d 060c
+5945 5945 u 02 01
+5945 5945 s 	ld b,12
+5947 5947 d 80
+5947 5947 u 01 01
+5947 5947 s 	add a,b
+5948 5948 d e67f
+5948 5948 u 02 01
+5948 5948 s 	and $7f
+594a 594a d 320356
+594a 594a u 03 01
+594a 594a s 	ld (oct1),a
+594d 594d s 
+594d 594d d cd0b5c
+594d 594d u 03 01
+594d 594d s 	call screenupdate
+5950 5950 s 	
+5950 5950 s oct1_up_exit:	
+5950 5950 d fde9
+5950 5950 u 02 01
+5950 5950 s 	jp	(iy)
+5952 5952 s 
+5952 5952 s oct1_up_up:
+5952 5952 s 
+5952 5952 d fde1
+5952 5952 u 02 01
+5952 5952 s 	pop	iy
+5954 5954 s 
+5954 5954 d fd36fdc4
+5954 5954 u 04 01
+5954 5954 s 	ld	(iy-3),call_nz	
+5958 5958 d fd36fe2f
+5958 5958 u 04 01
+5958 5958 s 	ld	(iy-2),low(oct1_up_down)
+595c 595c d fd36ff59
+595c 595c u 04 01
+595c 595c s 	ld	(iy-1),high(oct1_up_down)
+5960 5960 s 
+5960 5960 d fde9
+5960 5960 u 02 01
+5960 5960 s 	jp	(iy)
+5962 5962 s 
+5962 5962 s oct2_up_down:
+5962 5962 s 	
+5962 5962 d fde1
+5962 5962 u 02 01
+5962 5962 s 	pop	iy
+5964 5964 s 
+5964 5964 d fd36fdcc
+5964 5964 u 04 01
+5964 5964 s 	ld	(iy-3),call_z
+5968 5968 d fd36fe85
+5968 5968 u 04 01
+5968 5968 s 	ld	(iy-2),low(oct2_up_up)
+596c 596c d fd36ff59
+596c 596c u 04 01
+596c 596c s 	ld	(iy-1),high(oct2_up_up)
+5970 5970 s 
+5970 5970 d 3a0456
+5970 5970 u 03 01
+5970 5970 s 	ld a,(oct2)
+5973 5973 d fe60
+5973 5973 u 02 01
+5973 5973 s 	cp 96
+5975 5975 d d28359
+5975 5975 u 03 01
+5975 5975 s 	jp nc,oct2_up_exit
+5978 5978 s 
+5978 5978 d 060c
+5978 5978 u 02 01
+5978 5978 s 	ld b,12
+597a 597a d 80
+597a 597a u 01 01
+597a 597a s 	add a,b
+597b 597b d e67f
+597b 597b u 02 01
+597b 597b s 	and $7f
+597d 597d d 320456
+597d 597d u 03 01
+597d 597d s 	ld (oct2),a
+5980 5980 s 
+5980 5980 d cd0b5c
+5980 5980 u 03 01
+5980 5980 s 	call screenupdate	
+5983 5983 s 
+5983 5983 s oct2_up_exit:	
+5983 5983 d fde9
+5983 5983 u 02 01
+5983 5983 s 	jp	(iy)	
+5985 5985 s 
+5985 5985 s oct2_up_up:
+5985 5985 s 
+5985 5985 d fde1
+5985 5985 u 02 01
+5985 5985 s 	pop	iy
+5987 5987 s 
+5987 5987 d fd36fdc4
+5987 5987 u 04 01
+5987 5987 s 	ld	(iy-3),call_nz	
+598b 598b d fd36fe62
+598b 598b u 04 01
+598b 598b s 	ld	(iy-2),low(oct2_up_down)
+598f 598f d fd36ff59
+598f 598f u 04 01
+598f 598f s 	ld	(iy-1),high(oct2_up_down)
+5993 5993 s 
+5993 5993 d fde9
+5993 5993 u 02 01
+5993 5993 s 	jp	(iy)
+5995 5995 s 
+5995 5995 s oct1_down_down:
+5995 5995 s 	
+5995 5995 d fde1
+5995 5995 u 02 01
+5995 5995 s 	pop	iy
+5997 5997 s 	
+5997 5997 d fd36fdcc
+5997 5997 u 04 01
+5997 5997 s 	ld	(iy-3),call_z
+599b 599b d fd36feb8
+599b 599b u 04 01
+599b 599b s 	ld	(iy-2),low(oct1_down_up)
+599f 599f d fd36ff59
+599f 599f u 04 01
+599f 599f s 	ld	(iy-1),high(oct1_down_up)
+59a3 59a3 s 	
+59a3 59a3 d 3a0356
+59a3 59a3 u 03 01
+59a3 59a3 s 	ld a,(oct1)
+59a6 59a6 d fe19
+59a6 59a6 u 02 01
+59a6 59a6 s 	cp 25
+59a8 59a8 d dab659
+59a8 59a8 u 03 01
+59a8 59a8 s 	jp c,oct1_down_exit
+59ab 59ab s 
+59ab 59ab d 060c
+59ab 59ab u 02 01
+59ab 59ab s 	ld b,12
+59ad 59ad d 90
+59ad 59ad u 01 01
+59ad 59ad s 	sub a,b
+59ae 59ae d e67f
+59ae 59ae u 02 01
+59ae 59ae s 	and $7f
+59b0 59b0 d 320356
+59b0 59b0 u 03 01
+59b0 59b0 s 	ld (oct1),a
+59b3 59b3 s 
+59b3 59b3 d cd0b5c
+59b3 59b3 u 03 01
+59b3 59b3 s 	call screenupdate	
+59b6 59b6 s 
+59b6 59b6 s oct1_down_exit:	
+59b6 59b6 d fde9
+59b6 59b6 u 02 01
+59b6 59b6 s 	jp	(iy)
+59b8 59b8 s 
+59b8 59b8 s 
+59b8 59b8 s oct1_down_up:
+59b8 59b8 s 
+59b8 59b8 d fde1
+59b8 59b8 u 02 01
+59b8 59b8 s 	pop	iy
+59ba 59ba s 
+59ba 59ba d fd36fdc4
+59ba 59ba u 04 01
+59ba 59ba s 	ld	(iy-3),call_nz	
+59be 59be d fd36fe95
+59be 59be u 04 01
+59be 59be s 	ld	(iy-2),low(oct1_down_down)
+59c2 59c2 d fd36ff59
+59c2 59c2 u 04 01
+59c2 59c2 s 	ld	(iy-1),high(oct1_down_down)
+59c6 59c6 s 
+59c6 59c6 d fde9
+59c6 59c6 u 02 01
+59c6 59c6 s 	jp	(iy)
+59c8 59c8 s 	
+59c8 59c8 s oct2_down_down:
+59c8 59c8 s 	
+59c8 59c8 d fde1
+59c8 59c8 u 02 01
+59c8 59c8 s 	pop	iy
+59ca 59ca s 
+59ca 59ca d fd36fdcc
+59ca 59ca u 04 01
+59ca 59ca s 	ld	(iy-3),call_z
+59ce 59ce d fd36feeb
+59ce 59ce u 04 01
+59ce 59ce s 	ld	(iy-2),low(oct2_down_up)
+59d2 59d2 d fd36ff59
+59d2 59d2 u 04 01
+59d2 59d2 s 	ld	(iy-1),high(oct2_down_up)	
+59d6 59d6 s 	
+59d6 59d6 d 3a0456
+59d6 59d6 u 03 01
+59d6 59d6 s 	ld a,(oct2)
+59d9 59d9 d fe19
+59d9 59d9 u 02 01
+59d9 59d9 s 	cp 25
+59db 59db d dae959
+59db 59db u 03 01
+59db 59db s 	jp c,oct2_down_exit
+59de 59de s 
+59de 59de d 060c
+59de 59de u 02 01
+59de 59de s 	ld b,12
+59e0 59e0 d 90
+59e0 59e0 u 01 01
+59e0 59e0 s 	sub a,b
+59e1 59e1 d e67f
+59e1 59e1 u 02 01
+59e1 59e1 s 	and $7f
+59e3 59e3 d 320456
+59e3 59e3 u 03 01
+59e3 59e3 s 	ld (oct2),a
+59e6 59e6 s 
+59e6 59e6 d cd0b5c
+59e6 59e6 u 03 01
+59e6 59e6 s 	call screenupdate	
+59e9 59e9 s 
+59e9 59e9 s oct2_down_exit:	
+59e9 59e9 d fde9
+59e9 59e9 u 02 01
+59e9 59e9 s 	jp	(iy)	
+59eb 59eb s 
+59eb 59eb s oct2_down_up:
+59eb 59eb s 
+59eb 59eb d fde1
+59eb 59eb u 02 01
+59eb 59eb s 	pop	iy
+59ed 59ed s 
+59ed 59ed d fd36fdc4
+59ed 59ed u 04 01
+59ed 59ed s 	ld	(iy-3),call_nz	
+59f1 59f1 d fd36fec8
+59f1 59f1 u 04 01
+59f1 59f1 s 	ld	(iy-2),low(oct2_down_down)
+59f5 59f5 d fd36ff59
+59f5 59f5 u 04 01
+59f5 59f5 s 	ld	(iy-1),high(oct2_down_down)
+59f9 59f9 s 
+59f9 59f9 d fde9
+59f9 59f9 u 02 01
+59f9 59f9 s 	jp	(iy)
+59fb 59fb s 
+59fb 59fb s 	
+59fb 59fb s swap_channel_down:
+59fb 59fb s 		
+59fb 59fb d fde1
+59fb 59fb u 02 01
+59fb 59fb s 	pop	iy
+59fd 59fd s 
+59fd 59fd d fd36fdcc
+59fd 59fd u 04 01
+59fd 59fd s 	ld	(iy-3),call_z
+5a01 5a01 d fd36fe17
+5a01 5a01 u 04 01
+5a01 5a01 s 	ld	(iy-2),low(swap_channel_up)
+5a05 5a05 d fd36ff5a
+5a05 5a05 u 04 01
+5a05 5a05 s 	ld	(iy-1),high(swap_channel_up)	
+5a09 5a09 s 	
+5a09 5a09 d 3a0056
+5a09 5a09 u 03 01
+5a09 5a09 s 	ld a,(current)
+5a0c 5a0c d 3c
+5a0c 5a0c u 01 01
+5a0c 5a0c s 	inc a
+5a0d 5a0d d e601
+5a0d 5a0d u 02 01
+5a0d 5a0d s 	and $01
+5a0f 5a0f d 320056
+5a0f 5a0f u 03 01
+5a0f 5a0f s 	ld (current),a
+5a12 5a12 s 
+5a12 5a12 d cd0b5c
+5a12 5a12 u 03 01
+5a12 5a12 s 	call screenupdate	
+5a15 5a15 s 	
+5a15 5a15 d fde9
+5a15 5a15 u 02 01
+5a15 5a15 s 	jp	(iy)
+5a17 5a17 s 
+5a17 5a17 s swap_channel_up:
+5a17 5a17 s 		
+5a17 5a17 d fde1
+5a17 5a17 u 02 01
+5a17 5a17 s 	pop	iy
+5a19 5a19 s 
+5a19 5a19 d fd36fdc4
+5a19 5a19 u 04 01
+5a19 5a19 s 	ld	(iy-3),call_nz	
+5a1d 5a1d d fd36fefb
+5a1d 5a1d u 04 01
+5a1d 5a1d s 	ld	(iy-2),low(swap_channel_down)
+5a21 5a21 d fd36ff59
+5a21 5a21 u 04 01
+5a21 5a21 s 	ld	(iy-1),high(swap_channel_down)
+5a25 5a25 s 
+5a25 5a25 d fde9
+5a25 5a25 u 02 01
+5a25 5a25 s 	jp	(iy)
+5a27 5a27 s 
+5a27 5a27 s incr_channel_down:
+5a27 5a27 s 		
+5a27 5a27 d fde1
+5a27 5a27 u 02 01
+5a27 5a27 s 	pop	iy
+5a29 5a29 s 	
+5a29 5a29 d fd36fdcc
+5a29 5a29 u 04 01
+5a29 5a29 s 	ld	(iy-3),call_z
+5a2d 5a2d d fd36fe5a
+5a2d 5a2d u 04 01
+5a2d 5a2d s 	ld	(iy-2),low(incr_channel_up)
+5a31 5a31 d fd36ff5a
+5a31 5a31 u 04 01
+5a31 5a31 s 	ld	(iy-1),high(incr_channel_up)
+5a35 5a35 s 	
+5a35 5a35 d 3a0056
+5a35 5a35 u 03 01
+5a35 5a35 s 	ld a,(current)
+5a38 5a38 d b7
+5a38 5a38 u 01 01
+5a38 5a38 s 	or a
+5a39 5a39 d 280b
+5a39 5a39 u 02 01
+5a39 5a39 s 	jr z, incr_channel1
+5a3b 5a3b s 
+5a3b 5a3b s 	; channel 2 
+5a3b 5a3b s 
+5a3b 5a3b d 3a0256
+5a3b 5a3b u 03 01
+5a3b 5a3b s 	ld a, (chan2) 
+5a3e 5a3e d 3c
+5a3e 5a3e u 01 01
+5a3e 5a3e s 	inc a
+5a3f 5a3f d e60f
+5a3f 5a3f u 02 01
+5a3f 5a3f s 	and $0f
+5a41 5a41 d 320256
+5a41 5a41 u 03 01
+5a41 5a41 s 	ld (chan2), a
+5a44 5a44 s 
+5a44 5a44 d 1809
+5a44 5a44 u 02 01
+5a44 5a44 s 	jr incr_channel_return
+5a46 5a46 s 
+5a46 5a46 s incr_channel1:
+5a46 5a46 d 3a0156
+5a46 5a46 u 03 01
+5a46 5a46 s 	ld a, (chan1) 
+5a49 5a49 d 3c
+5a49 5a49 u 01 01
+5a49 5a49 s 	inc a
+5a4a 5a4a d e60f
+5a4a 5a4a u 02 01
+5a4a 5a4a s 	and $0f
+5a4c 5a4c d 320156
+5a4c 5a4c u 03 01
+5a4c 5a4c s 	ld (chan1), a
+5a4f 5a4f s 		
+5a4f 5a4f s incr_channel_return: 
+5a4f 5a4f d cd0b5c
+5a4f 5a4f u 03 01
+5a4f 5a4f s 	call screenupdate
+5a52 5a52 d cd9a5c
+5a52 5a52 u 03 01
+5a52 5a52 s 	call setinstrument_lower
+5a55 5a55 d cdba5c
+5a55 5a55 u 03 01
+5a55 5a55 s 	call setinstrument_upper
+5a58 5a58 s 	
+5a58 5a58 d fde9
+5a58 5a58 u 02 01
+5a58 5a58 s 	jp	(iy)
+5a5a 5a5a s 
+5a5a 5a5a s 	
+5a5a 5a5a s incr_channel_up:
+5a5a 5a5a s 		
+5a5a 5a5a d fde1
+5a5a 5a5a u 02 01
+5a5a 5a5a s 	pop	iy
+5a5c 5a5c s 	
+5a5c 5a5c d fd36fdc4
+5a5c 5a5c u 04 01
+5a5c 5a5c s 	ld	(iy-3),call_nz	
+5a60 5a60 d fd36fe27
+5a60 5a60 u 04 01
+5a60 5a60 s 	ld	(iy-2),low(incr_channel_down)
+5a64 5a64 d fd36ff5a
+5a64 5a64 u 04 01
+5a64 5a64 s 	ld	(iy-1),high(incr_channel_down)
+5a68 5a68 s 	
+5a68 5a68 d fde9
+5a68 5a68 u 02 01
+5a68 5a68 s 	jp	(iy)
+5a6a 5a6a s 
+5a6a 5a6a s decr_channel_down:
+5a6a 5a6a s 	
+5a6a 5a6a d fde1
+5a6a 5a6a u 02 01
+5a6a 5a6a s 	pop	iy
+5a6c 5a6c s 	
+5a6c 5a6c d fd36fdcc
+5a6c 5a6c u 04 01
+5a6c 5a6c s 	ld	(iy-3),call_z
+5a70 5a70 d fd36fe9d
+5a70 5a70 u 04 01
+5a70 5a70 s 	ld	(iy-2),low(decr_channel_up)
+5a74 5a74 d fd36ff5a
+5a74 5a74 u 04 01
+5a74 5a74 s 	ld	(iy-1),high(decr_channel_up)
+5a78 5a78 s 	
+5a78 5a78 d 3a0056
+5a78 5a78 u 03 01
+5a78 5a78 s 	ld a,(current)
+5a7b 5a7b d b7
+5a7b 5a7b u 01 01
+5a7b 5a7b s 	or a
+5a7c 5a7c d 280b
+5a7c 5a7c u 02 01
+5a7c 5a7c s 	jr z, decr_channel1
+5a7e 5a7e s 
+5a7e 5a7e s 	; channel 2 
+5a7e 5a7e s 
+5a7e 5a7e d 3a0256
+5a7e 5a7e u 03 01
+5a7e 5a7e s 	ld a, (chan2) 
+5a81 5a81 d 3d
+5a81 5a81 u 01 01
+5a81 5a81 s 	dec a
+5a82 5a82 d e60f
+5a82 5a82 u 02 01
+5a82 5a82 s 	and $0f
+5a84 5a84 d 320256
+5a84 5a84 u 03 01
+5a84 5a84 s 	ld (chan2), a
+5a87 5a87 s 
+5a87 5a87 d 1809
+5a87 5a87 u 02 01
+5a87 5a87 s 	jr decr_channel_return
+5a89 5a89 s 
+5a89 5a89 s decr_channel1:
+5a89 5a89 d 3a0156
+5a89 5a89 u 03 01
+5a89 5a89 s 	ld a, (chan1) 
+5a8c 5a8c d 3d
+5a8c 5a8c u 01 01
+5a8c 5a8c s 	dec a
+5a8d 5a8d d e60f
+5a8d 5a8d u 02 01
+5a8d 5a8d s 	and $0f
+5a8f 5a8f d 320156
+5a8f 5a8f u 03 01
+5a8f 5a8f s 	ld (chan1), a
+5a92 5a92 s 		
+5a92 5a92 s decr_channel_return: 
+5a92 5a92 d cd0b5c
+5a92 5a92 u 03 01
+5a92 5a92 s 	call screenupdate
+5a95 5a95 d cd9a5c
+5a95 5a95 u 03 01
+5a95 5a95 s 	call setinstrument_lower
+5a98 5a98 d cdba5c
+5a98 5a98 u 03 01
+5a98 5a98 s 	call setinstrument_upper
+5a9b 5a9b s 
+5a9b 5a9b d fde9
+5a9b 5a9b u 02 01
+5a9b 5a9b s 	jp	(iy)
+5a9d 5a9d s 	
+5a9d 5a9d s decr_channel_up:
+5a9d 5a9d s 	
+5a9d 5a9d d fde1
+5a9d 5a9d u 02 01
+5a9d 5a9d s 	pop	iy
+5a9f 5a9f s 	
+5a9f 5a9f d fd36fdc4
+5a9f 5a9f u 04 01
+5a9f 5a9f s 	ld	(iy-3),call_nz	
+5aa3 5aa3 d fd36fe6a
+5aa3 5aa3 u 04 01
+5aa3 5aa3 s 	ld	(iy-2),low(decr_channel_down)
+5aa7 5aa7 d fd36ff5a
+5aa7 5aa7 u 04 01
+5aa7 5aa7 s 	ld	(iy-1),high(decr_channel_down)
+5aab 5aab s 	
+5aab 5aab d fde9
+5aab 5aab u 02 01
+5aab 5aab s 	jp	(iy)
+5aad 5aad s 
+5aad 5aad s incr_instr_down:
+5aad 5aad s 	
+5aad 5aad d fde1
+5aad 5aad u 02 01
+5aad 5aad s 	pop	iy
+5aaf 5aaf s 	
+5aaf 5aaf d fd36fdcc
+5aaf 5aaf u 04 01
+5aaf 5aaf s 	ld	(iy-3),call_z
+5ab3 5ab3 d fd36feed
+5ab3 5ab3 u 04 01
+5ab3 5ab3 s 	ld	(iy-2),low(incr_instr_up)
+5ab7 5ab7 d fd36ff5a
+5ab7 5ab7 u 04 01
+5ab7 5ab7 s 	ld	(iy-1),high(incr_instr_up)
+5abb 5abb s 
+5abb 5abb d 3a0056
+5abb 5abb u 03 01
+5abb 5abb s 	ld a,(current)
+5abe 5abe d b7
+5abe 5abe u 01 01
+5abe 5abe s 	or a
+5abf 5abf d 280c
+5abf 5abf u 02 01
+5abf 5abf s 	jr z, incr_instr1
+5ac1 5ac1 s 
+5ac1 5ac1 s 	; channel 2 
+5ac1 5ac1 s 
+5ac1 5ac1 d 3a0256
+5ac1 5ac1 u 03 01
+5ac1 5ac1 s 	ld a, (chan2)	
+5ac4 5ac4 d 4f
+5ac4 5ac4 u 01 01
+5ac4 5ac4 s 	ld c, a
+5ac5 5ac5 d 0600
+5ac5 5ac5 u 02 01
+5ac5 5ac5 s 	ld b, 0
+5ac7 5ac7 d dd211556
+5ac7 5ac7 u 04 01
+5ac7 5ac7 s 	ld ix, instr2
+5acb 5acb d 180a
+5acb 5acb u 02 01
+5acb 5acb s 	jr incr_instr_return
+5acd 5acd s 
+5acd 5acd s incr_instr1:
+5acd 5acd s 
+5acd 5acd d 3a0156
+5acd 5acd u 03 01
+5acd 5acd s 	ld a, (chan1)	
+5ad0 5ad0 d 4f
+5ad0 5ad0 u 01 01
+5ad0 5ad0 s 	ld c, a
+5ad1 5ad1 d 0600
+5ad1 5ad1 u 02 01
+5ad1 5ad1 s 	ld b, 0
+5ad3 5ad3 d dd210556
+5ad3 5ad3 u 04 01
+5ad3 5ad3 s 	ld ix, instr1
+5ad7 5ad7 s 		
+5ad7 5ad7 s incr_instr_return:
+5ad7 5ad7 s 
+5ad7 5ad7 d dd09
+5ad7 5ad7 u 02 01
+5ad7 5ad7 s 	add ix, bc
+5ad9 5ad9 s 
+5ad9 5ad9 d dd7e00
+5ad9 5ad9 u 03 01
+5ad9 5ad9 s 	ld a, (ix) 
+5adc 5adc d 3c
+5adc 5adc u 01 01
+5adc 5adc s 	inc a
+5add 5add d e67f
+5add 5add u 02 01
+5add 5add s 	and $7f
+5adf 5adf d dd7700
+5adf 5adf u 03 01
+5adf 5adf s 	ld (ix), a
+5ae2 5ae2 s 	
+5ae2 5ae2 d cd0b5c
+5ae2 5ae2 u 03 01
+5ae2 5ae2 s 	call screenupdate
+5ae5 5ae5 d cd9a5c
+5ae5 5ae5 u 03 01
+5ae5 5ae5 s 	call setinstrument_lower
+5ae8 5ae8 d cdba5c
+5ae8 5ae8 u 03 01
+5ae8 5ae8 s 	call setinstrument_upper
+5aeb 5aeb s 
+5aeb 5aeb d fde9
+5aeb 5aeb u 02 01
+5aeb 5aeb s 	jp	(iy)
+5aed 5aed s 
+5aed 5aed s incr_instr_up:
+5aed 5aed s 	
+5aed 5aed d fde1
+5aed 5aed u 02 01
+5aed 5aed s 	pop	iy
+5aef 5aef s 	
+5aef 5aef d fd36fdc4
+5aef 5aef u 04 01
+5aef 5aef s 	ld	(iy-3),call_nz
+5af3 5af3 d fd36fead
+5af3 5af3 u 04 01
+5af3 5af3 s 	ld	(iy-2),low(incr_instr_down)
+5af7 5af7 d fd36ff5a
+5af7 5af7 u 04 01
+5af7 5af7 s 	ld	(iy-1),high(incr_instr_down)
+5afb 5afb s 
+5afb 5afb d fde9
+5afb 5afb u 02 01
+5afb 5afb s 	jp	(iy)
+5afd 5afd s 
+5afd 5afd s decr_instr_down:
+5afd 5afd s 	
+5afd 5afd d fde1
+5afd 5afd u 02 01
+5afd 5afd s 	pop	iy
+5aff 5aff s 
+5aff 5aff d fd36fdcc
+5aff 5aff u 04 01
+5aff 5aff s 	ld	(iy-3),call_z
+5b03 5b03 d fd36fe3d
+5b03 5b03 u 04 01
+5b03 5b03 s 	ld	(iy-2),low(decr_instr_up)
+5b07 5b07 d fd36ff5b
+5b07 5b07 u 04 01
+5b07 5b07 s 	ld	(iy-1),high(decr_instr_up)
+5b0b 5b0b s 	
+5b0b 5b0b d 3a0056
+5b0b 5b0b u 03 01
+5b0b 5b0b s 	ld a,(current)
+5b0e 5b0e d b7
+5b0e 5b0e u 01 01
+5b0e 5b0e s 	or a
+5b0f 5b0f d 280c
+5b0f 5b0f u 02 01
+5b0f 5b0f s 	jr z, decr_instr1
+5b11 5b11 s 
+5b11 5b11 s 	; channel 2 
+5b11 5b11 s 
+5b11 5b11 d 3a0256
+5b11 5b11 u 03 01
+5b11 5b11 s 	ld a, (chan2)	
+5b14 5b14 d 4f
+5b14 5b14 u 01 01
+5b14 5b14 s 	ld c, a
+5b15 5b15 d 0600
+5b15 5b15 u 02 01
+5b15 5b15 s 	ld b, 0
+5b17 5b17 d dd211556
+5b17 5b17 u 04 01
+5b17 5b17 s 	ld ix, instr2
+5b1b 5b1b d 180a
+5b1b 5b1b u 02 01
+5b1b 5b1b s 	jr decr_instr_return
+5b1d 5b1d s 
+5b1d 5b1d s decr_instr1:
+5b1d 5b1d s 
+5b1d 5b1d d 3a0156
+5b1d 5b1d u 03 01
+5b1d 5b1d s 	ld a, (chan1)	
+5b20 5b20 d 4f
+5b20 5b20 u 01 01
+5b20 5b20 s 	ld c, a
+5b21 5b21 d 0600
+5b21 5b21 u 02 01
+5b21 5b21 s 	ld b, 0
+5b23 5b23 d dd210556
+5b23 5b23 u 04 01
+5b23 5b23 s 	ld ix, instr1
+5b27 5b27 s 		
+5b27 5b27 s decr_instr_return:
+5b27 5b27 s 
+5b27 5b27 d dd09
+5b27 5b27 u 02 01
+5b27 5b27 s 	add ix, bc
+5b29 5b29 s 
+5b29 5b29 d dd7e00
+5b29 5b29 u 03 01
+5b29 5b29 s 	ld a, (ix) 
+5b2c 5b2c d 3d
+5b2c 5b2c u 01 01
+5b2c 5b2c s 	dec a
+5b2d 5b2d d e67f
+5b2d 5b2d u 02 01
+5b2d 5b2d s 	and $7f
+5b2f 5b2f d dd7700
+5b2f 5b2f u 03 01
+5b2f 5b2f s 	ld (ix), a
+5b32 5b32 s 	
+5b32 5b32 d cd0b5c
+5b32 5b32 u 03 01
+5b32 5b32 s 	call screenupdate
+5b35 5b35 d cd9a5c
+5b35 5b35 u 03 01
+5b35 5b35 s 	call setinstrument_lower
+5b38 5b38 d cdba5c
+5b38 5b38 u 03 01
+5b38 5b38 s 	call setinstrument_upper
+5b3b 5b3b s 
+5b3b 5b3b d fde9
+5b3b 5b3b u 02 01
+5b3b 5b3b s 	jp	(iy)
+5b3d 5b3d s 
+5b3d 5b3d s 
+5b3d 5b3d s decr_instr_up:
+5b3d 5b3d s 	
+5b3d 5b3d d fde1
+5b3d 5b3d u 02 01
+5b3d 5b3d s 	pop	iy
+5b3f 5b3f s 
+5b3f 5b3f d fd36fdc4
+5b3f 5b3f u 04 01
+5b3f 5b3f s 	ld	(iy-3),call_nz
+5b43 5b43 d fd36fefd
+5b43 5b43 u 04 01
+5b43 5b43 s 	ld	(iy-2),low(decr_instr_down)
+5b47 5b47 d fd36ff5a
+5b47 5b47 u 04 01
+5b47 5b47 s 	ld	(iy-1),high(decr_instr_down)
+5b4b 5b4b s 
+5b4b 5b4b d fde9
+5b4b 5b4b u 02 01
+5b4b 5b4b s 	jp	(iy)
+5b4d 5b4d s 	
+5b4d 5b4d s incr_vol_down:
+5b4d 5b4d s 
+5b4d 5b4d d fde1
+5b4d 5b4d u 02 01
+5b4d 5b4d s 	pop	iy
+5b4f 5b4f s 
+5b4f 5b4f d fd36fdcc
+5b4f 5b4f u 04 01
+5b4f 5b4f s 	ld	(iy-3),call_z
+5b53 5b53 d fd36fe87
+5b53 5b53 u 04 01
+5b53 5b53 s 	ld	(iy-2),low(incr_vol_up)
+5b57 5b57 d fd36ff5b
+5b57 5b57 u 04 01
+5b57 5b57 s 	ld	(iy-1),high(incr_vol_up)
+5b5b 5b5b s 
+5b5b 5b5b d 3a0056
+5b5b 5b5b u 03 01
+5b5b 5b5b s 	ld a,(current)
+5b5e 5b5e d b7
+5b5e 5b5e u 01 01
+5b5e 5b5e s 	or a
+5b5f 5b5f d 280c
+5b5f 5b5f u 02 01
+5b5f 5b5f s 	jr z, incr_vol1
+5b61 5b61 s 
+5b61 5b61 s 	; channel 2 
+5b61 5b61 s 
+5b61 5b61 d 3a0256
+5b61 5b61 u 03 01
+5b61 5b61 s 	ld a, (chan2)	
+5b64 5b64 d 4f
+5b64 5b64 u 01 01
+5b64 5b64 s 	ld c, a
+5b65 5b65 d 0600
+5b65 5b65 u 02 01
+5b65 5b65 s 	ld b, 0
+5b67 5b67 d dd213556
+5b67 5b67 u 04 01
+5b67 5b67 s 	ld ix, vol2
+5b6b 5b6b d 180a
+5b6b 5b6b u 02 01
+5b6b 5b6b s 	jr incr_vol_return
+5b6d 5b6d s 
+5b6d 5b6d s incr_vol1:
+5b6d 5b6d s 
+5b6d 5b6d d 3a0156
+5b6d 5b6d u 03 01
+5b6d 5b6d s 	ld a, (chan1)	
+5b70 5b70 d 4f
+5b70 5b70 u 01 01
+5b70 5b70 s 	ld c, a
+5b71 5b71 d 0600
+5b71 5b71 u 02 01
+5b71 5b71 s 	ld b, 0
+5b73 5b73 d dd212556
+5b73 5b73 u 04 01
+5b73 5b73 s 	ld ix, vol1
+5b77 5b77 s 		
+5b77 5b77 s incr_vol_return:
+5b77 5b77 s 
+5b77 5b77 d dd09
+5b77 5b77 u 02 01
+5b77 5b77 s 	add ix, bc
+5b79 5b79 s 
+5b79 5b79 d dd7e00
+5b79 5b79 u 03 01
+5b79 5b79 s 	ld a, (ix) 
+5b7c 5b7c d 3c
+5b7c 5b7c u 01 01
+5b7c 5b7c s 	inc a
+5b7d 5b7d d e67f
+5b7d 5b7d u 02 01
+5b7d 5b7d s 	and $7f
+5b7f 5b7f d dd7700
+5b7f 5b7f u 03 01
+5b7f 5b7f s 	ld (ix), a
+5b82 5b82 s 	
+5b82 5b82 d cd0b5c
+5b82 5b82 u 03 01
+5b82 5b82 s 	call screenupdate
+5b85 5b85 s 
+5b85 5b85 d fde9
+5b85 5b85 u 02 01
+5b85 5b85 s 	jp	(iy)
+5b87 5b87 s 
+5b87 5b87 s incr_vol_up:
+5b87 5b87 s 
+5b87 5b87 d fde1
+5b87 5b87 u 02 01
+5b87 5b87 s 	pop	iy
+5b89 5b89 s 
+5b89 5b89 d fd36fdc4
+5b89 5b89 u 04 01
+5b89 5b89 s 	ld	(iy-3),call_nz
+5b8d 5b8d d fd36fe4d
+5b8d 5b8d u 04 01
+5b8d 5b8d s 	ld	(iy-2),low(incr_vol_down)
+5b91 5b91 d fd36ff5b
+5b91 5b91 u 04 01
+5b91 5b91 s 	ld	(iy-1),high(incr_vol_down)
+5b95 5b95 s 
+5b95 5b95 d fde9
+5b95 5b95 u 02 01
+5b95 5b95 s 	jp	(iy)
+5b97 5b97 s 
+5b97 5b97 s decr_vol_down:
+5b97 5b97 s 	
+5b97 5b97 d fde1
+5b97 5b97 u 02 01
+5b97 5b97 s 	pop	iy
+5b99 5b99 s 	
+5b99 5b99 d fd36fdcc
+5b99 5b99 u 04 01
+5b99 5b99 s 	ld	(iy-3),call_z
+5b9d 5b9d d fd36fed1
+5b9d 5b9d u 04 01
+5b9d 5b9d s 	ld	(iy-2),low(decr_vol_up)
+5ba1 5ba1 d fd36ff5b
+5ba1 5ba1 u 04 01
+5ba1 5ba1 s 	ld	(iy-1),high(decr_vol_up)
+5ba5 5ba5 s 
+5ba5 5ba5 d 3a0056
+5ba5 5ba5 u 03 01
+5ba5 5ba5 s 	ld a,(current)
+5ba8 5ba8 d b7
+5ba8 5ba8 u 01 01
+5ba8 5ba8 s 	or a
+5ba9 5ba9 d 280c
+5ba9 5ba9 u 02 01
+5ba9 5ba9 s 	jr z, decr_vol1
+5bab 5bab s 
+5bab 5bab s 	; channel 2 
+5bab 5bab s 
+5bab 5bab d 3a0256
+5bab 5bab u 03 01
+5bab 5bab s 	ld a, (chan2)	
+5bae 5bae d 4f
+5bae 5bae u 01 01
+5bae 5bae s 	ld c, a
+5baf 5baf d 0600
+5baf 5baf u 02 01
+5baf 5baf s 	ld b, 0
+5bb1 5bb1 d dd213556
+5bb1 5bb1 u 04 01
+5bb1 5bb1 s 	ld ix, vol2
+5bb5 5bb5 d 180a
+5bb5 5bb5 u 02 01
+5bb5 5bb5 s 	jr decr_vol_return
+5bb7 5bb7 s 
+5bb7 5bb7 s decr_vol1:
+5bb7 5bb7 s 
+5bb7 5bb7 d 3a0156
+5bb7 5bb7 u 03 01
+5bb7 5bb7 s 	ld a, (chan1)	
+5bba 5bba d 4f
+5bba 5bba u 01 01
+5bba 5bba s 	ld c, a
+5bbb 5bbb d 0600
+5bbb 5bbb u 02 01
+5bbb 5bbb s 	ld b, 0
+5bbd 5bbd d dd212556
+5bbd 5bbd u 04 01
+5bbd 5bbd s 	ld ix, vol1
+5bc1 5bc1 s 		
+5bc1 5bc1 s decr_vol_return:
+5bc1 5bc1 s 
+5bc1 5bc1 d dd09
+5bc1 5bc1 u 02 01
+5bc1 5bc1 s 	add ix, bc
+5bc3 5bc3 s 
+5bc3 5bc3 d dd7e00
+5bc3 5bc3 u 03 01
+5bc3 5bc3 s 	ld a, (ix) 
+5bc6 5bc6 d 3d
+5bc6 5bc6 u 01 01
+5bc6 5bc6 s 	dec a
+5bc7 5bc7 d e67f
+5bc7 5bc7 u 02 01
+5bc7 5bc7 s 	and $7f
+5bc9 5bc9 d dd7700
+5bc9 5bc9 u 03 01
+5bc9 5bc9 s 	ld (ix), a
+5bcc 5bcc s 	
+5bcc 5bcc d cd0b5c
+5bcc 5bcc u 03 01
+5bcc 5bcc s 	call screenupdate	
+5bcf 5bcf s 	
+5bcf 5bcf d fde9
+5bcf 5bcf u 02 01
+5bcf 5bcf s 	jp	(iy)
+5bd1 5bd1 s 
+5bd1 5bd1 s decr_vol_up:
+5bd1 5bd1 s 
+5bd1 5bd1 d fde1
+5bd1 5bd1 u 02 01
+5bd1 5bd1 s 	pop	iy
+5bd3 5bd3 s 
+5bd3 5bd3 d fd36fdc4
+5bd3 5bd3 u 04 01
+5bd3 5bd3 s 	ld	(iy-3),call_nz	
+5bd7 5bd7 d fd36fe97
+5bd7 5bd7 u 04 01
+5bd7 5bd7 s 	ld	(iy-2),low(decr_vol_down)
+5bdb 5bdb d fd36ff5b
+5bdb 5bdb u 04 01
+5bdb 5bdb s 	ld	(iy-1),high(decr_vol_down)
+5bdf 5bdf s 
+5bdf 5bdf d fde9
+5bdf 5bdf u 02 01
+5bdf 5bdf s 	jp	(iy)
+5be1 5be1 s 
+5be1 5be1 s 	
+5be1 5be1 s short_delay:
+5be1 5be1 d 111000
+5be1 5be1 u 03 01
+5be1 5be1 s     ld de,$0010
+5be4 5be4 s loop: 
+5be4 5be4 d 1b
+5be4 5be4 u 01 01
+5be4 5be4 s     dec de
+5be5 5be5 d 7a
+5be5 5be5 u 01 01
+5be5 5be5 s     ld a,d
+5be6 5be6 d b3
+5be6 5be6 u 01 01
+5be6 5be6 s     or e
+5be7 5be7 d c2e45b
+5be7 5be7 u 03 01
+5be7 5be7 s     jp nz,loop
+5bea 5bea d c9
+5bea 5bea u 01 01
+5bea 5bea s     ret 
+5beb 5beb s 
+5beb 5beb s byte2ascii: 			; input c, output de ASCII 
+5beb 5beb d 79
+5beb 5beb u 01 01
+5beb 5beb s    ld a, c
+5bec 5bec d 1f
+5bec 5bec u 01 01
+5bec 5bec s    rra
+5bed 5bed d 1f
+5bed 5bed u 01 01
+5bed 5bed s    rra
+5bee 5bee d 1f
+5bee 5bee u 01 01
+5bee 5bee s    rra
+5bef 5bef d 1f
+5bef 5bef u 01 01
+5bef 5bef s    rra
+5bf0 5bf0 d cdf55b
+5bf0 5bf0 u 03 01
+5bf0 5bf0 s    call convnibble 
+5bf3 5bf3 d 57
+5bf3 5bf3 u 01 01
+5bf3 5bf3 s    ld d, a	
+5bf4 5bf4 d 79
+5bf4 5bf4 u 01 01
+5bf4 5bf4 s    ld  a,c
+5bf5 5bf5 s convnibble:
+5bf5 5bf5 d e60f
+5bf5 5bf5 u 02 01
+5bf5 5bf5 s    and  $0F
+5bf7 5bf7 d c690
+5bf7 5bf7 u 02 01
+5bf7 5bf7 s    add  a,$90
+5bf9 5bf9 d 27
+5bf9 5bf9 u 01 01
+5bf9 5bf9 s    daa
+5bfa 5bfa d ce40
+5bfa 5bfa u 02 01
+5bfa 5bfa s    adc  a,$40
+5bfc 5bfc d 27
+5bfc 5bfc u 01 01
+5bfc 5bfc s    daa
+5bfd 5bfd d 5f
+5bfd 5bfd u 01 01
+5bfd 5bfd s    ld e, a	
+5bfe 5bfe d c9
+5bfe 5bfe u 01 01
+5bfe 5bfe s    ret
+5bff 5bff s 
+5bff 5bff s showvalue:  ; input ix mem cell, hl screen location 
+5bff 5bff d dd4e00
+5bff 5bff u 03 01
+5bff 5bff s 	ld c,(ix)
+5c02 5c02 d cdeb5b
+5c02 5c02 u 03 01
+5c02 5c02 s 	call byte2ascii
+5c05 5c05 d 72
+5c05 5c05 u 01 01
+5c05 5c05 s 	ld (hl),d
+5c06 5c06 d 23
+5c06 5c06 u 01 01
+5c06 5c06 s 	inc hl
+5c07 5c07 d 73
+5c07 5c07 u 01 01
+5c07 5c07 s 	ld (hl),e
+5c08 5c08 d 23
+5c08 5c08 u 01 01
+5c08 5c08 s 	inc hl
+5c09 5c09 d 23
+5c09 5c09 u 01 01
+5c09 5c09 s 	inc hl
+5c0a 5c0a s 
+5c0a 5c0a d c9
+5c0a 5c0a u 01 01
+5c0a 5c0a s ret
+5c0b 5c0b s 
+5c0b 5c0b s 
+5c0b 5c0b s screenupdate:
+5c0b 5c0b d 21a33f
+5c0b 5c0b u 03 01
+5c0b 5c0b s 	ld hl,$3c00+14*64+35
+5c0e 5c0e s 
+5c0e 5c0e d dd210356
+5c0e 5c0e u 04 01
+5c0e 5c0e s 	ld ix,oct1
+5c12 5c12 d cdff5b
+5c12 5c12 u 03 01
+5c12 5c12 s 	call showvalue
+5c15 5c15 s 
+5c15 5c15 d dd210156
+5c15 5c15 u 04 01
+5c15 5c15 s 	ld ix,chan1
+5c19 5c19 d cdff5b
+5c19 5c19 u 03 01
+5c19 5c19 s 	call showvalue
+5c1c 5c1c s 
+5c1c 5c1c d dd210556
+5c1c 5c1c u 04 01
+5c1c 5c1c s 	ld ix,instr1
+5c20 5c20 d 3a0156
+5c20 5c20 u 03 01
+5c20 5c20 s 	ld a,(chan1)
+5c23 5c23 d 4f
+5c23 5c23 u 01 01
+5c23 5c23 s 	ld c,a
+5c24 5c24 d 0600
+5c24 5c24 u 02 01
+5c24 5c24 s 	ld b,0
+5c26 5c26 d dd09
+5c26 5c26 u 02 01
+5c26 5c26 s 	add ix,bc
+5c28 5c28 d cdff5b
+5c28 5c28 u 03 01
+5c28 5c28 s 	call showvalue
+5c2b 5c2b s 	
+5c2b 5c2b s 
+5c2b 5c2b d dd212556
+5c2b 5c2b u 04 01
+5c2b 5c2b s 	ld ix,vol1
+5c2f 5c2f d 3a0156
+5c2f 5c2f u 03 01
+5c2f 5c2f s 	ld a,(chan1)
+5c32 5c32 d 4f
+5c32 5c32 u 01 01
+5c32 5c32 s 	ld c,a
+5c33 5c33 d 0600
+5c33 5c33 u 02 01
+5c33 5c33 s 	ld b,0
+5c35 5c35 d dd09
+5c35 5c35 u 02 01
+5c35 5c35 s 	add ix,bc
+5c37 5c37 d cdff5b
+5c37 5c37 u 03 01
+5c37 5c37 s 	call showvalue	
+5c3a 5c3a s 
+5c3a 5c3a d 23
+5c3a 5c3a u 01 01
+5c3a 5c3a s 	inc hl
+5c3b 5c3b d 23
+5c3b 5c3b u 01 01
+5c3b 5c3b s 	inc hl
+5c3c 5c3c d 23
+5c3c 5c3c u 01 01
+5c3c 5c3c s 	inc hl
+5c3d 5c3d d 23
+5c3d 5c3d u 01 01
+5c3d 5c3d s 	inc hl
+5c3e 5c3e s 
+5c3e 5c3e d dd210456
+5c3e 5c3e u 04 01
+5c3e 5c3e s 	ld ix,oct2
+5c42 5c42 d cdff5b
+5c42 5c42 u 03 01
+5c42 5c42 s 	call showvalue
+5c45 5c45 s 
+5c45 5c45 d dd210256
+5c45 5c45 u 04 01
+5c45 5c45 s 	ld ix,chan2
+5c49 5c49 d cdff5b
+5c49 5c49 u 03 01
+5c49 5c49 s 	call showvalue
+5c4c 5c4c s 	
+5c4c 5c4c d dd211556
+5c4c 5c4c u 04 01
+5c4c 5c4c s 	ld ix,instr2
+5c50 5c50 d 3a0256
+5c50 5c50 u 03 01
+5c50 5c50 s 	ld a,(chan2)
+5c53 5c53 d 4f
+5c53 5c53 u 01 01
+5c53 5c53 s 	ld c,a
+5c54 5c54 d 0600
+5c54 5c54 u 02 01
+5c54 5c54 s 	ld b,0
+5c56 5c56 d dd09
+5c56 5c56 u 02 01
+5c56 5c56 s 	add ix,bc
+5c58 5c58 d cdff5b
+5c58 5c58 u 03 01
+5c58 5c58 s 	call showvalue	
+5c5b 5c5b s 
+5c5b 5c5b d dd213556
+5c5b 5c5b u 04 01
+5c5b 5c5b s 	ld ix,vol2
+5c5f 5c5f d 3a0256
+5c5f 5c5f u 03 01
+5c5f 5c5f s 	ld a,(chan2)
+5c62 5c62 d 4f
+5c62 5c62 u 01 01
+5c62 5c62 s 	ld c,a
+5c63 5c63 d 0600
+5c63 5c63 u 02 01
+5c63 5c63 s 	ld b,0
+5c65 5c65 d dd09
+5c65 5c65 u 02 01
+5c65 5c65 s 	add ix,bc
+5c67 5c67 d cdff5b
+5c67 5c67 u 03 01
+5c67 5c67 s 	call showvalue	
+5c6a 5c6a s 
+5c6a 5c6a s 	;;
+5c6a 5c6a s 	;;
+5c6a 5c6a s 	;;
+5c6a 5c6a s 	
+5c6a 5c6a d 3a0056
+5c6a 5c6a u 03 01
+5c6a 5c6a s 	ld a,(current)
+5c6d 5c6d d b7
+5c6d 5c6d u 01 01
+5c6d 5c6d s 	or a
+5c6e 5c6e d 2015
+5c6e 5c6e u 02 01
+5c6e 5c6e s 	jr nz, showcur2
+5c70 5c70 s 
+5c70 5c70 d 21a23f
+5c70 5c70 u 03 01
+5c70 5c70 s 	ld hl,$3c00+14*64+34
+5c73 5c73 d 363c
+5c73 5c73 u 02 01
+5c73 5c73 s 	ld (hl),'<'
+5c75 5c75 d 21ae3f
+5c75 5c75 u 03 01
+5c75 5c75 s 	ld hl,$3c00+14*64+46
+5c78 5c78 d 363e
+5c78 5c78 u 02 01
+5c78 5c78 s 	ld (hl),'>'
+5c7a 5c7a s 
+5c7a 5c7a d 21b23f
+5c7a 5c7a u 03 01
+5c7a 5c7a s 	ld hl,$3c00+14*64+50
+5c7d 5c7d d 3620
+5c7d 5c7d u 02 01
+5c7d 5c7d s 	ld (hl),' '
+5c7f 5c7f d 21be3f
+5c7f 5c7f u 03 01
+5c7f 5c7f s 	ld hl,$3c00+14*64+62
+5c82 5c82 d 3620
+5c82 5c82 u 02 01
+5c82 5c82 s 	ld (hl),' '
+5c84 5c84 s 
+5c84 5c84 d c9
+5c84 5c84 u 01 01
+5c84 5c84 s 	ret
+5c85 5c85 s 
+5c85 5c85 s showcur2:
+5c85 5c85 s 
+5c85 5c85 d 21a23f
+5c85 5c85 u 03 01
+5c85 5c85 s 	ld hl,$3c00+14*64+34
+5c88 5c88 d 3620
+5c88 5c88 u 02 01
+5c88 5c88 s 	ld (hl),' '
+5c8a 5c8a d 21ae3f
+5c8a 5c8a u 03 01
+5c8a 5c8a s 	ld hl,$3c00+14*64+46
+5c8d 5c8d d 3620
+5c8d 5c8d u 02 01
+5c8d 5c8d s 	ld (hl),' '
+5c8f 5c8f s 
+5c8f 5c8f s 
+5c8f 5c8f d 21b23f
+5c8f 5c8f u 03 01
+5c8f 5c8f s 	ld hl,$3c00+14*64+50
+5c92 5c92 d 363c
+5c92 5c92 u 02 01
+5c92 5c92 s 	ld (hl),'<'
+5c94 5c94 d 21be3f
+5c94 5c94 u 03 01
+5c94 5c94 s 	ld hl,$3c00+14*64+62
+5c97 5c97 d 363e
+5c97 5c97 u 02 01
+5c97 5c97 s 	ld (hl),'>'
+5c99 5c99 s 	
+5c99 5c99 d c9
+5c99 5c99 u 01 01
+5c99 5c99 s 	ret
+5c9a 5c9a s 
+5c9a 5c9a s 
+5c9a 5c9a s setinstrument_lower:
+5c9a 5c9a s 
+5c9a 5c9a d 06c0
+5c9a 5c9a u 02 01
+5c9a 5c9a s 	ld b,$c0
+5c9c 5c9c d 3a0156
+5c9c 5c9c u 03 01
+5c9c 5c9c s 	ld a,(chan1)
+5c9f 5c9f d 80
+5c9f 5c9f u 01 01
+5c9f 5c9f s 	add a,b
+5ca0 5ca0 d d308
+5ca0 5ca0 u 02 01
+5ca0 5ca0 s 	out (8),a  ; change instrument for channel
+5ca2 5ca2 d cde15b
+5ca2 5ca2 u 03 01
+5ca2 5ca2 s 	call short_delay
+5ca5 5ca5 s 
+5ca5 5ca5 d dd210556
+5ca5 5ca5 u 04 01
+5ca5 5ca5 s 	ld ix,instr1
+5ca9 5ca9 d 3a0156
+5ca9 5ca9 u 03 01
+5ca9 5ca9 s 	ld a,(chan1)
+5cac 5cac d 4f
+5cac 5cac u 01 01
+5cac 5cac s 	ld c,a
+5cad 5cad d 0600
+5cad 5cad u 02 01
+5cad 5cad s 	ld b,0
+5caf 5caf d dd09
+5caf 5caf u 02 01
+5caf 5caf s 	add ix,bc
+5cb1 5cb1 s 
+5cb1 5cb1 d dd7e00
+5cb1 5cb1 u 03 01
+5cb1 5cb1 s 	ld a,(ix) ; instrument for selected channel
+5cb4 5cb4 d d308
+5cb4 5cb4 u 02 01
+5cb4 5cb4 s 	out (8),a  ; change instrument 
+5cb6 5cb6 d cde15b
+5cb6 5cb6 u 03 01
+5cb6 5cb6 s 	call short_delay
+5cb9 5cb9 s  
+5cb9 5cb9 d c9
+5cb9 5cb9 u 01 01
+5cb9 5cb9 s 	ret
+5cba 5cba s 
+5cba 5cba s setinstrument_upper:
+5cba 5cba s 
+5cba 5cba d 06c0
+5cba 5cba u 02 01
+5cba 5cba s 	ld b,$c0
+5cbc 5cbc d 3a0256
+5cbc 5cbc u 03 01
+5cbc 5cbc s 	ld a,(chan2)
+5cbf 5cbf d 80
+5cbf 5cbf u 01 01
+5cbf 5cbf s 	add a,b
+5cc0 5cc0 d d308
+5cc0 5cc0 u 02 01
+5cc0 5cc0 s 	out (8),a  ; change instrument for channel
+5cc2 5cc2 d cde15b
+5cc2 5cc2 u 03 01
+5cc2 5cc2 s 	call short_delay
+5cc5 5cc5 s 
+5cc5 5cc5 d dd211556
+5cc5 5cc5 u 04 01
+5cc5 5cc5 s 	ld ix,instr2
+5cc9 5cc9 d 3a0256
+5cc9 5cc9 u 03 01
+5cc9 5cc9 s 	ld a,(chan2)
+5ccc 5ccc d 4f
+5ccc 5ccc u 01 01
+5ccc 5ccc s 	ld c,a
+5ccd 5ccd d 0600
+5ccd 5ccd u 02 01
+5ccd 5ccd s 	ld b,0
+5ccf 5ccf d dd09
+5ccf 5ccf u 02 01
+5ccf 5ccf s 	add ix,bc
+5cd1 5cd1 s 
+5cd1 5cd1 d dd7e00
+5cd1 5cd1 u 03 01
+5cd1 5cd1 s 	ld a,(ix) ; instrument for selected channel
+5cd4 5cd4 d d308
+5cd4 5cd4 u 02 01
+5cd4 5cd4 s 	out (8),a  ; change instrument 
+5cd6 5cd6 d cde15b
+5cd6 5cd6 u 03 01
+5cd6 5cd6 s 	call short_delay
+5cd9 5cd9 s  
+5cd9 5cd9 d c9
+5cd9 5cd9 u 01 01
+5cd9 5cd9 s 	ret
+5cda 5cda s 
+5cda 5cda s   end start
+5645 e
+0008 v st_g0@
+0014 v st_g1@
+5b1d a decr_instr1
+5cba a setinstrument_upper
+384020 v k_left
+5acd a incr_instr1
+382008 v k_semi
+5b97 a decr_vol_down
+5873 a key_up_upper
+59fb a swap_channel_down
+5a5a a incr_channel_up
+00c4 v call_nz
+5985 a oct2_up_up
+5600 a current
+5950 a oct1_up_exit
+0009 v st_a0
+0015 v st_a1
+000b v st_b0
+0017 v st_b1
+0000 v st_c0
+000c v st_c1
+0018 v st_c2
+0002 v st_d0
+000e v st_d1
+001a v st_d2
+0004 v st_e0
+0010 v st_e1
+001c v st_e2
+0005 v st_f0
+0011 v st_f1
+001d v st_f2
+0007 v st_g0
+0013 v st_g1
+5bf5 a convnibble
+5601 a chan1
+5602 a chan2
+592a a exit
+5ad7 a incr_instr_return
+58d8 a note_off_lower
+384080 v k_space
+0049 v @KEY
+5605 a instr1
+5615 a instr2
+5645 a start
+0000 v step_0
+0001 v step_1
+0002 v step_2
+0003 v step_3
+0004 v step_4
+0005 v step_5
+0006 v step_6
+0007 v step_7
+0008 v step_8
+0009 v step_9
+5b77 a incr_vol_return
+5bc1 a decr_vol_return
+5afd a decr_instr_down
+5661 a main
+59b6 a oct1_down_exit
+5658 a init
+381001 v k_0
+381002 v k_1
+381004 v k_2
+381008 v k_3
+381010 v k_4
+381020 v k_5
+381040 v k_6
+381080 v k_7
+382001 v k_8
+382002 v k_9
+380101 v k_@
+380102 v k_A
+380104 v k_B
+380108 v k_C
+380110 v k_D
+380120 v k_E
+380140 v k_F
+380180 v k_G
+380201 v k_H
+380202 v k_I
+380204 v k_J
+380208 v k_K
+380210 v k_L
+380220 v k_M
+380240 v k_N
+380280 v k_O
+380401 v k_P
+380402 v k_Q
+380404 v k_R
+380408 v k_S
+380410 v k_T
+380420 v k_U
+380440 v k_V
+380480 v k_W
+380801 v k_X
+380802 v k_Y
+380804 v k_Z
+402d v @EXIT
+384010 v k_down
+5aed a incr_instr_up
+5a27 a incr_channel_down
+5200 a title
+5a4f a incr_channel_return
+5a92 a decr_channel_return
+5886 a note_on_lower
+5901 a note_off_upper
+5a46 a incr_channel1
+5b6d a incr_vol1
+5a17 a swap_channel_up
+59e9 a oct2_down_exit
+384001 v k_enter
+5bb7 a decr_vol1
+388001 v k_shift
+5c0b a screenupdate
+5983 a oct2_up_exit
+58af a note_on_upper
+382040 v k_dot
+5b87 a incr_vol_up
+5beb a byte2ascii
+5625 a vol1
+5635 a vol2
+59eb a oct2_down_up
+59b8 a oct1_down_up
+5aad a incr_instr_down
+592f a oct1_up_down
+382004 v k_colon
+00cc v call_z
+382010 v k_comma
+5b4d a incr_vol_down
+000a v st_a0@
+0016 v st_a1@
+5603 a oct1
+5604 a oct2
+382020 v k_dash
+382080 v k_slash
+0400 v title_len
+384040 v k_right
+5be1 a short_delay
+583a a key_down_lower
+5b3d a decr_instr_up
+5a9d a decr_channel_up
+5995 a oct1_down_down
+0001 v st_c0@
+000d v st_c1@
+0019 v st_c2@
+5952 a oct1_up_up
+5bff a showvalue
+5a89 a decr_channel1
+5be4 a loop
+5bd1 a decr_vol_up
+0003 v st_d0@
+000f v st_d1@
+001b v st_d2@
+5b27 a decr_instr_return
+384002 v k_clear
+000a v step_10
+000b v step_11
+000c v step_12
+000d v step_13
+000e v step_14
+000f v step_15
+0010 v step_16
+0011 v step_17
+0012 v step_18
+0013 v step_19
+0014 v step_20
+0015 v step_21
+0016 v step_22
+0017 v step_23
+0018 v step_24
+0019 v step_25
+001a v step_26
+001b v step_27
+001c v step_28
+001d v step_29
+001e v step_30
+001f v step_31
+5c85 a showcur2
+5c9a a setinstrument_lower
+5860 a key_down_upper
+384004 v k_break
+59c8 a oct2_down_down
+0006 v st_f0@
+0012 v st_f1@
+584d a key_up_lower
+384008 v k_up
+5962 a oct2_up_down
+5a6a a decr_channel_down

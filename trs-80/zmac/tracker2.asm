@@ -1,5 +1,6 @@
 ; TRACKER Version 1.5
-; to do: mute track, real-time sequencing, MIDI in, more sensible pre-selected instruments, .... 
+; to do: mute tracks, patterns + song mode, save, load
+
 
 	org $8000
 
@@ -27,7 +28,7 @@ free: 	 ascii   'F'
 tracked: ascii   'T'
 
 
-title:	ascii   '***** MIDI/80 DRUM TRACKER V1.41 - (C) 2024 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER  V1.5 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -84,8 +85,11 @@ curchannel    byte  0
 curinstrument byte  0	
 	
 quantpat  byte  11111100b
-tracks1 defs    6*64 		
-tracks2 defs    6*64
+	
+tracks1 	defs    6*64 		
+tracks2 	defs    6*64
+tracksoff1 	defs    6*64 		
+tracksoff2 	defs    6*64
 
 drumnostracks		byte 36, 38, 40, 51, 44, 46 
 channeltracks 		byte 0, 1, 2, 3, 4, 9
@@ -185,7 +189,17 @@ main:
 	ldir
 
 	ld	hl,data 
+	ld	de,tracksoff1
+	ld	bc,6*64 
+	ldir
+
+	ld	hl,data 
 	ld	de,tracks2 
+	ld	bc,6*64 
+	ldir
+
+	ld	hl,data 
+	ld	de,tracksoff2
 	ld	bc,6*64 
 	ldir
 
@@ -1231,7 +1245,7 @@ up2:
 	dec a
 	ld (hl),a
 
-	call setinstrument
+	;; call setinstrument
 	
 	jp cont
 
@@ -1253,7 +1267,7 @@ down2:
 	inc a
 	ld (hl),a
 
-	call setinstrument
+	;; call setinstrument
 
 	jp cont
 
@@ -1611,17 +1625,30 @@ playnotes:
 	
 	bit 6,a
 	jr nz,playhightracks ; > 64  
-	
-	ld hl,tracks1
-	
-	jr playtracks
 
+	ld hl,tracksoff1	
+	call stoptracks
+
+	ld a,(qtrackpos)
+	ld hl,tracks1	
+	call playtracks
+
+	ret
+	
 playhightracks:
 
-	ld hl,tracks2
+	ld hl,tracksoff2
+	call stoptracks
 
-playtracks: 
-	; add note index
+	ld a,(qtrackpos)
+	ld hl,tracks2 
+	call playtracks
+
+	ret
+
+	
+stoptracks: 
+	; add track index
 	; clear bit 6
 	res 6,a
 	ld e,a
@@ -1631,10 +1658,97 @@ playtracks:
 
 	push hl
 	push bc
-	ld c,(hl) ; -> c is on or off
+	
+	ld c,(hl) ; -> c is note off
 	ld d,0
 	ld e,0 ; e is track number 
-	; call gettrackdrumreg ; -> b is drum note 
+	call stopnote
+
+	pop bc
+	pop hl
+	
+	add hl,bc
+
+	push hl
+	push bc
+
+	ld c,(hl)
+	ld d,0
+	ld e,1 
+	call stopnote
+
+	pop bc
+	pop hl
+
+	add hl,bc
+
+	push hl
+	push bc
+	
+	ld c,(hl) 
+	ld d,0
+	ld e,2
+	call stopnote
+
+	pop bc
+	pop hl
+
+	add hl,bc
+
+	push hl
+	push bc
+
+	ld c,(hl) 
+	ld d,0
+	ld e,3 
+	call stopnote
+
+	pop bc
+	pop hl
+
+	add hl,bc
+
+	push hl
+	push bc
+
+	ld c,(hl) 
+	ld d,0
+	ld e,4 
+	call stopnote
+
+	pop bc
+	pop hl
+	
+	add hl,bc
+
+	push hl
+	push bc
+
+	ld c,(hl) 
+	ld d,0
+	ld e,5 
+	call stopnote
+
+	pop bc	
+	pop hl
+	
+	ret
+	
+playtracks: 
+	; add track index
+	; clear bit 6
+	res 6,a
+	ld e,a
+	ld d,0
+	add hl,de
+	ld bc,64
+
+	push hl
+	push bc
+	
+	ld c,(hl) ; -> c is note on
+	ld d,0
+	ld e,0 ; e is track number 
 	call playnote
 
 	pop bc
@@ -1648,7 +1762,6 @@ playtracks:
 	ld c,(hl)
 	ld d,0
 	ld e,1 
-	; call gettrackdrumreg 
 	call playnote
 
 	pop bc
@@ -1662,7 +1775,6 @@ playtracks:
 	ld c,(hl) 
 	ld d,0
 	ld e,2
-	; call gettrackdrumreg 
 	call playnote
 
 	pop bc
@@ -1676,7 +1788,6 @@ playtracks:
 	ld c,(hl) 
 	ld d,0
 	ld e,3 
-	; call gettrackdrumreg 
 	call playnote
 
 	pop bc
@@ -1690,7 +1801,6 @@ playtracks:
 	ld c,(hl) 
 	ld d,0
 	ld e,4 
-	; call gettrackdrumreg 
 	call playnote
 
 	pop bc
@@ -1704,7 +1814,6 @@ playtracks:
 	ld c,(hl) 
 	ld d,0
 	ld e,5 
-	; call gettrackdrumreg 
 	call playnote
 
 	pop bc	
@@ -1713,54 +1822,108 @@ playtracks:
 	ret
 	
 	
-playnote: ; input note on / off in c; track number 0..5 in e 
+playnote: ; input note on in c; track number 0..5 in e 
 	
         ld a, c 		; note on <> 0? no; return 
 	cp DISPMIDINOTEOFFSET+1 
 	ret c
 
 	push bc
-	push de
-
+	push hl			; note pointer 
+	
 	ld hl,channeltracks 	; determine MIDI channel for track in e 
-	ld d,0
+	;; ld d,0
 	;; ld e,e 
 	add hl, de 
 	ld a,(hl) 		; MIDI channel for track in e
 
-	;;ld hl, curnoteschannels	; put into cur note buffer for MIDI PANIC 
-	;;ld d,0
-	;;ld e,a
-	;;add hl,de
-
 	add $90			; MIDI NOTE ON for MIDI channel in a 
 	out (8),a
-	
+
+	push de
 	call short_delay
+	pop de
 
 	ld a,c			; c has the note number -> MIDI out 
 	sub DISPMIDINOTEOFFSET		
 	out (8),a
-	;;ld (hl), a 		; store current NOTE ON for MIDI PANIC 
 	
+	push de
 	call short_delay
+	pop de
+	
+	ld hl,gatetracks
+	;; ld d,0
+	;; ld e,e		; track number
+	add hl, de 
+	ld a,(hl)		; gate duration for track  
 
-	pop de 
-	pop bc
+	pop hl 			; get note pointer + 12*64 + gate duration to ... 
+	push de
+	
+	ld de, 12*64		; ... determine note off position in notes off grid 
+	add hl, de
+	ld d, 0
+	ld e, a
+	add hl, de
+
+	pop de
+	pop bc 
+
+	ld a, c			; get note number which was stored in c 
+	ld (hl), a 		; store note in note off grid
 
 	ld hl,velocitytracks 	; determine MIDI velocity for track in e  
-	ld d,0
+	;; ld d,0
 	;; ld e,e 
 	add hl, de 
 	ld a,(hl) 		; MIDI velocity for track in e 
 	out (8),a
 	
-	;;ld hl, curvelschannels	; put into cur velocity buffer for MIDI PANIC 
-	;;add hl,de
-	;;ld (hl), a		; store current VELOCITY for MIDI PANIC
-  
 	ret 
+
+stopnote: ; input note off in c; track number 0..5 in e 
+
+        ld a, c 		; note on <> 0? no; return
+	or a 
+	ret z
+
+	ld (hl), 0 		; hl = note pointer; erase note for now, will be rescheduled when played again!	
+
+	push bc
 	
+	ld hl,channeltracks 	; determine MIDI channel for track in e 
+	;; ld d,0
+	;; ld e,e 
+	add hl, de 
+	ld a,(hl) 		; MIDI channel for track in e
+
+	add $80			; MIDI NOTE ON for MIDI channel in a 
+	out (8),a
+
+	push de
+	call short_delay
+	pop de
+
+	ld a,c			; c has the note number -> MIDI out 
+	sub DISPMIDINOTEOFFSET		
+	out (8),a
+
+	push de
+	call short_delay
+	pop de 
+	
+	pop bc
+
+	ld hl,velocitytracks 	; determine MIDI velocity for track in e  
+	;; ld d,0
+	;; ld e,e 
+	add hl, de 
+	ld a,(hl) 		; MIDI velocity for track in e 
+	out (8),a
+	
+	ret 
+
 showgridres:
 	ld a,(gridres)
 	ld c, a
