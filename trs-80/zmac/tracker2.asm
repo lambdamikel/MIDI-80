@@ -28,7 +28,7 @@ free: 	 ascii   'F'
 tracked: ascii   'T'
 
 
-title:	ascii   '***** MIDI/80 TRACKER  V1.5 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.51 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -597,8 +597,12 @@ midiin:
 	ret
 
 velcheck:
-	ld a, b
-	ld (curvelocity), a
+	; ld a, b			
+	; ld (curvelocity), a
+	; use velocity from settings instead of MIDI message!
+
+	call gettrackvelocity
+	ld (curvelocity), a  
 
 	; signal message complete -> note / vel available
 	ld a, 1
@@ -916,6 +920,11 @@ channelup:
 	inc a 
 	and $0f
 	ld (hl), a
+	
+	call gettracknr
+	dec a
+	call setinstrument
+
 	jp cont 
 
 channeldown:
@@ -923,6 +932,11 @@ channeldown:
 	dec a 
 	and $0f 
 	ld (hl), a
+
+	call gettracknr
+	dec a
+	call setinstrument
+
 	jp cont
 
 instrumentup:
@@ -954,6 +968,11 @@ velocityup:
 	inc a 
 	and $7f
 	ld (hl), a
+	
+	call gettracknr
+	dec a
+	call setinstrument
+	
 	jp cont 
 
 velocitydown:	
@@ -961,6 +980,11 @@ velocitydown:
 	dec a 
 	and $7f
 	ld (hl), a
+
+	call gettracknr
+	dec a
+	call setinstrument
+
 	jp cont
 
 restorecellx macro 
