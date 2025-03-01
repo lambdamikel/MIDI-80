@@ -1,0 +1,469 @@
+   1:				
+   2:     -	5200          	 org $5200 
+   3:				
+   4:     -	4467          	@DSPLY		equ	$4467
+   5:     -	402D          	@EXIT		equ	$402d
+   6:     -	002B          	@KBD    	equ 	$002b 
+   7:     -	0033          	@DSP    	equ 	$0033
+   8:     -	0049          	@KEY    	equ 	$0049 
+   9:				
+  10:     -	0402          	k_Q		equ	$380402
+  11:				
+  12:     -	0003          	ETX     equ 	$03 
+  13:     -	000D          	ENTER	equ	$0d ; @DSPLY with newline
+  14:     -	0020          	SPACE   equ 	$20 
+  15:     -	0000          	NULL    equ 	$0 
+  16:				
+  17:     -	5200  00      	lastbyte 	defb 	0
+  18:				
+  19:     -	5201  00      	timer0delta	defb 	0
+  20:				
+  21:     -	5202  00      	curcount 	defb 	0
+  22:     -	5203  00      	curcounth 	defb 	0
+  23:					
+  24:     -	5204  00      	midiadr 	defb 	0
+  25:     -	5205  00      	midiadrh 	defb 	0     
+  26:				
+  27:     -	5206  00      	timer0	 	defb 	0
+  28:     -	5207  00      	timer	 	defb 	0
+  29:     -	5208  00      	timerh	 	defb 	0
+  30:				
+  31:				
+  32:     -	5209  0D      	title0		defb  ENTER 
+  33:     -	520A  2A2A2A20	title1		defb  '*** MIDI/80 Playback from TRS-80 RAM - (C) 2024 LambdaMikel ***', ENTER
+	              4D494449
+	              2F383020
+	              506C6179
+	              6261636B
+	              2066726F
+	              6D205452
+	              532D3830
+	              2052414D
+	              202D2028
+	              43292032
+	              30323420
+	              4C616D62
+	              64614D69
+	              6B656C20
+	              2A2A2A0D
+  34:     -	524A  20202020	title2          defb  '    SONGNAME: NEIL_DIAMOND_-_Sweet_caroline', ENTER
+	              534F4E47
+	              4E414D45
+	              3A204E45
+	              494C5F44
+	              49414D4F
+	              4E445F2D
+	              5F537765
+	              65745F63
+	              61726F6C
+	              696E650D
+  35:     -	5276  0D      	title3		defb  ENTER
+  36:     -	5277  456E7465	title4		defb  'Enter playback speed (Model 3/4 = 4, Model 1 = 6)? ', ENTER 
+	              7220706C
+	              61796261
+	              636B2073
+	              70656564
+	              20284D6F
+	              64656C20
+	              332F3420
+	              3D20342C
+	              204D6F64
+	              656C2031
+	              203D2036
+	              293F200D
+  37:     -	52AB  506C6179	title5		defb  'Playing... (Q for quit)', ENTER
+	              696E672E
+	              2E2E2028
+	              5120666F
+	              72207175
+	              6974290D
+  38:				
+  39:     -	52C3  0D      	endm0		defb  ENTER
+  40:     -	52C4  5468616E	endm1		defb  'Thanks for listening!', ENTER
+	              6B732066
+	              6F72206C
+	              69737465
+	              6E696E67
+	              210D
+  41:     -	52DA  0D      	endm2		defb  ENTER
+  42:     -	52DB  4D616B69	endm3		defb  'Making your own songs is easy:', ENTER
+	              6E672079
+	              6F757220
+	              6F776E20
+	              736F6E67
+	              73206973
+	              20656173
+	              793A0D
+  43:     -	52FA  68747470	endm4 		defb  'https://github.com/lambdamikel/MIDI-80', ENTER
+	              733A2F2F
+	              67697468
+	              75622E63
+	              6F6D2F6C
+	              616D6264
+	              616D696B
+	              656C2F4D
+	              4944492D
+	              38300D
+  44:     -	5321  0D      	endm5 		defb  ENTER
+  45:				
+  46:     -	5322  52414D3A	dispbuf 	defb 'RAM: ',0,0,0,0,'-',0,0,0,0,ENTER 
+	              20000000
+	              002D0000
+	              00000D
+  47:				
+  48:     -	5331          	start:
+  49:				
+  50:    0+10	5331  210952  		ld hl,title0
+  51:   10+17	5334  CD6744  		call @DSPLY
+  52:   27+10	5337  210A52  		ld hl,title1
+  53:   37+17	533A  CD6744  		call @DSPLY
+  54:   54+10	533D  214A52  		ld hl,title2
+  55:   64+17	5340  CD6744  		call @DSPLY
+  56:   81+10	5343  217652  		ld hl,title3
+  57:   91+17	5346  CD6744  		call @DSPLY
+  58:				
+  59:					;;  show start
+  60:  108+10	5349  015C54  		ld bc,mididata
+  61:  118+11	534C  C5      		push bc 
+  62:  129+4	534D  48      		ld c,b 
+  63:  133+17	534E  CD4854  		call byte2ascii
+  64:  150+10	5351  212753  		ld hl,dispbuf+5
+  65:  160+7	5354  72      		ld (hl),d
+  66:  167+6	5355  23      		inc hl
+  67:  173+7	5356  73      		ld (hl),e
+  68:  180+6	5357  23      		inc hl
+  69:  186+10	5358  C1      		pop bc
+  70:  196+17	5359  CD4854  		call byte2ascii
+  71:  213+7	535C  72      		ld (hl),d
+  72:  220+6	535D  23      		inc hl
+  73:  226+7	535E  73      		ld (hl),e
+  74:				
+  75:  233+6	535F  23      		inc hl
+  76:  239+6	5360  23      		inc hl
+  77:					;;  show end
+  78:  245+10	5361  01D1CA  		ld bc,midiend
+  79:  255+11	5364  C5      		push bc 
+  80:  266+4	5365  48      		ld c,b 
+  81:  270+17	5366  CD4854  		call byte2ascii
+  82:  287+7	5369  72      		ld (hl),d
+  83:  294+6	536A  23      		inc hl
+  84:  300+7	536B  73      		ld (hl),e
+  85:  307+6	536C  23      		inc hl
+  86:  313+10	536D  C1      		pop bc
+  87:  323+17	536E  CD4854  		call byte2ascii
+  88:  340+7	5371  72      		ld (hl),d
+  89:  347+6	5372  23      		inc hl
+  90:  353+7	5373  73      		ld (hl),e
+  91:				
+  92:					;;  show buffer
+  93:  360+10	5374  212253  		ld hl,dispbuf 
+  94:  370+17	5377  CD6744  		call @DSPLY
+  95:					
+  96:					;;  ask for playback speed
+  97:					;; ld hl,title4
+  98:					;; call @DSPLY ; Show Enter playback speed message
+  99:				
+ 100:  387+17	537A  CD4754  		call allnotesoff
+ 101:				
+ 102:				        ;; Enter a key for playback speed
+ 103:					;call @KEY    
+ 104:					;sub 48 ; "0" = 48
+ 105:				
+ 106:				        ;; Optional use a constant value for playback speed
+ 107:				        ;; normal speed = 5
+ 108:  404+7	537D  3E05    	        ld a, 5 ; Playback speed
+ 109:				
+ 110:  411+13	537F  320152  		ld (timer0delta), a
+ 111:  424+13	5382  320652  		ld (timer0), a
+ 112:				
+ 113:  437+10	5385  21AB52  		ld hl,title5
+ 114:  447+17	5388  CD6744  		call @DSPLY
+ 115:				
+ 116:					;; M3 - turn off display waitstates
+ 117:					;; not necessary
+ 118:				
+ 119:					;in  a,($ff)
+ 120:					;or  a,$10
+ 121:					;and a,~$20
+ 122:					;out ($ec),a
+ 123:				
+ 124:					;; play 
+ 125:				
+ 126:  464+10	538B  210452  		ld hl,midiadr ; write mididata start adress $6000 into pointer reg.
+ 127:  474+10	538E  365C    		ld (hl),mididata mod 256
+ 128:  484+6	5390  23      		inc hl
+ 129:  490+10	5391  3654    		ld (hl),mididata / 256 
+ 130:  500+16	5393  2A0452  		ld hl,(midiadr)
+ 131:				
+ 132:  516+7	5396  5E      		ld e,(hl) ; store first time delta into curcount 
+ 133:  523+7	5397  1600    		ld d,0
+ 134:  530+20	5399  ED530252		ld (curcount),de
+ 135:				
+ 136:     -	539D          	next:
+ 137:				
+ 138:					;ld	a,(k_Q >> 8)
+ 139:					;and	k_Q % $100
+ 140:					;call	nz, endofsong
+ 141:				
+ 142:  550+17	539D  CD2B00  		call @KBD
+ 143:  567+7	53A0  FE51    		cp 81 ; Q = quit 
+ 144:  574+10	53A2  CAE953  		jp z, endofsong
+ 145:				
+ 146:				
+ 147:     -	53A5          	midiavail:	
+ 148:				
+ 149:  584+17	53A5  CDB853  		call avail
+ 150:  601+7	53A8  FE01    		cp 1
+ 151:  608+7+5	53AA  2807    		jr z, process
+ 152:  615+7	53AC  FE02    		cp 2  ; 2 = end of data
+ 153:  622+10	53AE  CAE953  		jp z, endofsong
+ 154:  632+12	53B1  18EA    		jr next
+ 155:				
+ 156:					
+ 157:     -	53B3          	process:
+ 158:					
+ 159:  644+17	53B3  CD1354  		call outa
+ 160:  661+12	53B6  18E5    		jr next     
+ 161:				
+ 162:     -	53B8          	avail:
+ 163:					
+ 164:  673+17	53B8  CD2C54  		call get_timer ; get timer -> HL 
+ 165:  690+20	53BB  ED5B0252		ld de,(curcount)
+ 166:  710+7	53BF  1600    		ld d,0
+ 167:  717+15	53C1  ED52    		sbc hl,de  
+ 168:  732+7+5	53C3  3821    		jr c,notyet ; current ticker (HL) smaller than MIDI next counter (DE) 
+ 169:					
+ 170:  739+16	53C5  2A0452  		ld hl,(midiadr) ; load MIDI data for current block 
+ 171:  755+6	53C8  23      		inc hl ; advance to read MIDI data for the match  
+ 172:  761+7	53C9  46      		ld b,(hl) ; read MIDI data for current block 
+ 173:  768+6	53CA  23      		inc hl ; pointer points to next MIDI block, pre-load curcounter
+ 174:  774+11	53CB  E5      		push hl ; save current pointer, preload counter
+ 175:  785+7	53CC  5E      		ld e,(hl) 
+ 176:  792+7	53CD  1600    		ld d,0
+ 177:  799+20	53CF  ED530252		ld (curcount),de ; store next counter for fast access during playback
+ 178:  819+4	53D3  7B      		ld a,e
+ 179:  823+7	53D4  FEFF    		cp 255
+ 180:  830+7+5	53D6  2811    		jr z,endofsong
+ 181:  837+10	53D8  210052  		ld hl,lastbyte
+ 182:  847+7	53DB  70      		ld (hl), b ; store MIDI byte there     
+ 183:  854+10	53DC  D1      		pop de ; get saved pointer 
+ 184:  864+10	53DD  210452  		ld hl,midiadr
+ 185:  874+7	53E0  73      		ld (hl),e ; update pointer
+ 186:  881+6	53E1  23      		inc hl
+ 187:  887+7	53E2  72      		ld (hl),d
+ 188:  894+7	53E3  3E01    		ld a,1 ; signal byte is available
+ 189:  901+10	53E5  C9      		ret
+ 190:				
+ 191:     -	53E6          	notyet:	
+ 192:				
+ 193:  911+7	53E6  3E00    		ld a,0 ; signal no byte available
+ 194:  918+10	53E8  C9      		ret
+ 195:				
+ 196:     -	53E9          	endofsong:
+ 197:				
+ 198:  928+10	53E9  21C352  		ld hl,endm0
+ 199:  938+17	53EC  CD6744  		call @DSPLY
+ 200:  955+10	53EF  21C452  		ld hl,endm1
+ 201:  965+17	53F2  CD6744  		call @DSPLY
+ 202:  982+10	53F5  21DA52  		ld hl,endm2
+ 203:  992+17	53F8  CD6744  		call @DSPLY
+ 204: 1009+10	53FB  21DB52  		ld hl,endm3
+ 205: 1019+17	53FE  CD6744  		call @DSPLY
+ 206: 1036+10	5401  21FA52  		ld hl,endm4
+ 207: 1046+17	5404  CD6744  		call @DSPLY
+ 208: 1063+10	5407  212153  		ld hl,endm5
+ 209: 1073+17	540A  CD6744  		call @DSPLY
+ 210:				
+ 211:					; ld a,"@"
+ 212:					; call @DSP 
+ 213:				
+ 214: 1090+17	540D  CD4754  		call allnotesoff	
+ 215: 1107+17	5410  CD2D40  		call @EXIT
+ 216:					; ret
+ 217:				
+ 218:     -	5413          	outa:	
+ 219: 1124+13	5413  3A0052  		ld a,(lastbyte)
+ 220:     -	5416          	outa1:
+ 221: 1137+11	5416  D308    		out (8),a
+ 222: 1148+10	5418  110000  		ld de,0 ; clear ticker 
+ 223: 1158+10	541B  210000  		ld hl,0
+ 224: 1168+16	541E  220752  		ld (timer),hl 
+ 225: 1184+10	5421  C9      		ret
+ 226:					 
+ 227:     -	5422          	short_delay:
+ 228: 1194+10	5422  119000  		ld de,$0090
+ 229:     -	5425          	loop: 
+ 230: 1204+6	5425  1B      		dec de
+ 231: 1210+4	5426  7A      		ld a,d
+ 232: 1214+4	5427  B3      		or e
+ 233: 1218+10	5428  C22554  		jp nz,loop
+ 234: 1228+10	542B  C9      		ret 
+ 235:				
+ 236:     -	542C          	get_timer:
+ 237: 1238+16	542C  2A0752  		ld hl, (timer)
+ 238: 1254+13	542F  3A0652  		ld a, (timer0)
+ 239: 1267+4	5432  3D      		dec a
+ 240: 1271+13	5433  320652  		ld (timer0), a
+ 241: 1284+7	5436  FE00    		cp 0 ; zero ?
+ 242: 1291+5+6	5438  C0      		ret nz 
+ 243:				
+ 244: 1296+13	5439  3A0152  		ld a, (timer0delta) 
+ 245: 1309+13	543C  320652  		ld (timer0), a
+ 246:				
+ 247: 1322+16	543F  2A0752  		ld hl, (timer)	
+ 248: 1338+6	5442  23      		inc hl
+ 249: 1344+16	5443  220752  		ld (timer), hl
+ 250:					
+ 251: 1360+10	5446  C9      		ret 
+ 252:				
+ 253:     -	5447          	allnotesoff:
+ 254:				
+ 255:					;; doesn't work
+ 256:				
+ 257:					;;  Proteus mode: F0 7E 00 09 02 F7
+ 258:				
+ 259:					; ld a,$f0 
+ 260:					; call outa1
+ 261:					; call short_delay
+ 262:				
+ 263:					; ld a,$7e
+ 264:					; call outa1
+ 265:					; call short_delay
+ 266:				
+ 267:					; ld a,$00
+ 268:					; call outa1
+ 269:					; call short_delay
+ 270:				
+ 271:					; ld a,$09
+ 272:					; call outa1
+ 273:					; call short_delay
+ 274:				
+ 275:					; ld a,$02
+ 276:					; call outa1
+ 277:					; call short_delay
+ 278:				
+ 279:					; ld a,$f7
+ 280:					; call outa1
+ 281:					; call short_delay
+ 282:				
+ 283:					
+ 284:					
+ 285:					; ;; send all notes off: 10110000 = 176, 123, 0
+ 286:					; ld a,176 ; CC 
+ 287:					; call outa1
+ 288:					; call short_delay
+ 289:				
+ 290:					; ld a,124 		; OMNI MODE ON also clears notes! 
+ 291:					; call outa1
+ 292:					; call short_delay
+ 293:				
+ 294:					; ld a,0 
+ 295:					; call outa1
+ 296:					; call short_delay
+ 297:				
+ 298:					; ld a,176 ; CC 
+ 299:					; call outa1
+ 300:					; call short_delay
+ 301:				
+ 302:					; ld a,123 		; OMNI MODE ON also clears notes! 
+ 303:					; call outa1
+ 304:					; call short_delay
+ 305:				
+ 306:					; ld a,0 
+ 307:					; call outa1
+ 308:					; call short_delay
+ 309:				
+ 310: 1370+10	5447  C9      		ret
+ 311:				
+ 312:     -	5448          	byte2ascii: 			; input c, output de ASCII 
+ 313: 1380+4	5448  79      	   ld a, c
+ 314: 1384+4	5449  1F      	   rra
+ 315: 1388+4	544A  1F      	   rra
+ 316: 1392+4	544B  1F      	   rra
+ 317: 1396+4	544C  1F      	   rra
+ 318: 1400+17	544D  CD5254  	   call convnibble 
+ 319: 1417+4	5450  57      	   ld d, a	
+ 320: 1421+4	5451  79      	   ld  a,c
+ 321:     -	5452          	convnibble:
+ 322: 1425+7	5452  E60F    	   and  $0F
+ 323: 1432+7	5454  C690    	   add  a,$90
+ 324: 1439+4	5456  27      	   daa
+ 325: 1443+7	5457  CE40    	   adc  a,$40
+ 326: 1450+4	5459  27      	   daa
+ 327: 1454+4	545A  5F      	   ld e, a	
+ 328: 1458+10	545B  C9      	   ret
+ 329:					
+ 330:     -	545C          	mididata equ 	$
+ 331:					
+ 332:     -	545C ..945B 		incbin 'midibin/NEIL_DIAMOND_-_Sweet_caroline0.bin'
+ 333:     -	945C ..CACD 		incbin 'midibin/NEIL_DIAMOND_-_Sweet_caroline1.bin'
+ 334:				
+ 335:     -	CACE  FFFFFF  	endbytes	defb 	$ff, $ff, $ff
+ 336:				
+ 337:     -	CAD1          	midiend equ 	$
+ 338:				
+ 339:     -	5331          	 end start
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+    50	symbols
+ 30929	bytes
+
+
+
+Symbol Table:
+
+@DSP           =33        51
+@DSPLY         =4467      17511
+@EXIT          =402D      16429
+@KBD           =2B        43
+@KEY           =49        73
+ENTER          =0D        13
+ETX            =03        3
+NULL           =00        0
+SPACE          =20        32
+allnotesoff     5447      21575
+avail           53B8      21432
+byte2ascii      5448      21576
+convnibble      5452      21586
+curcount        5202      20994
+curcounth       5203      20995
+dispbuf         5322      21282
+endbytes        CACE      51918
+endm0           52C3      21187
+endm1           52C4      21188
+endm2           52DA      21210
+endm3           52DB      21211
+endm4           52FA      21242
+endm5           5321      21281
+endofsong       53E9      21481
+get_timer       542C      21548
+k_Q            =00380402  3671042
+lastbyte        5200      20992
+loop            5425      21541
+midiadr         5204      20996
+midiadrh        5205      20997
+midiavail       53A5      21413
+mididata       =545C      21596
+midiend        =CAD1      51921
+next            539D      21405
+notyet          53E6      21478
+outa            5413      21523
+outa1           5416      21526
+process         53B3      21427
+short_delay     5422      21538
+start           5331      21297
+timer           5207      20999
+timer0          5206      20998
+timer0delta     5201      20993
+timerh          5208      21000
+title0          5209      21001
+title1          520A      21002
+title2          524A      21066
+title3          5276      21110
+title4          5277      21111
+title5          52AB      21163

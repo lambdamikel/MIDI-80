@@ -8,6 +8,14 @@
 
 ## News 
 
+### February 2025
+
+Thanks to [Jürgen Wich](https://homecomputerguy.de/en/), who created a new batch tool that makes bulk creation of MIDI song disks a breeze! Check out his awesome new [MIDI Conversion Tools for MIDI/80 and TRS-80](midibatchconv/README.md)!
+
+Thanks much, Jürgen, great work!
+
+![MIDIBATCHCONV](pics/midibatchconv.png)
+
 ### January 2025
 
 Jürgen Wich has uploaded a demo video showcasing the MIDI/80 MIDI playback capabilities with his Model 1 - cool stuff!
