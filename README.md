@@ -10,9 +10,10 @@
 
 ### February 2025
 
-Thanks to [Jürgen Wich](https://homecomputerguy.de/en/), who created a new batch tool that makes bulk creation of MIDI song disks a breeze! Check out his awesome new [MIDI Conversion Tools for MIDI/80 and TRS-80](midibatchconv/README.md)!
+Thanks to [Jürgen Wich](https://homecomputerguy.de/en/), who created a [new batch tool](midibatchconv/) that makes bulk creation of MIDI song disks a breeze! Check out his awesome new [MIDI Conversion Tools for MIDI/80 and TRS-80](midibatchconv/README.md)! His software tool suite can be found [here](midibatchconv/).
 
 Thanks much, Jürgen, great work!
+
 
 ![MIDIBATCHCONV](pics/midibatchconv.png)
 
