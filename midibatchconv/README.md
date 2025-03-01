@@ -174,7 +174,7 @@ Have fun with it!
 
 ## Troubleshooting
 
-If you find that your MIDI songs play to slow or too fast, change the following constants; for the Model 1, change `canyon_asm.m1.template`:
+If you find that your MIDI songs play too slow or too fast, change the following constants; for the Model 1, change `canyon_asm.m1.template`:
 
 ```
         ;; Optional use a constant value for playback speed
