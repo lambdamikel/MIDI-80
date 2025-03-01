@@ -43,6 +43,14 @@ For midibin2hfeimage.py the following Windows tools are required, which must be 
 
 These tools are not included for copyright reasons, but can be downloaded and used free of charge for private purposes.
 
+You should have the following Windows executables in the `midibatchconv` root directory: 
+```
+hxcfe.exe
+trsread.exe
+trswrite.exe
+zmac.exe
+```
+
 ```bash
 # Setup example wine on Ubuntu
 # Install Wine 32-Bit
