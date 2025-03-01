@@ -41,15 +41,14 @@ For midibin2hfeimage.py the following Windows tools are required, which must be 
 - **trswrite.exe** by Matthew Reed - Writes files to .dmk Images - <http://www.trs-80emulators.com/trsread-trswrite/>
 - **hxcfe.exe** - Commandline Floppy Emulator and Image Converter - <https://github.com/jfdelnero/HxCFloppyEmulatorfloppy_drive_emulator/> (you can use the Windows Version also with wine on Linux)
 
-These tools are not included for copyright reasons, but can be downloaded and used free of charge for private purposes.
-
-You should have the following Windows executables in the `midibatchconv` root directory: 
+These tools are not included for copyright reasons, but can be downloaded and used free of charge for private purposes; hence, you should have the following Windows executables in the `midibatchconv` root directory: 
 ```
 hxcfe.exe
-trsread.exe
 trswrite.exe
 zmac.exe
 ```
+
+Installation on Ubuntu: 
 
 ```bash
 # Setup example wine on Ubuntu
