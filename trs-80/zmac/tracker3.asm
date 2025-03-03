@@ -1,6 +1,5 @@
-; TRACKER Version 1.5
+; TRACKER Version 1.53
 ; to do: mute tracks, patterns + song mode, save, load
-
 
 	org $8000
 
@@ -27,8 +26,7 @@ playing: ascii   'P'
 free: 	 ascii   'F'
 tracked: ascii   'T'
 
-
-title:	ascii   '***** MIDI/80 TRACKER V1.51 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.53 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -58,7 +56,7 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 	ascii   'CHANGE CUR TRACK MIDI CHANNEL    : + -                          '
 	ascii   'CHANGE CUR TRACK MIDI INSTRUMENT : U I                          '
 	ascii   'CHANGE CUR TRACK MIDI VELOCITY   : J K                          '
-	ascii   'CHANGE CUR TRACK DRUM            : ARROW-LEFT ARROW-RIGHT       ' 
+	ascii   'CHANGE CUR TRACK DRUM, LAST MIDI : ARROW-LEFT ARROW-RIGHT, @    ' 
 	ascii   'CHANGE CUR TRACK GATE LENGTH     : *                            '
 	ascii   'HELP, QUIT, LOAD & SAVE          : H, Q, L, S,                  '
 	ascii   'CHANGE PATTERN                   : -                            '
@@ -67,6 +65,9 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 lastcur	     byte	'.'
 lastcurpos   word 	$3c00+3*64 
 
+memcursorx byte 	0
+memcursory byte 	0
+	
 cursorx	byte 	0
 cursory	byte 	3
 blink   byte    0
@@ -78,36 +79,24 @@ numbars byte	8
 numticks byte	8*16 
 gridres byte  	4
 
+trackpos   byte  0
+qtrackpos  byte  0
+quantpat   byte  11111100b
+
 midicount     byte  0
 curnote       byte  0
 curvelocity   byte  0	
-curchannel    byte  0	
-curinstrument byte  0	
 	
-quantpat  byte  11111100b
-	
-tracks1 	defs    6*64 		
-tracks2 	defs    6*64
-tracksoff1 	defs    6*64 		
-tracksoff2 	defs    6*64
-
 drumnostracks		byte 36, 38, 40, 51, 44, 46 
 channeltracks 		byte 0, 1, 2, 3, 4, 9
 instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
 velocitytracks	 	byte 127, 127, 127, 127, 127, 127
 gatetracks	 	byte 8,8,8,8,8,8
 
-;;  midi channel specific to support MIDI PANIC
-;; curnoteschannels	byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 
-;; curvelschannels		byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-
-memcursorx byte 	0
-memcursory byte 	0
-	
-trackpos    byte        0
-qtrackpos   byte 	0
-
-
+tracks1 	defs    6*64 		
+tracks2 	defs    6*64
+tracksoff1 	defs    6*64 		
+tracksoff2 	defs    6*64
 
 keydown macro key
 	ld	a,(key >> 8)
@@ -203,6 +192,16 @@ main:
 	ld	bc,6*64 
 	ldir
 
+	call midipanicr 
+	call short_delay
+	call short_delay
+	call short_delay
+	call short_delay
+
+	call setmiditrackinstruments
+
+
+
 main2:
 
 	ld	hl,$3c00
@@ -215,7 +214,6 @@ main2:
 	ld	de,$3c00
 	ld	bc,1024
 	ldir
-
 
 	call screenupdate
 	call showcursor
@@ -396,6 +394,9 @@ scancont1:
 	cp KCURRIGHT
 	jp z,drumnoup 
 
+	cp '@'
+	jp z,drumnocurrent 
+
 	cp '+'
 	jp z,channelup
 
@@ -467,7 +468,6 @@ scancont1:
 
 	cp '*'
 	jp z,chggatelength
-
 
 	jp loop 
 	
@@ -550,10 +550,8 @@ gridres32:
 
 chgnumbars:
 	ld a,(numbars)
-	dec a 
 	inc a
 	and $07
-	inc a	
 	ld (numbars),a
 
 	ld b,a
@@ -813,17 +811,8 @@ slower1:
 	jp cont	
 
 testsoundx macro 
-	;; call gettrackdrum
-	;; ld b,a
 
 	call gettrackchannel
-	ld (curchannel), a 
-	;; ld a,(curchannel)
-
-	;;ld hl, curnoteschannels
-	;;ld d,0
-	;;ld e,a
-	;;add hl,de
 
 	add $90 
 	out (8),a
@@ -831,19 +820,10 @@ testsoundx macro
 	call short_delay
 	ld a,(curnote)
 	out (8),a
-	;;ld (hl), a  		; store into CUR NOTES per CHANNEL for MIDI PANIC 
   
 	call short_delay
 	ld a,(curvelocity)
 	out (8),a
-
-	;;ld b,a
-	;;ld hl, curvelschannels 
-	;;ld d,0
-	;;ld e,b
-	;;add hl,de 
-	;;ld a,(curchannel)
-	;;ld (hl), a  		; store into CUR VELOCITIES per CHANNEL for MIDI PANIC 
 
 	endm 
 
@@ -852,34 +832,6 @@ midipanic:
 	ld b, $10 
 
 channeloff:
-	;; ld a, b
-	;; dec a
-	;; add $80	
-	;; out (8),a  		; MIDI NOTE OFF for MIDI Channel in B 
-	;; call short_delay
-
-	;; ld a, b
-	;; dec a
-	;; ld hl, curnoteschannels ; retrieve last MIDI ON Message for Channel in B NOTE 
-	;; ld d,0
-	;; ld e,a
-	;; add hl,de 
-	
-	;; ld a, (hl) 		; last MIDI NOTE ON Note
-	;; out (8), a
-	;; call short_delay
-
-	;; ld a, b
-	;; dec a 
-	;; ld hl, curvelschannels ; retrieve last MIDI ON Message for Channel in B VELOCITY
-	;; ld d,0
-	;; ld e,a 
-	;; add hl,de 
-	
-	;; ld a, (hl) 		; last MIDI NOTE ON Velocity
-	;; out (8), a
-	;; call short_delay
-
 
 	ld a, b
 	dec a
@@ -894,12 +846,44 @@ channeloff:
 	ld a,0
 	out (8),a  		; Don't Care 
 	call short_delay
-
 	
 	;;  repeat for all 16 Channels 
 	djnz channeloff
 	
 	jp cont
+
+
+midipanicr:
+
+	ld b, $10 
+
+channeloffr:
+
+	ld a, b
+	dec a
+	add $b0	
+	out (8),a  		; MIDI CC for Channel in a 
+	call short_delay
+
+	ld a,123
+	out (8),a  		; MIDI NOTE OFF 
+	call short_delay
+
+	ld a,0
+	out (8),a  		; Don't Care 
+	call short_delay
+	
+	;;  repeat for all 16 Channels 
+	djnz channeloffr
+	
+	ret 
+
+drumnocurrent:
+	call gettrackdrum
+	ld a, (curnote)
+	and $7f
+	ld (hl), a
+	jp cont 
 	
 drumnoup:
 	call gettrackdrum
@@ -1073,34 +1057,19 @@ gettrackvelocityx macro
 
 setgridandsoundmidi:
 
-	;; we are taking MIDI channel and instrument
-	;; from the TRACK, and NOTE and VELOCITY from the MIDI message:
-	
-	call gettrackchannel
-	ld (curchannel), a  
-
-	call gettrackinstrument
-	ld (curinstrument), a  
-
 	testsoundx
 	setgridx 
 
 	jp cont 
 
 setgridandsoundkey:
-
-	call gettrackchannel
-	ld (curchannel), a  
-
+	
 	call gettrackdrum
 	ld (curnote), a 
 
 	call gettrackvelocity
 	ld (curvelocity), a  
 
-	call gettrackinstrument
-	ld (curinstrument), a  
-	
 	testsoundx
 	setgridx 
 
@@ -1115,18 +1084,12 @@ setgridandsoundr:
 
 setgridandsoundkeyr:
 	
-	call gettrackchannel
-	ld (curchannel), a  
-
 	call gettrackdrum
 	ld (curnote), a 
 
 	call gettrackvelocity
 	ld (curvelocity), a  
-	
-	call gettrackinstrument
-	ld (curinstrument), a  
-	
+
 	testsoundx
 	setgridx 
 
@@ -1139,18 +1102,12 @@ setgrid:
 
 setgridkey:
 	
-	call gettrackchannel
-	ld (curchannel), a  
-
 	call gettrackdrum
 	ld (curnote), a 
 
 	call gettrackvelocity
 	ld (curvelocity), a  
 	
-	call gettrackinstrument
-	ld (curinstrument), a  
-
 	setgridx 
 	jp cont
 
@@ -1161,17 +1118,11 @@ setgridr:
 
 setgridkeyr:
 
-	call gettrackchannel
-	ld (curchannel), a  
-
 	call gettrackdrum
 	ld (curnote), a 
 
 	call gettrackvelocity
 	ld (curvelocity), a  
-	
-	call gettrackinstrument
-	ld (curinstrument), a  
 	
 	setgridx 
 	ret
@@ -1193,22 +1144,45 @@ startstop:
 	or a
 	jr nz, showplay
 	
-	ld de,$3c00 + 64 + 6
-	ld hl,stopped 
-	ld bc,1 
-	ldir
+	ld hl,$3c00 + 64 + 6
+	ld a,(stopped)
+	ld (hl), a
 	jp cont
 	
 showplay:
 
-	call setmiditrackinstruments
-	
-	ld de,$3c00 + 64 + 6
-	ld hl,playing  
-	ld bc,1
-	ldir
+	call midipanicr
+	call short_delay
+	call short_delay
+	call short_delay
+	call short_delay
 
+	call gettrackchannel 
+	inc a 
+	and $0f
+	ld (hl), a
 	
+	call gettracknr
+	dec a
+	call setinstrument
+
+	call setmiditrackinstruments
+	call short_delay
+	call short_delay
+	call short_delay
+	call short_delay
+
+	ld hl,$3c00 + 64 + 6
+	ld a,(playing) 
+	ld (hl), a
+	
+	call short_delay
+	call short_delay
+	call short_delay
+	call short_delay
+
+	call playnotes
+
 	jp cont 
 
 trackstatus:
@@ -1218,17 +1192,17 @@ trackstatus:
 	or a
 	jr nz, showtrackstatus
 	
-	ld de,$3c00 + 64 + 7
-	ld hl,free 
-	ld bc,1
-	ldir
+	ld hl,$3c00 + 64 + 7
+	ld a,(free)
+	ld (hl), a
+	
 	jp cont
 	
 showtrackstatus:	
-	ld de,$3c00 + 64 + 7
-	ld hl,tracked   
-	ld bc,1
-	ldir
+	ld hl,$3c00 + 64 + 7
+	ld a,(tracked)
+	ld (hl), a
+	
 	jp cont 
 
 
@@ -1377,7 +1351,7 @@ nextnote0:
 	;; ENTER sample keyboard; this one makes noise,
 	;; ONLY sample when (qtrackpos) = (trackpos)
 
-	call midiin
+	call midiin		
 	cp 1 
 	call z,setgridandsoundr
 
@@ -1429,6 +1403,7 @@ showplaycursor:
 	
 	ld (hl),POSMARKSYM
 	ret
+
 showcurtrack2:
 	ld de,6*64
 	add hl,de
@@ -1609,6 +1584,7 @@ setinstrument: 			; a has track number
 	add a, b
 	out (8),a  		; change instrument for channel in a 
 	call short_delay
+	call short_delay
 
 	pop af 
 	ld ix,instrumenttracks	; retrieve instrument for track a 
@@ -1619,29 +1595,30 @@ setinstrument: 			; a has track number
 
 	out (8),a		; change MIDI instrument to a 
 	call short_delay
+	call short_delay
  
 	ret
 
 setmiditrackinstruments:
 
-	ld a, 0
+	ld a, 5
 	call setinstrument 
 
-	ld a, 1
-	call setinstrument 
-	
-	ld a, 2
+	ld a, 4
 	call setinstrument 
 	
 	ld a, 3
 	call setinstrument 
 	
-	ld a, 4
+	ld a, 2
 	call setinstrument 
 	
-	ld a, 5
+	ld a, 1
 	call setinstrument 
 	
+	ld a, 0
+	call setinstrument 
+
 	ret
 	
 playnotes:
@@ -1849,8 +1826,14 @@ playtracks:
 playnote: ; input note on in c; track number 0..5 in e 
 	
         ld a, c 		; note on <> 0? no; return 
-	cp DISPMIDINOTEOFFSET+1 
-	ret c
+	cp DISPMIDINOTEOFFSET+1
+	jr nc, playnote1
+
+	call short_delay
+	call short_delay
+	ret 
+
+playnote1:
 
 	push bc
 	push hl			; note pointer 
@@ -1910,7 +1893,13 @@ stopnote: ; input note off in c; track number 0..5 in e
 
         ld a, c 		; note on <> 0? no; return
 	or a 
-	ret z
+	jr nz, stopnote1
+	call short_delay
+	call short_delay
+
+	ret
+	
+stopnote1:
 
 	ld (hl), 0 		; hl = note pointer; erase note for now, will be rescheduled when played again!	
 
@@ -1980,7 +1969,7 @@ showbars:
 
 
 short_delay:
-    ld de,$00ff
+    ld de,$003f
 delloop: 
     dec de
     ld a,d
