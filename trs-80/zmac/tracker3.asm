@@ -1,4 +1,4 @@
-; TRACKER Version 1.53
+; TRACKER Version 1.6
 ; to do: mute tracks, patterns + song mode, save, load
 
 	org $8000
@@ -26,6 +26,23 @@ playing: ascii   'P'
 free: 	 ascii   'F'
 tracked: ascii   'T'
 
+waitt:	ascii   '***** MIDI/80 TRACKER V1.60 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
+	
 title:	ascii   '***** MIDI/80 TRACKER V1.53 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
@@ -44,23 +61,25 @@ data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
 	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
 
 helpt:	ascii   '************************** HELP PAGE ***************************'
-	ascii   'CURSOR MOVEMENT, FINE            : A D W X, Z C                 '
-	ascii   'CHANGE BAR COUNT, JUMP TO BAR POS: B, 1 2 3 4 5 6 7 8           '
-	ascii   'NEXT / PREV GRID POS             : ARROW-UP ARROW-DOWN          '
-	ascii   'CHANGE GRID STEP                 : G                            '
-	ascii   'SET GRID, SOUND, CLEAR           : SPACE, ENTER, CLEAR          '
-	ascii   'PLAY & STOP                      : P                            '
-	ascii   'ALL NOTES OFF (MIDI PANIC)       : !                            '
-	ascii   'TOGGLE TRACKING                  : T                            '
-	ascii   'CHANGE PLAYBACK SPEED            : N M , .                      '
-	ascii   'CHANGE CUR TRACK MIDI CHANNEL    : + -                          '
-	ascii   'CHANGE CUR TRACK MIDI INSTRUMENT : U I                          '
-	ascii   'CHANGE CUR TRACK MIDI VELOCITY   : J K                          '
-	ascii   'CHANGE CUR TRACK DRUM, LAST MIDI : ARROW-LEFT ARROW-RIGHT, @    ' 
-	ascii   'CHANGE CUR TRACK GATE LENGTH     : *                            '
-	ascii   'HELP, QUIT, LOAD & SAVE          : H, Q, L, S,                  '
-	ascii   'CHANGE PATTERN                   : -                            '
+	ascii   'CURSOR MOVEMENT, FINE             : A D W X, Z C                '
+	ascii   'CHANGE BAR COUNT, JUMP TO BAR POS : B, 1 2 3 4 5 6 7 8          '
+	ascii   'NEXT / PREV GRID POS, CHANGE GRID : ARROW-UP ARROW-DOWN, G      '
+	ascii   'SET GRID, SOUND, CLEAR            : SPACE, ENTER, CLEAR         '
+	ascii   'PLAY & STOP                       : P                           '
+	ascii   'ALL NOTES OFF (MIDI PANIC)        : !                           '
+	ascii   'TOGGLE TRACKING                   : T                           '
+	ascii   'CHANGE PLAYBACK SPEED             : N M , .                     '
+	ascii   'CHANGE CUR TRACK MIDI CHANNEL     : + -                         '
+	ascii   'CHANGE CUR TRACK MIDI INSTRUMENT  : U I                         '
+	ascii   'CHANGE CUR TRACK MIDI VELOCITY    : J K                         '
+	ascii   'CHANGE CUR TRACK DRUM, LAST MIDI  : ARROW-LEFT ARROW-RIGHT, @   ' 
+	ascii   'CHANGE CUR TRACK GATE LENGTH      : *                           '
+	ascii   'HELP, QUIT, LOAD & SAVE           : H Q L S                     '
+	ascii   'PAT +/-, CLEAR PAT, COPY PAT, SONG: / ?, =, ", &                '
 
+;; global variables
+
+instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
 
 lastcur	     byte	'.'
 lastcurpos   word 	$3c00+3*64 
@@ -73,30 +92,46 @@ cursory	byte 	3
 blink   byte    0
 status  byte    0
 track	byte    0
+
+trackpos   byte  0
+qtrackpos  byte  0
+
+midicount     byte  0
+curnote       byte  0
+curvelocity   byte  0
+
+tracksoff1 	defs    6*64 		
+tracksoff2 	defs    6*64
+
+song		ascii	'..........................'
+curpat		ascii   'A'
+frompat		ascii   'A'
+
+;; page-specific variables
+
+pagestart:
+
 delayc 	byte	0
 tempo   byte	10
 numbars byte	8
 numticks byte	8*16 
 gridres byte  	4
-
-trackpos   byte  0
-qtrackpos  byte  0
 quantpat   byte  11111100b
 
-midicount     byte  0
-curnote       byte  0
-curvelocity   byte  0	
-	
 drumnostracks		byte 36, 38, 40, 51, 44, 46 
 channeltracks 		byte 0, 1, 2, 3, 4, 9
-instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
+;; these will be global; too much overhead to change instruments with each page
+;; instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
 velocitytracks	 	byte 127, 127, 127, 127, 127, 127
 gatetracks	 	byte 8,8,8,8,8,8
 
 tracks1 	defs    6*64 		
 tracks2 	defs    6*64
-tracksoff1 	defs    6*64 		
-tracksoff2 	defs    6*64
+
+pagelen 	equ $-pagestart
+
+pages:		defs 26*pagelen	; pages A-Z
+
 
 keydown macro key
 	ld	a,(key >> 8)
@@ -166,59 +201,34 @@ k_shift	equ	$388001
 
 main:
 
+	ld	hl,waitt
+	ld	de,$3c00
+	ld	bc,1024
+	ldir
+
+	call initmem 
+
 	in  a,($ff)
 	or  a,$10 		; enable IO on Model III 
 	; and a,~$20 		; disable video wait states M III 
 	and a,~$40 		; slode mode M4 
 	out ($ec),a
 
-	ld	hl,data 
-	ld	de,tracks1
-	ld	bc,6*64 
-	ldir
-
-	ld	hl,data 
-	ld	de,tracksoff1
-	ld	bc,6*64 
-	ldir
-
-	ld	hl,data 
-	ld	de,tracks2 
-	ld	bc,6*64 
-	ldir
-
-	ld	hl,data 
-	ld	de,tracksoff2
-	ld	bc,6*64 
-	ldir
-
-	call midipanicr 
-	call short_delay
-	call short_delay
-	call short_delay
-	call short_delay
-
-	call setmiditrackinstruments
-
-
 
 main2:
 
-	ld	hl,$3c00
-	ld	de,$3c00+1
-	ld	bc,1024-1
-	ld	(hl),' '
-	ldir
-
-	ld	hl,title
-	ld	de,$3c00
-	ld	bc,1024
+	ld	hl,title+2*64
+	ld	de,$3c00+2*64
+	ld	bc,1024-2*64 
 	ldir
 
 	call screenupdate
 	call showcursor
 	call showplaycursor
 	call showtempo
+
+	ld hl, 	$3c00 ; glitch out last cusor pos
+	ld (hl), '*'
 
 loop:
 	ld a, (status) ; stopped ? 
@@ -469,11 +479,26 @@ scancont1:
 	cp '*'
 	jp z,chggatelength
 
+	cp '/'
+	jp z,uppat
+
+	cp '?'
+	jp z,downpat 
+
+	cp '=' 
+	call z,clrpat
+
+	cp '"' 
+	jp z,copypat
+
+	cp '&' 
+	jp z,songpage
+
 	jp loop 
 	
 	;;  do a screen update after keypress and continue 
 cont:
-	call screenupdate
+	call screenupdate	
 	call showtrack
 	call showtrackdrum
 	call showtrackchannel
@@ -481,10 +506,206 @@ cont:
 	call showtrackvelocity 
 	call showgridres
 	call showbars
-	call showgate		
+	call showgate
+	call showpat
 	
 	jp loop
+
+
+uppat:
+	ld a,(curpat)
+	cp 'Z'
+	jp z,cont
+
+	call putpat
+
+	ld a,(curpat)
+	inc a
+	ld (curpat), a
+
+	call getpat
 	
+	jp cont 
+
+downpat:
+	ld a,(curpat)
+	cp 'A'
+	jp z,cont
+
+	call putpat
+
+	ld a,(curpat)
+	dec a
+	ld (curpat), a
+
+	call getpat	
+	
+	jp cont
+
+getpatadr:
+	ld a,(curpat)
+getpatadr1:
+	sub 'A'-1
+	ld b, a
+	ld de, pagelen
+	ld hl, pages-pagelen
+getpatadr2:
+	add hl, de
+	djnz getpatadr2
+
+	ret
+
+putpat:
+	call getpatadr
+	push hl
+	pop de 
+	ld	hl,pagestart
+	ld	bc,pagelen 
+	ldir
+	
+	ret
+
+getpat:
+	call getpatadr
+	ld	de,pagestart
+	ld	bc,pagelen 
+	ldir
+
+	ret
+
+initmem:
+
+	ld (hl), 'A'
+
+initmem1:
+	ld hl, curpat
+
+	call clrpat1
+	call putpat 
+
+	ld hl, curpat
+	ld a, (hl)
+	inc a
+	ld (hl), a
+	cp 'Z'	
+
+	jr nz, initmem1 
+	
+	ld hl, curpat
+	ld (hl), 'A'
+	
+	ret 
+
+clrpat:
+	ld	hl,data 
+	ld	de,tracks1
+	ld	bc,6*64 
+	ldir
+
+	ld	hl,data 
+	ld	de,tracksoff1
+	ld	bc,6*64 
+	ldir
+
+	ld	hl,data 
+	ld	de,tracks2 
+	ld	bc,6*64 
+	ldir
+
+	ld	hl,data 
+	ld	de,tracksoff2
+	ld	bc,6*64 
+	ldir
+
+	call midipanicr 
+	call long_delay
+
+	call setmiditrackinstruments
+	call screenupdate	
+
+	ret 
+
+clrpat1:
+	ld	hl,data 
+	ld	de,tracks1
+	ld	bc,6*64 
+	ldir
+
+	ld	hl,data 
+	ld	de,tracks2 
+	ld	bc,6*64 
+	ldir
+
+	ret 
+
+copypat:
+
+	ld hl, curpat
+	ld a, (hl)
+	ld hl, frompat 
+	ld (hl), a 
+
+copypat1: 
+
+	ld hl,$3c00+64+5
+	ld (hl), '<'
+	inc hl
+	ld (hl), '-'
+	inc hl
+	ld de, frompat
+	ld a, (de) 
+	ld (hl), a
+	inc hl
+	ld (hl), '?'
+
+	call @KEY
+	cp ENTER
+	jp z, copypat2 
+
+	ld hl, frompat
+	ld (hl), a 
+
+	jr copypat1
+
+copypat2:
+
+	call long_delay 
+	ld hl, frompat
+	ld a, (hl)
+	cp 'A'
+	jr c, copypat1 
+	cp 'Z'+1
+	jr nc, copypat1
+
+	ld b, a 
+	ld a, (curpat)
+	cp b
+	jr z, copycleanup
+
+	ld a, (frompat)
+	call getpatadr1
+	ld	de,pagestart
+	ld	bc,pagelen 
+	ldir
+
+copycleanup:
+	ld hl,$3c00+64+5
+	ld (hl), ' '
+	inc hl 
+	ld a,(stopped)
+	ld (hl), a
+	inc hl
+	ld a,(tracked)
+	ld (hl), a
+	inc hl
+	ld (hl), ' '
+	
+	jp main2  
+
+songpage:
+	jp cont 
+
+
 chggatelength:
 	call gettrackgate
 	sla a 
@@ -646,7 +867,14 @@ help:
 	ldir
 
 	call @KEY
-	
+
+	ld a,'*'
+
+	ld	hl,title
+	ld	de,$3c00
+	ld	bc,1024
+	ldir
+
 	jp main2
 
 load:
@@ -1143,7 +1371,8 @@ startstop:
 	ld (status), a
 	or a
 	jr nz, showplay
-	
+
+showstartstop:
 	ld hl,$3c00 + 64 + 6
 	ld a,(stopped)
 	ld (hl), a
@@ -1152,10 +1381,7 @@ startstop:
 showplay:
 
 	call midipanicr
-	call short_delay
-	call short_delay
-	call short_delay
-	call short_delay
+	call long_delay
 
 	call gettrackchannel 
 	inc a 
@@ -1167,19 +1393,13 @@ showplay:
 	call setinstrument
 
 	call setmiditrackinstruments
-	call short_delay
-	call short_delay
-	call short_delay
-	call short_delay
+	call long_delay
 
 	ld hl,$3c00 + 64 + 6
 	ld a,(playing) 
 	ld (hl), a
 	
-	call short_delay
-	call short_delay
-	call short_delay
-	call short_delay
+	call long_delay
 
 	call playnotes
 
@@ -1631,7 +1851,8 @@ playnotes:
 	call stoptracks
 
 	ld a,(qtrackpos)
-	ld hl,tracks1	
+	ld hl,tracks1
+	ld ix,tracksoff1 
 	call playtracks
 
 	ret
@@ -1642,7 +1863,8 @@ playhightracks:
 	call stoptracks
 
 	ld a,(qtrackpos)
-	ld hl,tracks2 
+	ld hl,tracks2
+	ld ix,tracksoff2 
 	call playtracks
 
 	ret
@@ -1741,90 +1963,110 @@ playtracks:
 	res 6,a
 	ld e,a
 	ld d,0
+
 	add hl,de
+	add ix,de 
+	
 	ld bc,64
 
 	push hl
 	push bc
+	push ix 
 	
-	ld c,(hl) ; -> c is note on
+	ld c,(hl) ; -> c is note on	
 	ld d,0
 	ld e,0 ; e is track number 
 	call playnote
 
+	pop ix 
 	pop bc
 	pop hl
 	
 	add hl,bc
+	add ix,bc
 
 	push hl
 	push bc
-
+	push ix
+	
 	ld c,(hl)
 	ld d,0
 	ld e,1 
 	call playnote
 
+	pop ix 
 	pop bc
 	pop hl
 
 	add hl,bc
+	add ix,bc
 
-	push hl
+	push hl	
 	push bc
+	push ix 
 	
 	ld c,(hl) 
 	ld d,0
 	ld e,2
 	call playnote
 
+	pop ix 
 	pop bc
 	pop hl
 
 	add hl,bc
+	add ix,bc
 
 	push hl
 	push bc
+	push ix 
 
 	ld c,(hl) 
 	ld d,0
 	ld e,3 
 	call playnote
 
+	pop ix 
 	pop bc
 	pop hl
 
 	add hl,bc
+	add ix,bc
 
 	push hl
 	push bc
+	push ix 
 
 	ld c,(hl) 
 	ld d,0
 	ld e,4 
 	call playnote
 
+	pop ix 
 	pop bc
 	pop hl
 	
 	add hl,bc
+	add ix,bc
 
 	push hl
 	push bc
+	push ix
 
 	ld c,(hl) 
 	ld d,0
 	ld e,5 
 	call playnote
 
+	pop ix 
 	pop bc	
 	pop hl
 	
 	ret
 	
 	
-playnote: ; input note on in c; track number 0..5 in e 
-	
+playnote: ; input note on in c; track number 0..5 in e
+
         ld a, c 		; note on <> 0? no; return 
 	cp DISPMIDINOTEOFFSET+1
 	jr nc, playnote1
@@ -1865,14 +2107,20 @@ playnote1:
 	add hl, de 
 	ld a,(hl)		; gate duration for track  
 
-	pop hl 			; get note pointer + 12*64 + gate duration to ... 
+	pop hl 			; get note off pointer + gate duration to ... 
 	push de
 	
-	ld de, 12*64		; ... determine note off position in notes off grid 
-	add hl, de
+	;ld de, 12*64		; ... determine note off position in notes off grid 
+	;add hl, de
+	;ld d, 0
+	;ld e, a
+	;add hl, de
+
+	push ix	 		; note off pointer in IX
+	pop hl 			; hl <- ix
 	ld d, 0
 	ld e, a
-	add hl, de
+	add hl, de		; add gate duration
 
 	pop de
 	pop bc 
@@ -1947,6 +2195,12 @@ showgridres:
 	ld (hl),e
 	ret
 
+showpat:
+	ld a,(curpat)
+	ld hl,$3c00+64+4
+	ld (hl),a 
+	ret
+	
 
 showgate:
 	call gettrackgate
@@ -1966,7 +2220,14 @@ showbars:
 	ld (hl),e
 	ret
 
-
+long_delay:
+    ld de,$1000 
+delloop1: 
+    dec de
+    ld a,d
+    or e
+    jp nz,delloop1 
+    ret 
 
 short_delay:
     ld de,$003f
