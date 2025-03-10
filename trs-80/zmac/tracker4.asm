@@ -28,7 +28,7 @@ song: 	 ascii   'S'
 free: 	 ascii   'F'
 tracked: ascii   'T'
 
-line: 	ascii	'+---*---+---*---+---*---+---*---+---*---+---*---+---*---+---*---' 
+line: 	ascii	'SONG EDITOR:  USE LEFT/RIGHT, ENTER, A-Z=PATTERN, .=STOP, *=LOOP' 
 
 
 waitt:	ascii   '***** MIDI/80 TRACKER V1.70 - (C) 2024-2025 BY LAMBDAMIKEL *****'
@@ -70,7 +70,7 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 	ascii   'CHANGE BAR COUNT, JUMP TO BAR POS    : B, 1 2 3 4 5 6 7 8       '
 	ascii   'NEXT / PREV GRID POS, CHANGE GRID    : ARROW-UP ARROW-DOWN, G   '
 	ascii   'SET GRID, SOUND, CLEAR               : SPACE, ENTER, CLEAR      '
-	ascii   'TOGGLE PLAY PATTTERN / PLAY SONG     : P !                      '
+	ascii   'TOGGLE PLAY PATTERN / PLAY SONG      : P !                      '
 	ascii   'ALL NOTES OFF (MIDI PANIC)           : !                        '
 	ascii   'TOGGLE TRACKING                      : T                        '
 	ascii   'PAT +/-, PAT CLEAR, COPY, SONG EDITOR: / ?, =, ", &             '
@@ -112,6 +112,8 @@ tracksoff2 	defs    6*64
 
 songdata	ascii	'A...............................................................'
 songcur		byte 	0
+songpos		byte 	0
+
 curpat		ascii   'A'
 frompat		ascii   'A'
 
@@ -598,7 +600,7 @@ initmem1:
 	ld a, (hl)
 	inc a
 	ld (hl), a
-	cp 'Z'	
+	cp 'Z'+1
 
 	jr nz, initmem1 
 	
@@ -752,6 +754,9 @@ scancont2:
 	jr z,quitsongeditor
 
 	cp '*'	; loop song 
+	jr z, acceptmarker
+
+	cp '.'	; empty 
 	jr z, acceptmarker
 
 	cp 'A'
@@ -1517,7 +1522,9 @@ showstartstop:
 	jp cont
 	
 showplay:
-
+	ld hl, qtrackpos
+	ld (hl), 0
+	
 	call midipanicr
 	call long_delay
 
@@ -1553,8 +1560,63 @@ startstopsong:
 	jr nz, showplaysong
 	jr showstartstop
 
-showplaysong:
+getsongpat:
+	
+	ld hl, songdata 	; load song pattern at song index pos 
+	ld a, (songpos)
+	ld d, 0
+	ld e, a
+	add hl, de
+	ld a, (hl) 		; a has pattern
 
+	cp '.' 			; empty? stop
+	jr z, stopsong 
+
+	cp '*' 			; repeat?
+	jr z, repeatsong
+
+	;; load next patter from song 
+	ld hl, curpat		
+	ld (hl), a 
+	call getpat 		; load pattern
+	call showpat 
+
+	ret
+
+repeatsong:
+	ld hl, songpos
+	ld (hl), 0
+	jr getsongpat 
+
+stopsong:
+
+	ld hl, status
+	ld (hl), 0
+	ld hl,$3c00 + 64 + 6
+	ld a,(stopped)
+	ld (hl), a
+	call showpat 
+
+	ret
+
+contsong:	 
+
+	
+showplaysong:
+	
+	;; store current pattern in case user modified it before switching
+	call putpat
+
+	ld hl, songpos
+	ld (hl), 0
+	call getsongpat
+	call showpat
+	call screenupdate
+
+
+	ld hl, qtrackpos
+	ld (hl), 0
+	
 	call midipanicr
 	call long_delay
 
@@ -1731,9 +1793,29 @@ nextnote:
 	ld a,b
 	jr nz,nextnote0
 
-	; max tick number reached, set to 0
-	ld a, 0
+	;; max tick number reached, set to 0
+	;;  check if song mode?
 
+	ld a, (status)
+	cp 2
+
+	jr nz, nosongmode
+
+	;;  in song mode, load next patter from song
+
+	;; store current pattern in case user modified it before switching
+	call putpat
+
+	ld hl, songpos
+	inc (hl) 
+	call getsongpat
+	call showpat
+	call screenupdate
+
+nosongmode:	 
+	
+	ld a, 0
+	
 nextnote0:
 	ld (qtrackpos),a
 
