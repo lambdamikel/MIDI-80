@@ -84,7 +84,7 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 
 ;; global variables
 
-statusbuffer		defs	3*64
+statusbuffer		defs	2*64
 
 instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
 
@@ -109,6 +109,10 @@ curvelocity   byte  0
 
 tracksoff1 	defs    6*64 		
 tracksoff2 	defs    6*64
+
+; there is some bug in the code from tracksoff that messes with the songdata! double check at some point... for now, put a hack in here to protect song data:
+
+buffer 	defs    64	
 
 songdata	ascii	'A...............................................................'
 songcur		byte 	0
@@ -504,7 +508,7 @@ scancont1:
 	cp '"' 
 	jp z,copypat
 
-	cp '&' 
+	cp '&'
 	jp z,songpage
 
 	jp loop 
@@ -558,7 +562,7 @@ downpat:
 getpatadr:
 	ld a,(curpat)
 getpatadr1:
-	sub 'A'-1
+	sub 'A'-1 
 	ld b, a
 	ld de, pagelen
 	ld hl, pages-pagelen
@@ -575,7 +579,6 @@ putpat:
 	ld	hl,pagestart
 	ld	bc,pagelen 
 	ldir
-	
 	ret
 
 getpat:
@@ -583,6 +586,17 @@ getpat:
 	ld	de,pagestart
 	ld	bc,pagelen 
 	ldir
+
+	call screenupdate	
+	call showtrack
+	call showtrackdrum
+	call showtrackchannel
+	call showtrackinstrument
+	call showtrackvelocity 
+	call showgridres
+	call showbars
+	call showgate
+	call showpat
 
 	ret
 
@@ -717,9 +731,12 @@ copycleanup:
 
 songpage:
 
+	;;  call stopallplayr
+	call putpat
+
 	ld	hl, $3c00+64 
 	ld 	de, statusbuffer
-	ld 	bc, 3*64
+	ld 	bc, 2*64
 	ldir
 	
 	ld	hl,songdata 
@@ -764,6 +781,14 @@ scancont2:
 	cp 'Z'
 	jr nc, keyscan2
 
+	ld (curpat), a
+	call getpat
+
+	ld	hl,songdata 
+	ld	de,$3c00+64 
+	ld	bc,64 
+	ldir
+
 acceptmarker: 
 	push af 
 	ld hl, $3c00+64
@@ -778,7 +803,7 @@ acceptmarker:
 	add hl, de
 	ld (hl), a	
 
-	jr keyscan2
+	jp keyscan2
 
 noscansonged:
 	ld a,(blink)
@@ -796,7 +821,7 @@ noscansonged:
 	jr c,cur3
 	ld (hl), POSMARKSYM
 
-	jr keyscan2
+	jp keyscan2
 
 cur3:
 	push hl
@@ -809,13 +834,13 @@ cur3:
 	pop hl
 	ld (hl), a 
 
-	jr keyscan2
+	jp keyscan2
 
 
 quitsongeditor:
 	ld	de, $3c00+64 
 	ld 	hl, statusbuffer
-	ld 	bc, 3*64
+	ld 	bc, 2*64
 	ldir
 
 	jp cont
@@ -823,7 +848,7 @@ quitsongeditor:
 songcurleft:
 	ld a, (songcur)
 	or a 
-	jr z, keyscan2
+	jp z, keyscan2
 	dec a
 	ld (songcur), a
 		
@@ -913,12 +938,15 @@ gridres32:
 
 chgnumbars:
 	ld a,(numbars)
-	inc a
-	and $07
+	cp 8
+	jr nz, chgnumbars1
+	ld a, 0 
+chgnumbars1:
+	inc a 
 	ld (numbars),a
 
 	ld b,a
-	ld a,0
+	ld a,1 
 countticks:	
 	add 16 
 	djnz countticks
@@ -1507,6 +1535,11 @@ erasegridr:
 	erasegridx 
 	ret 
 
+stopallplayr:
+	ld a, 0 
+	ld (status), a
+	ret
+
 startstop:
 	ld a,(status)
 	xor 1
@@ -1575,12 +1608,17 @@ getsongpat:
 	cp '*' 			; repeat?
 	jr z, repeatsong
 
+	cp 'A'
+	ret c 
+	cp 'Z'+1
+	ret nc
+
 	;; load next patter from song 
 	ld hl, curpat		
-	ld (hl), a 
-	call getpat 		; load pattern
-	call showpat 
+	ld (hl), a
 
+	call getpat
+	
 	ret
 
 repeatsong:
@@ -1595,7 +1633,6 @@ stopsong:
 	ld hl,$3c00 + 64 + 6
 	ld a,(stopped)
 	ld (hl), a
-	call showpat 
 
 	ret
 
@@ -1610,9 +1647,6 @@ showplaysong:
 	ld hl, songpos
 	ld (hl), 0
 	call getsongpat
-	call showpat
-	call screenupdate
-
 
 	ld hl, qtrackpos
 	ld (hl), 0
@@ -1809,8 +1843,6 @@ nextnote:
 	ld hl, songpos
 	inc (hl) 
 	call getsongpat
-	call showpat
-	call screenupdate
 
 nosongmode:	 
 	
