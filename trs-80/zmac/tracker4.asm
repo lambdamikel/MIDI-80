@@ -1,4 +1,4 @@
-; TRACKER Version 1.8 
+; TRACKER Version 1.85
 ; to do: mute tracks, MIDI start/stop, MIDI sync 
 
 	org $6000
@@ -31,21 +31,22 @@ KCURDOWN	equ 10
 @error  equ 4409h
 @abort  equ 4030h       
 
-stopped: ascii   'H'
-playing: ascii   'P'
-song: 	 ascii   'S'
+stoppeds:  equ  'H'
+playings:  equ  'P'
+songs: 	   equ  'S'
+records:   equ  '*'
+playbacks: equ  ' '
 	
-free: 	 ascii   'F'
-tracked: ascii   'T'
+frees: 	  equ   'F'
+trackeds: equ   'T'
 
-dcb:	defs 48			; 48 for Model III TRSDOS 1.3   
-iobuf:	defs 256
-lrlerr  equ 42
-filename		ascii  "dump", 0
+dcb:		defs 48			; 48 for Model III TRSDOS 1.3   
+iobuf:		defs 256
+lrlerr:		equ 42
+filename:	ascii  "dump", 0
 
 
-ernldos 	db 1
-
+ernldos:	db 1
 
 
 errorm:	ascii   '***** DISK ERROR! DISK FULL / PROTECTED / NO DUMP? ANY KEY *****'
@@ -54,11 +55,11 @@ line: 	ascii	'SONG EDITOR:  USE LEFT/RIGHT, ENTER, A-Z=PATTERN, .=STOP, *=LOOP'
 
 quitm:  ascii	'***** QUIT TRACKER - REALLY QUIT? SAVED YOUR WORK?  Y/N: _ *****'
 
-savem: ascii	'**** SAVE STATE - OVERWRITE EXISTING CORE DUMP FILE? Y/N: _ ****'
+savem:  ascii	'**** SAVE STATE - OVERWRITE EXISTING CORE DUMP FILE? Y/N: _ ****'
 
-loadm: ascii	'***** LOAD STATE - LOAD CORE DUMP FILE INTO MEMORY? Y/N: _ *****'
+loadm:  ascii	'***** LOAD STATE - LOAD CORE DUMP FILE INTO MEMORY? Y/N: _ *****'
 
-waitt:	ascii   '***** MIDI/80 TRACKER V1.80 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+waitt:	ascii   '***** MIDI/80 TRACKER V1.85 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
@@ -75,7 +76,7 @@ waitt:	ascii   '***** MIDI/80 TRACKER V1.80 - (C) 2024-2025 BY LAMBDAMIKEL *****
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	
-title:	ascii   '***** MIDI/80 TRACKER V1.80 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.85 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -97,9 +98,9 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 	ascii   'CHANGE BAR COUNT, JUMP TO BAR POS    : B, 1 2 3 4 5 6 7 8       '
 	ascii   'NEXT / PREV GRID POS, CHANGE GRID    : ARROW-UP ARROW-DOWN, G   '
 	ascii   'SET GRID, SOUND, CLEAR               : SPACE, ENTER, CLEAR      '
-	ascii   'TOGGLE PLAY PATTERN / PLAY SONG      : P !                      '
+	ascii   'TOGGLE PAT/SONG PLAY / RECORD+PLAY   : P !                      '
 	ascii   'ALL NOTES OFF (MIDI PANIC)           : 0                        '
-	ascii   'TOGGLE TRACKING                      : T                        '
+	ascii   'TOGGLE RECORD, TOGGLE TRACKING       : #, T                     ' 
 	ascii   'PAT +/-, PAT CLEAR, COPY, SONG EDITOR: / ?, =, ", &             '
 	ascii   'HELP, QUIT, LOAD & SAVE              : H Q L S                  '
 	ascii   'GLOBAL CHANGE CUR TRACK MIDI INSTR.  : U I                      '
@@ -245,7 +246,6 @@ loop:
 	ld a,(cursory)
 	cp 10
 	jr c, showtrackcur
-
 	
 	sub 7
 	ld (cursory), a
@@ -270,7 +270,6 @@ trackcury:
 	ld a,(memcursory)
 	add 6 
 	ld (memcursory),a
-	
 
 showtrackcur:
 	ld hl, blink
@@ -299,9 +298,11 @@ scan:
 	
 	ld a, (status) 
 	or a
-	jr nz,scancont
+	;; jr nz,scancont
+	jr nz, keyscan1		
 
 	;; here we only sample if the tracking is stopped!
+	;; else we sample in "nextnote"
 
 	call midiin
 	or a
@@ -373,6 +374,9 @@ scancont1:
 
 	cp '!' 
 	jp z,startstopsong
+
+	cp '#' 
+	jp z,recordstatus
 
 	cp 'T'
 	jp z,trackstatus
@@ -681,10 +685,10 @@ copycleanup:
 	ld hl,$3c00+64+5
 	ld (hl), ' '
 	inc hl 
-	ld a,(stopped)
+	ld a,stoppeds
 	ld (hl), a
 	inc hl
-	ld a,(tracked)
+	ld a, trackeds
 	ld (hl), a
 	inc hl
 	ld (hl), ' '
@@ -1531,7 +1535,7 @@ startstop:
 
 showstartstop:
 	ld hl,$3c00 + 64 + 6
-	ld a,(stopped)
+	ld a,stoppeds
 	ld (hl), a
 	jp cont
 	
@@ -1555,7 +1559,7 @@ showplay:
 	call long_delay
 
 	ld hl,$3c00 + 64 + 6
-	ld a,(playing) 
+	ld a, playings 
 	ld (hl), a
 	
 	call long_delay
@@ -1612,7 +1616,7 @@ stopsong:
 	ld hl, status
 	ld (hl), 0
 	ld hl,$3c00 + 64 + 6
-	ld a,(stopped)
+	ld a,stoppeds
 	ld (hl), a
 
 	ret
@@ -1648,7 +1652,7 @@ showplaysong:
 	call long_delay
 
 	ld hl,$3c00 + 64 + 6
-	ld a,(song) 
+	ld a, songs
 	ld (hl), a
 	
 	call long_delay
@@ -1659,6 +1663,27 @@ showplaysong:
 
 
 
+recordstatus:
+	ld a,(record)
+	xor 1
+	ld (record), a
+	or a
+	jr nz, showrecordstatus
+	
+	ld hl,$3c00 + 64 + 8
+	ld a, playbacks 
+	ld (hl), a
+	
+	jp cont
+	
+showrecordstatus:	
+	ld hl,$3c00 + 64 + 8
+	ld a, records
+	ld (hl), a
+	
+	jp cont 
+
+
 trackstatus:
 	ld a,(track)
 	xor 1
@@ -1667,14 +1692,14 @@ trackstatus:
 	jr nz, showtrackstatus
 	
 	ld hl,$3c00 + 64 + 7
-	ld a,(free)
+	ld a, frees
 	ld (hl), a
 	
 	jp cont
 	
 showtrackstatus:	
 	ld hl,$3c00 + 64 + 7
-	ld a,(tracked)
+	ld a, trackeds
 	ld (hl), a
 	
 	jp cont 
@@ -1819,7 +1844,11 @@ nextnote:
 	;;  in song mode, load next patter from song
 
 	;; store current pattern in case user modified it before switching
-	call putpat
+
+	ld a, (record)
+	or a 
+
+	call nz, putpat 	; only store if recording active (optimization to prevent lag during playback)
 
 	ld hl, songpos
 	inc (hl) 
@@ -1837,11 +1866,16 @@ nextnote0:
 	and b
 	ld (trackpos),a
 
+	ld a, (record)		; don't sample if not in record mode 
+	or a
+	jr z, nextnote2
+
 	cp b
 	jr z, nextnote1
 
 	;; ENTER sample keyboard; this one makes noise,
 	;; ONLY sample when (qtrackpos) = (trackpos)
+
 
 	call midiin		
 	cp 1 
@@ -1860,6 +1894,7 @@ nextnote1:
 	keydown k_clear
 	call nz,erasegridr
 
+nextnote2:	 
 	ld a, (trackpos)
 
 	bit 7,a
@@ -2698,7 +2733,7 @@ getern:
 
 datastart
 
-startmarker: 	ascii 'START-OF-FILE-MARKER'
+startmarker 	ascii 'START-OF-FILE-MARKER'
 
 statusbuffer		defs	2*64
 
@@ -2715,6 +2750,7 @@ cursory	byte 	3
 blink   byte    0
 status  byte    0
 track	byte    0
+record  byte    0
 
 trackpos   byte  0
 qtrackpos  byte  0
@@ -2740,8 +2776,7 @@ frompat		ascii   'A'
 ;; page-specific variables
 
 
-
-pagestart:
+pagestart
 
 delayc 	byte	0
 tempo   byte	10
@@ -2762,9 +2797,9 @@ tracks2 	defs    6*64
 
 pagelen 	equ $-pagestart
 
-pages:		defs 26*pagelen	; pages A-Z
+pages		defs 26*pagelen	; pages A-Z
 
-endmarker: 	ascii 'END-OF-FILE-MARKER'
+endmarker 	ascii 'END-OF-FILE-MARKER'
 
 dataend 	equ $
 datalength 	equ $-datastart
