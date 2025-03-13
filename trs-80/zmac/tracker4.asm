@@ -1,7 +1,7 @@
-; TRACKER Version 1.7
-; to do: mute tracks, save, load 
+; TRACKER Version 1.8 
+; to do: mute tracks, MIDI start/stop, MIDI sync 
 
-	org $8000
+	org $6000
 
 DISPMIDINOTEOFFSET equ $61 ; 0 -> 'a' 
 
@@ -21,6 +21,16 @@ KCURDOWN	equ 10
 @KEY    	equ 	$0049 
 @DSP    	equ 	$0033
 
+;; Model I/III addresses
+@fspec  equ 441ch
+@init   equ 4420h
+@open   equ 4424h
+@close  equ 4428h
+@read   equ 4436h
+@write  equ 4439h
+@error  equ 4409h
+@abort  equ 4030h       
+
 stopped: ascii   'H'
 playing: ascii   'P'
 song: 	 ascii   'S'
@@ -28,10 +38,27 @@ song: 	 ascii   'S'
 free: 	 ascii   'F'
 tracked: ascii   'T'
 
-line: 	ascii	'SONG EDITOR:  USE LEFT/RIGHT, ENTER, A-Z=PATTERN, .=STOP, *=LOOP' 
+dcb:	defs 48			; 48 for Model III TRSDOS 1.3   
+iobuf:	defs 256
+lrlerr  equ 42
+filename		ascii  "dump", 0
 
 
-waitt:	ascii   '***** MIDI/80 TRACKER V1.70 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+ernldos 	db 1
+
+
+
+errorm:	ascii   '***** DISK ERROR! DISK FULL / PROTECTED / NO DUMP? ANY KEY *****'
+
+line: 	ascii	'SONG EDITOR:  USE LEFT/RIGHT, ENTER, A-Z=PATTERN, .=STOP, *=LOOP'
+
+quitm:  ascii	'***** QUIT TRACKER - REALLY QUIT? SAVED YOUR WORK?  Y/N: _ *****'
+
+savem: ascii	'**** SAVE STATE - OVERWRITE EXISTING CORE DUMP FILE? Y/N: _ ****'
+
+loadm: ascii	'***** LOAD STATE - LOAD CORE DUMP FILE INTO MEMORY? Y/N: _ *****'
+
+waitt:	ascii   '***** MIDI/80 TRACKER V1.80 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
@@ -48,7 +75,7 @@ waitt:	ascii   '***** MIDI/80 TRACKER V1.70 - (C) 2024-2025 BY LAMBDAMIKEL *****
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	
-title:	ascii   '***** MIDI/80 TRACKER V1.70 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.80 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -71,7 +98,7 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 	ascii   'NEXT / PREV GRID POS, CHANGE GRID    : ARROW-UP ARROW-DOWN, G   '
 	ascii   'SET GRID, SOUND, CLEAR               : SPACE, ENTER, CLEAR      '
 	ascii   'TOGGLE PLAY PATTERN / PLAY SONG      : P !                      '
-	ascii   'ALL NOTES OFF (MIDI PANIC)           : !                        '
+	ascii   'ALL NOTES OFF (MIDI PANIC)           : 0                        '
 	ascii   'TOGGLE TRACKING                      : T                        '
 	ascii   'PAT +/-, PAT CLEAR, COPY, SONG EDITOR: / ?, =, ", &             '
 	ascii   'HELP, QUIT, LOAD & SAVE              : H Q L S                  '
@@ -81,71 +108,6 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 	ascii   'PAGE CHANGE CUR TRACK MIDI VELOCITY  : J K                      '
 	ascii   'PAGE CHANGE CUR TRACK DRUM, LAST MIDI: ARROW-LEFT ARROW-RIGHT, @' 
 	ascii   'PAGE CHANGE CUR TRACK GATE LENGTH    : *                        '
-
-;; global variables
-
-statusbuffer		defs	2*64
-
-instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
-
-lastcur	     byte	'.'
-lastcurpos   word 	$3c00+3*64 
-
-memcursorx byte 	0
-memcursory byte 	0
-	
-cursorx	byte 	0
-cursory	byte 	3
-blink   byte    0
-status  byte    0
-track	byte    0
-
-trackpos   byte  0
-qtrackpos  byte  0
-
-midicount     byte  0
-curnote       byte  0
-curvelocity   byte  0
-
-tracksoff1 	defs    6*64 		
-tracksoff2 	defs    6*64
-
-; there is some bug in the code from tracksoff that messes with the songdata! double check at some point... for now, put a hack in here to protect song data:
-
-buffer 	defs    64	
-
-songdata	ascii	'A...............................................................'
-songcur		byte 	0
-songpos		byte 	0
-
-curpat		ascii   'A'
-frompat		ascii   'A'
-
-;; page-specific variables
-
-pagestart:
-
-delayc 	byte	0
-tempo   byte	10
-numbars byte	8
-numticks byte	8*16 
-gridres byte  	4
-quantpat   byte  11111100b
-
-drumnostracks		byte 36, 38, 40, 51, 44, 46 
-channeltracks 		byte 0, 1, 2, 3, 4, 9
-;; these will be global; too much overhead to change instruments with each page
-;; instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
-velocitytracks	 	byte 127, 127, 127, 127, 127, 127
-gatetracks	 	byte 8,8,8,8,8,8
-
-tracks1 	defs    6*64 		
-tracks2 	defs    6*64
-
-pagelen 	equ $-pagestart
-
-pages:		defs 26*pagelen	; pages A-Z
-
 
 keydown macro key
 	ld	a,(key >> 8)
@@ -490,7 +452,7 @@ scancont1:
 	cp 'B'
 	jp z,chgnumbars 
 
-	cp '!'
+	cp '0'
 	jp z,midipanic
 
 	cp '*'
@@ -734,10 +696,7 @@ songpage:
 	;;  call stopallplayr
 	call putpat
 
-	ld	hl, $3c00+64 
-	ld 	de, statusbuffer
-	ld 	bc, 2*64
-	ldir
+	call savestatus
 	
 	ld	hl,songdata 
 	ld	de,$3c00+64 
@@ -778,7 +737,7 @@ scancont2:
 
 	cp 'A'
 	jr c, keyscan2
-	cp 'Z'
+	cp 'Z'+1
 	jr nc, keyscan2
 
 	ld (curpat), a
@@ -838,10 +797,7 @@ cur3:
 
 
 quitsongeditor:
-	ld	de, $3c00+64 
-	ld 	hl, statusbuffer
-	ld 	bc, 2*64
-	ldir
+	call restorestatus
 
 	jp cont
 
@@ -872,6 +828,20 @@ songcurright:
 	ldir
 
 	jp keyscan2
+
+restorestatus:
+	ld	de, $3c00+64 
+	ld 	hl, statusbuffer
+	ld 	bc, 2*64
+	ldir
+	ret
+
+savestatus:
+	ld	hl, $3c00+64 
+	ld 	de, statusbuffer
+	ld 	bc, 2*64
+	ldir
+	ret 
 	
 chggatelength:
 	call gettrackgate
@@ -1048,13 +1018,24 @@ help:
 	jp main2
 
 load:
-	jp loop 
+	ld hl, loadm  
+	call yesnoprompt
+	jp nz, cont 
+	call loaddisk
+	jp cont 
 
 save:
-	jp loop 
+	ld hl, savem  
+	call yesnoprompt
+	jp nz, cont 
+	call savedisk 
+	jp cont 
 	
 quit:
-	call @EXIT
+	ld hl, quitm 
+	call yesnoprompt
+	jp nz, cont 
+	call @EXIT	
 	
 nextbar:
 	ld a,(cursorx)
@@ -2529,6 +2510,266 @@ delloop:
     jp nz,delloop
     ret 
 
+loaddisk:
+
+	ld hl, filename
+	
+	ld de, dcb              ; ready to get TRS-80 filename from (HL)
+        call @fspec
+        jp nz, diskerror 
+        
+	ld hl, iobuf
+        ld de, dcb
+        ld b, 0
+        call @open               ; open the file
+        jr z, readfile
+        
+        ld c, a                  ; error code 
+        jp diskerror
+        
+readfile:
+
+        ; call getern
+	ld b, 88
+	ld c, 0
+
+	ld de, datastart
+	
+rloop:  push de
+
+	ld de, dcb
+	ld hl, iobuf 
+	call @read              ; read file
+
+	pop de
+	
+        jr z, rok               ; got a full 256 bytes
+        
+        ld c, a
+        jp diskerror          ; oops, i/o error
+        ret
+       
+rok:    ld	hl,iobuf	; source hl; de = datastart + page offset
+	push bc 		; save pagecounter 
+	ld	bc,256 		; # bytes to copy
+	push de			; save de 
+	ldir 			; hl -> de / bc bytes
+	pop de			; restore de 
+	pop bc			; restore pagecounter
+	
+	inc d			; inc. page offset 
+	djnz rloop
+
+        ld de, dcb
+        call @close              ; close the TRS-80 file
+        jr z, diskreadok
+        
+        ld c, a
+        jp diskerror           ; oops, i/o error
+        
+diskreadok: ret 
+
+	
+savedisk:
+
+        ld hl, filename 
+
+	ld de, dcb              ; ready to get TRS-80 filename from (HL)
+        call @fspec
+        jp nz, diskerror 
+
+	ld hl, datastart
+        ld de, dcb
+        ld b, 0
+        call @init               ; open the file
+        jr z, writefile
+	
+        ld c, a                  ; error code 
+        jp diskerror
+        ret 
+        
+writefile:
+
+        ld hl, datastart 
+        ld de, dcb
+        ld bc, datalength
+	inc b
+	
+wloop:	ld (dcb+3), hl
+        call @write             ; write 256 bytes to file
+        jr z, wrok
+        ld c, a
+        jp diskerror          ; oops, i/o error
+	ret
+        
+wrok:   inc h
+	djnz wloop		; write next block unitl b = 0; remainder in c 
+
+	ld a, c			; remainder of last record 
+        ld (dcb+8), a
+	
+	;; ld (dcb+3), hl
+        call setern             ; set ERN (in case shortening file)
+	
+        ld de, dcb
+        call @close              ; close the TRS-80 file
+        jr z, disksaveok
+
+	ld c, a
+        jp diskerror              ; oops, i/o error
+	ret
+        
+disksaveok: ret
+
+diskerror:
+	ld	hl,errorm 
+	ld	de,$3c00+64
+	ld	bc,64
+	ldir
+	call @KEY
+	call restorestatus
+	ret
+
+yesnoprompt:
+	push hl 
+	call savestatus
+	pop hl
+	ld	de,$3c00+64
+	ld	bc,64
+	ldir
+	call @KEY
+	cp 'Y'
+	call restorestatus
+	ret
+	
+
+;; EOF handling differs between TRS-80 DOSes:
+;;  For TRSDOS 2.3 and LDOS, word (dcb+12) contains the number of
+;;  256 byte records in the file, byte (dcb+8) contains the EOF
+;;  offset in the last record (0=256).
+;;  For NEWDOS/80 and TRSDOS 1.3, byte (dcb+8) and word (dcb+12) 
+;;  form a 24 bit number containing the relative byte address of EOF.
+;;  Thus (dcb+12) differs by one if the file length is not a
+;;  multiple of 256 bytes.  DOSPLUS also uses this convention,
+;;  and NEWDOS 2.1 probably does too (not checked).
+
+; Set ending record number of file to current position
+; EOF offset in C; destroys A, HL
+setern:
+	ld hl, (dcb+10)		; current record number
+	ld a, (ernldos)         ; get ERN convention
+	or a
+	jr nz, noadj            ; go if TRSDOS 2.3/LDOS convention
+adj:	or c			; length multiple of 256 bytes?
+	jr z, noadj             ; go if so
+	dec hl			; no, # of records - 1
+noadj:	ld (dcb+12), hl
+	ret	
+
+
+;; EOF handling differs between TRS-80 DOSes:
+;;  For TRSDOS 2.3 and LDOS, word (dcb+12) contains the number of
+;;  256 byte records in the file, byte (dcb+8) contains the EOF
+;;  offset in the last record (0=256).
+;;  For NEWDOS/80 and TRSDOS 1.3, byte (dcb+8) and word (dcb+12) 
+;;  form a 24 bit number containing the relative byte address of EOF.
+;;  Thus (dcb+12) differs by one if the file length is not a
+;;  multiple of 256 bytes.  DOSPLUS also uses this convention,
+;;  and NEWDOS 2.1 probably does too (not checked).
+
+; Returns number of (partial or full) records in BC, destroys A
+getern:
+        ld bc, (dcb+12)
+        ld a, (ernldos)         ; get ERN convention
+        and a
+        ret nz                  ; done if TRSDOS 2.3/LDOS convention
+        ld a, (dcb+8)           ; length multiple of 256 bytes?
+        and a
+        ret z                   ; done if so
+        inc bc                  ; no, # of records = last full record + 1
+        ret     
+
+
+;;
+;; data region 
+;; 
+	
+	org $8000
+
+datastart
+
+startmarker: 	ascii 'START-OF-FILE-MARKER'
+
+statusbuffer		defs	2*64
+
+instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
+
+lastcur	     byte	'.'
+lastcurpos   word 	$3c00+3*64 
+
+memcursorx byte 	0
+memcursory byte 	0
+	
+cursorx	byte 	0
+cursory	byte 	3
+blink   byte    0
+status  byte    0
+track	byte    0
+
+trackpos   byte  0
+qtrackpos  byte  0
+
+midicount     byte  0
+curnote       byte  0
+curvelocity   byte  0
+
+tracksoff1 	defs    6*64 		
+tracksoff2 	defs    6*64
+
+; there is some bug in the code from tracksoff that messes with the songdata! double check at some point... for now, put a hack in here to protect song data:
+
+buffer 	defs    64	
+
+songdata	ascii	'A...............................................................'
+songcur		byte 	0
+songpos		byte 	0
+
+curpat		ascii   'A'
+frompat		ascii   'A'
+
+;; page-specific variables
+
+
+
+pagestart:
+
+delayc 	byte	0
+tempo   byte	10
+numbars byte	8
+numticks byte	8*16 
+gridres byte  	4
+quantpat   byte  11111100b
+
+drumnostracks		byte 36, 38, 40, 51, 44, 46 
+channeltracks 		byte 0, 1, 2, 3, 4, 9
+;; these will be global; too much overhead to change instruments with each page
+;; instrumenttracks 	byte 1, 2, 3, 4, 5, 1 
+velocitytracks	 	byte 127, 127, 127, 127, 127, 127
+gatetracks	 	byte 8,8,8,8,8,8
+
+tracks1 	defs    6*64 		
+tracks2 	defs    6*64
+
+pagelen 	equ $-pagestart
+
+pages:		defs 26*pagelen	; pages A-Z
+
+endmarker: 	ascii 'END-OF-FILE-MARKER'
+
+dataend 	equ $
+datalength 	equ $-datastart
+
+	
 	end main 
 
 	
