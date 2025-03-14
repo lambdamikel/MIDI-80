@@ -1,4 +1,4 @@
-; TRACKER Version 1.85
+; TRACKER Version 1.90
 ; to do: mute tracks, MIDI start/stop, MIDI sync 
 
 	org $6000
@@ -53,13 +53,15 @@ errorm:	ascii   '***** DISK ERROR! DISK FULL / PROTECTED / NO DUMP? ANY KEY ****
 
 line: 	ascii	'SONG EDITOR:  USE LEFT/RIGHT, ENTER, A-Z=PATTERN, .=STOP, *=LOOP'
 
-quitm:  ascii	'***** QUIT TRACKER - REALLY QUIT? SAVED YOUR WORK?  Y/N: _ *****'
+quitm:  ascii	'***** QUIT TRACKER - REALLY QUIT? SAVED YOUR WORK? Y/N: _  *****'
+
+clearm: ascii	'***** CLEAR PATTERN - ARE YOU SURE? REALLY CLEAR? Y/N: _   *****'
 
 savem:  ascii	'**** SAVE STATE - OVERWRITE EXISTING CORE DUMP FILE? Y/N: _ ****'
 
 loadm:  ascii	'***** LOAD STATE - LOAD CORE DUMP FILE INTO MEMORY? Y/N: _ *****'
 
-waitt:	ascii   '***** MIDI/80 TRACKER V1.85 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+waitt:	ascii   '***** MIDI/80 TRACKER V1.90 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
@@ -76,7 +78,7 @@ waitt:	ascii   '***** MIDI/80 TRACKER V1.85 - (C) 2024-2025 BY LAMBDAMIKEL *****
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	
-title:	ascii   '***** MIDI/80 TRACKER V1.85 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.90 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -237,7 +239,7 @@ loop:
 
 	ld a,(trackpos)
 	bit 6,a
-	jr nz,trackcury ; > 64 inc y
+	jr nz,trackcury ; >= 64 inc y
 
 	res 6,a
 	ld (cursorx),a
@@ -590,6 +592,11 @@ initmem1:
 	ret 
 
 clrpat:
+
+	ld hl, clearm 
+	call yesnoprompt
+	ret nz
+
 	ld	hl,data 
 	ld	de,tracks1
 	ld	bc,6*64 
@@ -632,10 +639,12 @@ clrpat1:
 	ret 
 
 copypat:
+	call savestatus
+	call putpat
 
 	ld hl, curpat
 	ld a, (hl)
-	ld hl, frompat 
+	ld hl, topat 
 	ld (hl), a 
 
 copypat1: 
@@ -645,7 +654,7 @@ copypat1:
 	inc hl
 	ld (hl), '-'
 	inc hl
-	ld de, frompat
+	ld de, topat
 	ld a, (de) 
 	ld (hl), a
 	inc hl
@@ -655,7 +664,7 @@ copypat1:
 	cp ENTER
 	jp z, copypat2 
 
-	ld hl, frompat
+	ld hl, topat
 	ld (hl), a 
 
 	jr copypat1
@@ -663,7 +672,7 @@ copypat1:
 copypat2:
 
 	call long_delay 
-	ld hl, frompat
+	ld hl, topat
 	ld a, (hl)
 	cp 'A'
 	jr c, copypat1 
@@ -675,24 +684,17 @@ copypat2:
 	cp b
 	jr z, copycleanup
 
-	ld a, (frompat)
+	ld a, (topat)
 	call getpatadr1
-	ld	de,pagestart
+	push hl
+	pop de 
+	ld	hl,pagestart
 	ld	bc,pagelen 
 	ldir
 
 copycleanup:
-	ld hl,$3c00+64+5
-	ld (hl), ' '
-	inc hl 
-	ld a,stoppeds
-	ld (hl), a
-	inc hl
-	ld a, trackeds
-	ld (hl), a
-	inc hl
-	ld (hl), ' '
-	
+	call restorestatus
+
 	jp main2  
 
 songpage:
@@ -996,8 +998,8 @@ midinoteon:
 	
 	ret	
 
-
 help:
+	call putpat
 
 	ld	hl,$3c00
 	ld	de,$3c00+1
@@ -1022,6 +1024,8 @@ help:
 	jp main2
 
 load:
+	call putpat
+
 	ld hl, loadm  
 	call yesnoprompt
 	jp nz, cont 
@@ -1029,6 +1033,8 @@ load:
 	jp cont 
 
 save:
+	call putpat
+
 	ld hl, savem  
 	call yesnoprompt
 	jp nz, cont 
@@ -1036,6 +1042,8 @@ save:
 	jp cont 
 	
 quit:
+	call putpat
+
 	ld hl, quitm 
 	call yesnoprompt
 	jp nz, cont 
@@ -1546,15 +1554,6 @@ showplay:
 	call midipanicr
 	call long_delay
 
-	call gettrackchannel 
-	inc a 
-	and $0f
-	ld (hl), a
-	
-	call gettracknr
-	dec a
-	call setinstrument
-
 	call setmiditrackinstruments
 	call long_delay
 
@@ -1562,8 +1561,6 @@ showplay:
 	ld a, playings 
 	ld (hl), a
 	
-	call long_delay
-
 	call playnotes
 
 	jp cont 
@@ -1639,15 +1636,6 @@ showplaysong:
 	call midipanicr
 	call long_delay
 
-	call gettrackchannel 
-	inc a 
-	and $0f
-	ld (hl), a
-	
-	call gettracknr
-	dec a
-	call setinstrument
-
 	call setmiditrackinstruments
 	call long_delay
 
@@ -1655,8 +1643,6 @@ showplaysong:
 	ld a, songs
 	ld (hl), a
 	
-	call long_delay
-
 	call playnotes
 
 	jp cont 
@@ -2111,7 +2097,6 @@ setinstrument: 			; a has track number
 	add a, b
 	out (8),a  		; change instrument for channel in a 
 	call short_delay
-	call short_delay
 
 	pop af 
 	ld ix,instrumenttracks	; retrieve instrument for track a 
@@ -2121,7 +2106,6 @@ setinstrument: 			; a has track number
 	ld a,(ix) 		; MIDI instrument for track a is now in a 
 
 	out (8),a		; change MIDI instrument to a 
-	call short_delay
 	call short_delay
  
 	ret
@@ -2152,14 +2136,19 @@ playnotes:
 	ld a,(qtrackpos)
 	
 	bit 6,a
-	jr nz,playhightracks ; > 64  
+	jr nz,playhightracks ; >= 64  
+
+playlowtracks:
 
 	ld hl,tracksoff1	
 	call stoptracks
 
 	ld a,(qtrackpos)
 	ld hl,tracks1
-	ld ix,tracksoff1 
+	
+	ld ix,tracksoff1
+	ld iy,tracksoff2
+
 	call playtracks
 
 	ret
@@ -2171,7 +2160,10 @@ playhightracks:
 
 	ld a,(qtrackpos)
 	ld hl,tracks2
-	ld ix,tracksoff2 
+
+	ld ix,tracksoff1
+	ld iy,tracksoff2
+
 	call playtracks
 
 	ret
@@ -2264,193 +2256,230 @@ stoptracks:
 	
 	ret
 	
-playtracks: 
-	; add track index
-	; clear bit 6
-	res 6,a
-	ld e,a
-	ld d,0
-
-	add hl,de
-	add ix,de 
-	
-	ld bc,64
+playtracks:
 
 	push hl
-	push bc
-	push ix 
+	push ix
+	push iy
 	
-	ld c,(hl) ; -> c is note on	
 	ld d,0
 	ld e,0 ; e is track number 
 	call playnote
 
+	pop iy 
 	pop ix 
-	pop bc
 	pop hl
 	
+	ld bc,64
 	add hl,bc
 	add ix,bc
+	add iy,bc
 
 	push hl
-	push bc
 	push ix
+	push iy 
 	
-	ld c,(hl)
 	ld d,0
 	ld e,1 
 	call playnote
 
+	pop iy
 	pop ix 
-	pop bc
 	pop hl
-
+	
+	ld bc,64
 	add hl,bc
 	add ix,bc
+	add iy,bc
 
 	push hl	
-	push bc
 	push ix 
+	push iy 
 	
-	ld c,(hl) 
 	ld d,0
 	ld e,2
 	call playnote
 
+	pop iy 
 	pop ix 
-	pop bc
 	pop hl
 
+	ld bc,64
 	add hl,bc
 	add ix,bc
+	add iy,bc
 
 	push hl
-	push bc
-	push ix 
+	push ix
+	push iy
 
-	ld c,(hl) 
 	ld d,0
 	ld e,3 
 	call playnote
 
+	pop iy 
 	pop ix 
-	pop bc
 	pop hl
 
+	ld bc,64
 	add hl,bc
 	add ix,bc
+	add iy,bc
 
 	push hl
-	push bc
 	push ix 
-
-	ld c,(hl) 
+	push iy 
+	
 	ld d,0
 	ld e,4 
 	call playnote
 
+	pop iy 
 	pop ix 
-	pop bc
 	pop hl
 	
+	ld bc,64
 	add hl,bc
 	add ix,bc
+	add iy,bc
 
 	push hl
-	push bc
 	push ix
-
-	ld c,(hl) 
+	push iy 
+	
 	ld d,0
 	ld e,5 
 	call playnote
 
+	pop iy 
 	pop ix 
-	pop bc	
 	pop hl
 	
 	ret
 	
 	
-playnote: ; input note on in c; track number 0..5 in e
+playnote: ; input note on in c; track number 0..5 in e; hl track start, ix note of track start 
 
-        ld a, c 		; note on <> 0? no; return 
+	ld a, (qtrackpos)	; add note index offset
+	res 6, a		; reset high tracks bit 
+
+	ld b, a			; save note index to b 
+
+	push de			; save track number in e 
+	ld d, 0			; compute note pointer 
+	ld e, a
+	add hl, de
+	pop de 
+	
+        ld a, (hl) 		; get note; note on, <> 0? no -> return 
 	cp DISPMIDINOTEOFFSET+1
 	jr nc, playnote1
 
-	call short_delay
-	call short_delay
 	ret 
 
 playnote1:
 
-	push bc
-	push hl			; note pointer 
+	; note index in b, note to play in a,
+	; e track number, hl note pointer,
+	; ix start of note off low  tracks
+	; iy start of note off high tracks
+
+	push	af	        ; save note in a	
 	
 	ld hl,channeltracks 	; determine MIDI channel for track in e 
-	;; ld d,0
-	;; ld e,e 
 	add hl, de 
-	ld a,(hl) 		; MIDI channel for track in e
+	ld a,(hl) 		; MIDI channel for track  
 
 	add $90			; MIDI NOTE ON for MIDI channel in a 
 	out (8),a
 
-	push de
+	push de			; protect track number in e 
 	call short_delay
 	pop de
 
-	ld a,c			; c has the note number -> MIDI out 
+	pop af			; output note number
+	push af			
 	sub DISPMIDINOTEOFFSET		
-	out (8),a
+	out (8), a
 	
-	push de
+	push de			; protect track number in e 
 	call short_delay
 	pop de
-	
-	ld hl,gatetracks
-	;; ld d,0
-	;; ld e,e		; track number
-	add hl, de 
-	ld a,(hl)		; gate duration for track  
-
-	pop hl 			; get note off pointer + gate duration to ... 
-	push de
-	
-	;ld de, 12*64		; ... determine note off position in notes off grid 
-	;add hl, de
-	;ld d, 0
-	;ld e, a
-	;add hl, de
-
-	push ix	 		; note off pointer in IX
-	pop hl 			; hl <- ix
-	ld d, 0
-	ld e, a
-	add hl, de		; add gate duration
-
-	pop de
-	pop bc 
-
-	ld a, c			; get note number which was stored in c 
-	ld (hl), a 		; store note in note off grid
 
 	ld hl,velocitytracks 	; determine MIDI velocity for track in e  
-	;; ld d,0
-	;; ld e,e 
 	add hl, de 
 	ld a,(hl) 		; MIDI velocity for track in e 
 	out (8),a
+
+	;; compute and set note off in noteoff tracks 
+
+	ld hl,gatetracks
+	add hl, de 		; gate duration index 
+	ld c, (hl)		; gate duration for track 	
+
+	ld a, (qtrackpos) 	; load note index, with bit 6 set if >= 64
+	add c 			; add gate duration 
 	
+	ld hl, numticks
+	ld c, (hl)
+	cp c			; a > numticks? wrap around! use iy as basis 
+	jr c, nowrap
+
+	; else, we need to wrap around, sub 64; c has note position + gate duration offset
+	; a has numticks 
+
+	sub c
+
+nowrap: ; a has note position + gate duration offset, wrapped around - check if high or low tracks 
+
+	bit 6,a
+	jr nz, storenoteoffhigh  ; >= 64, high off tracks
+	
+	bit 7,a
+	jr nz, storenoteoffhigh2  ; >= 128, low off tracks
+
+storenoteofflow:
+
+	push ix	 ; low off tracks 
+	pop hl
+
+	jr storenoteoff
+	
+storenoteoffhigh:
+
+	res 6,a	; -> low tracks 
+
+	push iy  ; high off tracks 
+	pop hl
+
+	jr storenoteoff
+
+storenoteoffhigh2:
+
+	res 7,a	; -> low tracks (wrap around at end track 6, > 127!) 
+
+	push ix  ; low off tracks 
+	pop hl
+
+	jr storenoteoff
+
+storenoteoff: 
+
+	ld d, 0
+	ld e, a
+	add hl, de		; hl has high or low note pos in off tracks 
+
+	pop af			; restore note to play / turn off
+	ld (hl), a 		; store note in note off grid
+
 	ret 
+
 
 stopnote: ; input note off in c; track number 0..5 in e 
 
         ld a, c 		; note on <> 0? no; return
 	or a 
 	jr nz, stopnote1
-	call short_delay
-	call short_delay
 
 	ret
 	
@@ -2537,7 +2566,7 @@ delloop1:
     ret 
 
 short_delay:
-    ld de,$003f
+    ld de,$0020
 delloop: 
     dec de
     ld a,d
@@ -2771,7 +2800,7 @@ songcur		byte 	0
 songpos		byte 	0
 
 curpat		ascii   'A'
-frompat		ascii   'A'
+topat		ascii   'A'
 
 ;; page-specific variables
 
@@ -2779,7 +2808,7 @@ frompat		ascii   'A'
 pagestart
 
 delayc 	byte	0
-tempo   byte	10
+tempo   byte	$2a
 numbars byte	8
 numticks byte	8*16 
 gridres byte  	4
