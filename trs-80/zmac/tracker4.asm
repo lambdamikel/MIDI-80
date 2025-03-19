@@ -1,4 +1,4 @@
-; TRACKER Version 1.91
+; TRACKER Version 1.92
 ; to do: mute tracks, MIDI start/stop, MIDI sync 
 
 	org $6000
@@ -61,7 +61,7 @@ savem:  ascii	'**** SAVE STATE - OVERWRITE EXISTING CORE DUMP FILE? Y/N: _ ****'
 
 loadm:  ascii	'***** LOAD STATE - LOAD CORE DUMP FILE INTO MEMORY? Y/N: _ *****'
 
-waitt:	ascii   '***** MIDI/80 TRACKER V1.91 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+waitt:	ascii   '***** MIDI/80 TRACKER V1.92 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
@@ -78,7 +78,7 @@ waitt:	ascii   '***** MIDI/80 TRACKER V1.91 - (C) 2024-2025 BY LAMBDAMIKEL *****
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	
-title:	ascii   '***** MIDI/80 TRACKER V1.91 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.92 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -1817,7 +1817,8 @@ nextnote:
 	dec a
 	cp b
 	ld a,b
-	jr nz,nextnote0
+	
+	jr nz,nextnotew
 
 	;; max tick number reached, set to 0
 	;;  check if song mode?
@@ -1843,6 +1844,14 @@ nextnote:
 nosongmode:	 
 	
 	ld a, 0
+	jr nextnote0
+
+nextnotew: ; add some delay...
+
+	push af
+	ld hl, 16800
+	call wHL	
+	pop af
 	
 nextnote0:
 	ld (qtrackpos),a
@@ -2375,6 +2384,11 @@ playnote: ; input note on in c; track number 0..5 in e; hl track start, ix note 
 	cp DISPMIDINOTEOFFSET+1
 	jr nc, playnote1
 
+	;; else, waste some time!
+
+	call short_delay
+	call short_delay
+
 	ret 
 
 playnote1:
@@ -2481,6 +2495,11 @@ stopnote: ; input note off in c; track number 0..5 in e
 	or a 
 	jr nz, stopnote1
 
+	;; else, waste some time!
+
+	call short_delay
+	call short_delay
+
 	ret
 	
 stopnote1:
@@ -2518,7 +2537,9 @@ stopnote1:
 	add hl, de 
 	ld a,(hl) 		; MIDI velocity for track in e 
 	out (8),a
-	
+
+cost1   equ     t($)-t(stopnote1)
+
 	ret 
 
 showgridres:
@@ -2705,7 +2726,10 @@ yesnoprompt:
 	cp 'Y'
 	call restorestatus
 	ret
-	
+;;
+;; setern by Frederic Vecoven and Tim Mann
+;; https://github.com/veco/FreHDv1/blob/main/sw/z80/utils/import2.z80
+;;
 
 ;; EOF handling differs between TRS-80 DOSes:
 ;;  For TRSDOS 2.3 and LDOS, word (dcb+12) contains the number of
@@ -2729,7 +2753,10 @@ adj:	or c			; length multiple of 256 bytes?
 	dec hl			; no, # of records - 1
 noadj:	ld (dcb+12), hl
 	ret	
-
+;;
+;; getern by Frederic Vecoven and Tim Mann
+;; https://github.com/veco/FreHDv1/blob/main/sw/z80/utils/export2.z80
+;;
 
 ;; EOF handling differs between TRS-80 DOSes:
 ;;  For TRSDOS 2.3 and LDOS, word (dcb+12) contains the number of
@@ -2753,6 +2780,43 @@ getern:
         inc bc                  ; no, # of records = last full record + 1
         ret     
 
+
+;; 
+;; Cycle Wasting Routines by G. Phillips 
+;; http://48k.ca/beamhack3.html
+;;
+
+; wHL -- Waste HL + 100 T states. Only uses A, HL.
+
+wHL256:
+        dec     h               ;<0>  | <4>
+        ld      a,256-4-4-12-4-7-17-81       ; 81 is wA overhead
+                                ;<0>  | <7>
+        call    wA              ;<0>  | <17+A>
+wHL:    inc     h               ;<4>  | <4>
+        dec     h               ;<4>  | <4>
+        jr      nz,wHL256       ;<7>  | <12>
+        ld      a,l             ;<4>
+wA:     rrca                    ;<4>
+        jr      c,wHL_0s        ;<7>  | <12> 1 extra cycle if bit 0 set
+        nop                     ;<4>  | <0>
+wHL_0s: rrca                    ;<4>
+        jr      nc,wHL_1c       ;<12> | <7>  2 extra cycles if bit 1 set
+        jr      nc,wHL_1c       ;<0>  | <7>
+wHL_1c: rrca                    ;<4>
+        jr      nc,wHL_2c       ;<12> | <7>  4 extra cycles if bit 2 set
+        ret     nc              ;<0>  | <5>
+        nop                     ;<0>  | <4>
+wHL_2c: rrca                    ;<4>
+        jr      nc,wHL_3c       ;<12> | <7>  8 extra cycles if bit 3 set
+        ld      (0),a           ;<0>  | <13>
+wHL_3c: and     a,0fh           ;<7>
+        ret     z               ;<11> | <5>  done if no other bits set
+wHL_16: dec     a               ;<0>  | <4>  loop away 16 for remaining count
+        jr      nz,wHL_16       ;<0>  | <12>
+        ret     z               ;<0>  | <11>
+; Last jr was 7, but the extra 5 from "ret z" keeps us at 16 * A.
+; The "ret z" cost balances the previous "ret z" in the 0 case.
 
 ;;
 ;; data region 
