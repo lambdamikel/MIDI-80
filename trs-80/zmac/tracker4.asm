@@ -1,4 +1,4 @@
-; TRACKER Version 1.92
+; TRACKER Version 1.93
 ; to do: mute tracks, MIDI start/stop, MIDI sync 
 
 	org $6000
@@ -61,7 +61,7 @@ savem:  ascii	'**** SAVE STATE - OVERWRITE EXISTING CORE DUMP FILE? Y/N: _ ****'
 
 loadm:  ascii	'***** LOAD STATE - LOAD CORE DUMP FILE INTO MEMORY? Y/N: _ *****'
 
-waitt:	ascii   '***** MIDI/80 TRACKER V1.92 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+waitt:	ascii   '***** MIDI/80 TRACKER V1.93 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
@@ -78,7 +78,7 @@ waitt:	ascii   '***** MIDI/80 TRACKER V1.92 - (C) 2024-2025 BY LAMBDAMIKEL *****
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	
-title:	ascii   '***** MIDI/80 TRACKER V1.92 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.93 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -213,15 +213,19 @@ loop:
 	ld a, (status) ; stopped ? 
 	or a
 	jp z, nostep
-	
-	ld a, (delayc)
-	inc a
-	ld hl,delayc
-	ld (hl), a
+
+running: 
+
+	ld hl, delayc
+	inc (hl)
+	ld a, (hl) 
+	 	
 	ld b, a
 	ld a, (tempo) 
 	cp b
 	jp nz, nostep
+
+nextstep:
 	
 	;;  inc note pointer
 	call nextnote
@@ -235,6 +239,8 @@ loop:
 	or a
 	jp z, nostep
 
+tracking_enabled: 
+		  
 	;; tracked - set screen cursor x to playcursor x
 
 	ld a,(trackpos)
@@ -258,6 +264,7 @@ loop:
 	jr showtrackcur	
 
 trackcury:
+
 	res 6,a	
 	
 	ld (cursorx),a
@@ -274,14 +281,58 @@ trackcury:
 	ld (memcursory),a
 
 showtrackcur:
+
 	ld hl, blink
 	ld (hl), 127
 
 	call showcursor
 
+	;; cursor updates complete, now scan the keyboard
+	
 	jr scan 
 	
 nostep:
+	
+	;; sample keyboard during recording and MIDI
+
+	keydown k_space 
+	jr z,nostep_scan1
+
+	ld hl, space_registered
+	ld (hl), 1
+
+nostep_scan1:
+
+	;; sample keyboard CLEAR and queue 
+
+	keydown k_clear
+	jr z,nostep_scan2
+
+	ld hl, clear_registered
+	ld (hl), 1
+
+nostep_scan2:
+
+	keydown k_enter 
+	jr z,nostep_scan3
+
+	ld hl, enter_registered 
+	ld (hl), 1
+
+nostep_scan3:
+	
+	;; sample MIDI and queue 
+
+	call MIDIIN
+	or a
+	jr z, cur0
+
+	;; MIDI available: 
+
+	ld hl, midi_registered
+	ld (hl), 1
+
+cur0:
 
 	ld a,(blink)
 	inc a
@@ -294,59 +345,48 @@ nostep:
 cur1:	 
 	cp 127
 	jp nz, scan  
-	call showcursor
+	call showcursor	
 		
 scan:
 	
 	ld a, (status) 
 	or a
-	;; jr nz,scancont
-	jr nz, keyscan1		
+	jr nz, keyscan
 
-	;; here we only sample if the tracking is stopped!
-	;; else we sample in "nextnote"
+	;; not in play mode; tracker is stopped: 
+	;; here we only react to MIDI and keyboard input if stopped! 
+	;; else we react in "nextnote" 
 
-	call midiin
+        ld hl, midi_registered
+	ld a, (hl)
+	ld (hl), 0
 	or a
-	jr z, keyscan
+	jp nz,setgridandsoundmidi
 
-	;; else, we got a note in the buffer: just treat this as setgridandsoundmidi for now
-	jp setgridandsoundmidi
+        ld hl, clear_registered
+	ld a, (hl)
+	ld (hl), 0
+	or a
+	jp nz,erasegrid
+
+        ld hl, enter_registered
+	ld a, (hl)
+	ld (hl), 0
+	or a
+	jp nz,setgridandsoundkey
+
+        ld hl, space_registered 
+	ld a, (hl)
+	ld (hl), 0
+	or a
+	jp nz,setgridkey
 
 keyscan:	 
 
 	call @KBD
 	or a
 	jp z,loop
-
-        cp ' ' ; space
-	jp z,setgridkey 
-
-	cp 13 ; enter
-	jp z,setgridandsoundkey
-
-	cp 31 ; clear 
-	jp z,erasegrid
-
-	jr scancont1
-
-scancont:
-
-	call midiin
-	or a
-	jr z, keyscan1 
-
-	;; else, we got a note in the buffer: just treat this as setgridandsound for now
-	jp setgridandsoundmidi
-
-keyscan1:	 
-
-	call @KBD
-	or a
-	jp z,loop
-
-scancont1:
-
+	
 	cp 'Z' 
 	jp z,left
 	cp 'Y' 
@@ -922,7 +962,8 @@ chgnumbars1:
 	ld (numbars),a
 
 	ld b,a
-	ld a,1 
+	ld a,0
+	
 countticks:	
 	add 16 
 	djnz countticks
@@ -1814,14 +1855,13 @@ nextnote:
 	ld b,a
 	
 	ld a,(numticks)
-	dec a
 	cp b
 	ld a,b
 	
 	jr nz,nextnotew
 
-	;; max tick number reached, set to 0
-	;;  check if song mode?
+	;; page end - 
+	;; check if song mode?
 
 	ld a, (status)
 	cp 2
@@ -1842,62 +1882,78 @@ nextnote:
 	call getsongpat
 
 nosongmode:	 
-	
+
+	;; max tick number reached, set to 0
+
 	ld a, 0
 	jr nextnote0
 
 nextnotew: ; add some delay...
 
-	push af
+ 	;; next note, no page switch
+	
+	push af 
 	ld hl, 16800
-	call wHL	
+	call wHL
 	pop af
 	
 nextnote0:
+
+	;; update cursors, quantize tracking cursor
+	
 	ld (qtrackpos),a
 
 	ld b, a
 	ld a, (quantpat)
 	and b
 	ld (trackpos),a
+	
+
+nextnote_continue:
+
+	ld a, (qtrackpos)
+	ld b, a
+	ld a, (trackpos)
+
+	cp b
+	jr nz, nextnote2
 
 	ld a, (record)		; don't sample if not in record mode 
 	or a
 	jr z, nextnote2
 
-	cp b
-	jr z, nextnote1
-
-	;; ENTER sample keyboard; this one makes noise,
-	;; ONLY sample when (qtrackpos) = (trackpos)
+	;; check registered keypresses and
+	;; take action when (qtrackpos) = (trackpos) 
 
 
-	call midiin		
-	cp 1 
-	call z,setgridandsoundr
+nextnote_check_registered: 
 
-	keydown k_enter 
-	call nz,setgridandsoundkeyr
+        ld hl, clear_registered
+	ld a, (hl)
+	ld (hl), 0
+	or a
+	call nz,erasegridr 	
 
-nextnote1:
+        ld hl, enter_registered
+	ld a, (hl)
+	ld (hl), 0
+	or a
+	call nz,setgridandsoundkeyr 
 
-	;; sample keyboard
-
-	keydown k_space 
+        ld hl, space_registered 
+	ld a, (hl)
+	ld (hl), 0
+	or a
 	call nz,setgridkeyr
 
-	keydown k_clear
-	call nz,erasegridr
+        ld hl, midi_registered
+	ld a, (hl)
+	ld (hl), 0
+	or a
+	call nz,setgridandsoundr 
 
-nextnote2:	 
-	ld a, (trackpos)
 
-	bit 7,a
-	ret z
-	
-	ld a,0
-	ld (qtrackpos),a
-	ld (trackpos),a
+nextnote2:
 	
 	ret
 
@@ -2851,6 +2907,11 @@ qtrackpos  byte  0
 midicount     byte  0
 curnote       byte  0
 curvelocity   byte  0
+
+clear_registered byte 0 
+space_registered byte 0 
+enter_registered byte 0 
+midi_registered  byte 0 
 
 tracksoff1 	defs    6*64 		
 tracksoff2 	defs    6*64
