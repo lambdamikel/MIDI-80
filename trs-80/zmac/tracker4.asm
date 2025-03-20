@@ -1,5 +1,10 @@
-; TRACKER Version 1.93
-; to do: mute tracks, MIDI start/stop, MIDI sync 
+;; TRACKER Version 1.94
+;; to do:
+;; - mute tracks
+;; - MIDI start/stop different trackers 
+;; - MIDI sync different trackers 
+;; - record NOTE OFF messages, too? (new mode with GATE = *)
+;; ... 
 
 	org $6000
 
@@ -61,7 +66,7 @@ savem:  ascii	'**** SAVE STATE - OVERWRITE EXISTING CORE DUMP FILE? Y/N: _ ****'
 
 loadm:  ascii	'***** LOAD STATE - LOAD CORE DUMP FILE INTO MEMORY? Y/N: _ *****'
 
-waitt:	ascii   '***** MIDI/80 TRACKER V1.93 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+waitt:	ascii   '***** MIDI/80 TRACKER V1.94 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
@@ -78,7 +83,7 @@ waitt:	ascii   '***** MIDI/80 TRACKER V1.93 - (C) 2024-2025 BY LAMBDAMIKEL *****
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	
-title:	ascii   '***** MIDI/80 TRACKER V1.93 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.94 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -1242,20 +1247,49 @@ slower1:
 	call showtempo
 	jp cont	
 
-testsoundx macro 
+testsoundx macro n 
+	;; first, turn of previously played note
+	;; ONLY if in record mode!
 
 	call gettrackchannel
+	ld b, a
 
+	ld a,(record)
+	or a
+	jr z, playnoteon_&n
+
+	;; turn off currently held note
+
+	ld a, b
+	add $80 
+	out (8),a
+  
+	call short_delay
+	ld a,(lastcurnote)
+	out (8),a
+  
+	call short_delay
+	ld a,(lastcurvelocity)
+	out (8),a
+
+	call short_delay
+	call short_delay
+
+playnoteon_&n:
+
+	ld a, b
 	add $90 
 	out (8),a
   
 	call short_delay
 	ld a,(curnote)
 	out (8),a
+	ld (lastcurnote), a
   
 	call short_delay
 	ld a,(curvelocity)
 	out (8),a
+	ld (lastcurvelocity), a
 
 	endm 
 
@@ -1489,7 +1523,7 @@ gettrackvelocityx macro
 
 setgridandsoundmidi:
 
-	testsoundx
+	testsoundx 1
 	setgridx 
 
 	jp cont 
@@ -1502,14 +1536,14 @@ setgridandsoundkey:
 	call gettrackvelocity
 	ld (curvelocity), a  
 
-	testsoundx
+	testsoundx 2
 	setgridx 
 
 	jp cont 
 
 setgridandsoundr:
 	
-	testsoundx
+	testsoundx 3
 	setgridx 
 
 	ret
@@ -1522,7 +1556,7 @@ setgridandsoundkeyr:
 	call gettrackvelocity
 	ld (curvelocity), a  
 
-	testsoundx
+	testsoundx 4
 	setgridx 
 
 	ret
@@ -2570,7 +2604,7 @@ stopnote1:
 	add hl, de 
 	ld a,(hl) 		; MIDI channel for track in e
 
-	add $80			; MIDI NOTE ON for MIDI channel in a 
+	add $80			; MIDI NOTE OFF for MIDI channel in a 
 	out (8),a
 
 	push de
@@ -2904,9 +2938,11 @@ record  byte    0
 trackpos   byte  0
 qtrackpos  byte  0
 
-midicount     byte  0
-curnote       byte  0
-curvelocity   byte  0
+midicount         byte  0
+curnote           byte  0
+curvelocity       byte  0
+lastcurnote       byte  0
+lastcurvelocity   byte  0
 
 clear_registered byte 0 
 space_registered byte 0 
