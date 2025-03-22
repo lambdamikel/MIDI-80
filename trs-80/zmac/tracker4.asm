@@ -1,4 +1,4 @@
-;; TRACKER Version 1.94
+;; TRACKER Version 1.95
 ;; to do:
 ;; - mute tracks
 ;; - MIDI start/stop different trackers 
@@ -66,7 +66,7 @@ savem:  ascii	'**** SAVE STATE - OVERWRITE EXISTING CORE DUMP FILE? Y/N: _ ****'
 
 loadm:  ascii	'***** LOAD STATE - LOAD CORE DUMP FILE INTO MEMORY? Y/N: _ *****'
 
-waitt:	ascii   '***** MIDI/80 TRACKER V1.94 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+waitt:	ascii   '***** MIDI/80 TRACKER V1.95 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
@@ -83,7 +83,7 @@ waitt:	ascii   '***** MIDI/80 TRACKER V1.94 - (C) 2024-2025 BY LAMBDAMIKEL *****
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	
-title:	ascii   '***** MIDI/80 TRACKER V1.94 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.95 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -326,7 +326,11 @@ nostep_scan2:
 
 nostep_scan3:
 	
-	;; sample MIDI and queue 
+	;; sample MIDI and queue if in RECORD mode only 
+
+	ld a,(record)
+	or a
+	jr z, cur0
 
 	call MIDIIN
 	or a
@@ -538,6 +542,7 @@ cont:
 	call showbars
 	call showgate
 	call showpat
+	call showtempo 
 	
 	jp loop
 
@@ -610,6 +615,14 @@ getpat:
 	call showbars
 	call showgate
 	call showpat
+
+	ret
+
+getpat0:
+	call getpatadr
+	ld	de,pagestart
+	ld	bc,pagelen 
+	ldir
 
 	ret
 
@@ -1158,34 +1171,121 @@ setbar2x macro
 	endm 
 
 bar1:
+
+	ld a,(status)
+	cp 1 ; pattern play mode?
+	jr nz, bar1a
+
+	;; else, change the current pattern to A after current bar
+	ld a, 'A' 
+	ld (nextpat), a
+	jp cont 
+
+bar1a:
+
 	ld a,0
 	setbar1x 
 	
-bar2:	
+bar2:
+
+	ld a,(status)
+	cp 1 ; pattern play mode?
+	jr nz, bar2a
+
+	;; else, change the current pattern to B after current bar
+	ld a, 'B' 
+	ld (nextpat), a
+	jp cont
+	
+bar2a: 
 	ld a,16
 	setbar1x 
 
 bar3:
+	ld a,(status)
+	cp 1 ; pattern play mode?
+	jr nz, bar3a
+
+	;; else, change the current pattern to B after current bar
+	ld a, 'C' 
+	ld (nextpat), a
+	jp cont
+
+bar3a: 
 	ld a,32
 	setbar1x 
 
 bar4:
+	ld a,(status)
+	cp 1 ; pattern play mode?
+	jr nz, bar4a
+
+	;; else, change the current pattern to B after current bar
+	ld a, 'C' 
+	ld (nextpat), a
+	jp cont
+
+
+bar4a:
 	ld a,48
 	setbar1x 
 
 bar5:
+	ld a,(status)
+	cp 1 ; pattern play mode?
+	jr nz, bar5a
+
+	;; else, change the current pattern to B after current bar
+	ld a, 'D'  
+	ld (nextpat), a
+	jp cont
+
+
+bar5a:
 	ld a,0
 	setbar2x 
 
 bar6:
+
+	ld a,(status)
+	cp 1 ; pattern play mode?
+	jr nz, bar6a
+
+	;; else, change the current pattern to B after current bar
+	ld a, 'E' 
+	ld (nextpat), a
+	jp cont
+
+bar6a:
 	ld a,16
 	setbar2x
 	
 bar7:
+	ld a,(status)
+	cp 1 ; pattern play mode?
+	jr nz, bar7a
+
+	;; else, change the current pattern to B after current bar
+	ld a, 'F' 
+	ld (nextpat), a
+	jp cont
+
+bar7a:
 	ld a,32
 	setbar2x
 	
 bar8:
+
+	ld a,(status)
+	cp 1 ; pattern play mode?
+	jr nz, bar8a
+
+	;; else, change the current pattern to B after current bar
+	ld a, 'G' 
+	ld (nextpat), a
+	jp cont
+
+bar8a: 
 	ld a,48
 	setbar2x 
 
@@ -1623,6 +1723,10 @@ showstartstop:
 	jp cont
 	
 showplay:
+
+	;; store current pattern in case user modified it before switching
+	call putpat
+
 	ld hl, qtrackpos
 	ld (hl), 0
 	
@@ -1674,7 +1778,7 @@ getsongpat:
 	ld hl, curpat		
 	ld (hl), a
 
-	call getpat
+	call getpat0 
 	
 	ret
 
@@ -1831,9 +1935,9 @@ down2:
 
 	
 cursor:
-	ld a,(blink)
-	inc a
-	ld (blink),a
+	;;ld a,(blink)
+	;;inc a
+	;;ld (blink),a
 	ld hl,$3c00
 	ld a,(cursorx)
 	or a
@@ -1915,6 +2019,21 @@ nextnote:
 	inc (hl) 
 	call getsongpat
 
+	call screenupdate	
+	call showpat
+	call showtempo 
+	call showgridres
+	call showbars
+	
+	;;call showtrack
+	;;call showtrackdrum
+	;;call showtrackchannel
+	;;call showtrackinstrument
+	;;call showtrackvelocity 
+	;;call showgridres
+	;;call showbars
+	;;call showgate
+
 nosongmode:	 
 
 	;; max tick number reached, set to 0
@@ -1922,10 +2041,47 @@ nosongmode:
 	ld a, 0
 	jr nextnote0
 
-nextnotew: ; add some delay...
+nextnotew:
+
+	;; no song-based page switch, check for requested page switch
+	ld b, a 
+	ld a, (nextpat)
+	or a
+	ld a, b
+	jr z, nextnotecontpat ; no requested pattern switch
+
+	;; else, switch to requested pattern at end of current bar
+
+	ld a, (qtrackpos)
+	inc a
+	and 00001111b
+	or a
+	jr nz, nextnotecontpat
+
+	;; else, switch in requested next pattern
+
+	ld hl, curpat
+	ld a, (nextpat) 
+	ld (hl), a
+	call getpat0 
+	call screenupdate	
+	call showpat
+	call showtempo 
+	call showgridres
+	call showbars
+
+	ld a, 0 
+	ld (nextpat), a 
+
+	jr nextnote0 
+	
+
+nextnotecontpat:
 
  	;; next note, no page switch
-	
+	ld a, (qtrackpos)
+	inc a
+
 	push af 
 	ld hl, 16800
 	call wHL
@@ -2962,6 +3118,7 @@ songpos		byte 	0
 
 curpat		ascii   'A'
 topat		ascii   'A'
+nextpat		byte	 0 
 
 ;; page-specific variables
 
