@@ -13,7 +13,7 @@
 Since March 21st I am proud owner of a Behringer Wave! I always
 admired [the PPG Wave](https://en.wikipedia.org/wiki/PPG_Wave) created
 back in the day in 1981 by [Wolfgang
-Palm](https://en.wikipedia.org/wiki/Wolfgang_Palm), inventor of {Wave
+Palm](https://en.wikipedia.org/wiki/Wolfgang_Palm), inventor of [Wave
 Table Synthesis](https://en.wikipedia.org/wiki/Wavetable_synthesis),
 in my birth-town [Hamburg,
 Germany.](https://en.wikipedia.org/wiki/Hamburg) It's utterly amazing
