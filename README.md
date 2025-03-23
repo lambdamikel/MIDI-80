@@ -8,6 +8,36 @@
 
 ## News 
 
+### March 2025
+
+Since March 21st I am proud owner of a Behringer Wave! I always
+admired [the PPG Wave](https://en.wikipedia.org/wiki/PPG_Wave) created
+back in the day in 1981 by [Wolfgang
+Palm](https://en.wikipedia.org/wiki/Wolfgang_Palm), inventor of {Wave
+Table Synthesis](https://en.wikipedia.org/wiki/Wavetable_synthesis),
+in my birth-town [Hamburg,
+Germany.](https://en.wikipedia.org/wiki/Hamburg) It's utterly amazing
+what he achieved and accomplished with so little - he didn't even have
+a C-compiler for software development. All the firmware / software for
+his synths was programmed in bare-metal 6809 assembly.
+
+![Behringer Wave](pics/wave.png)
+
+Thanks to Behringer for cloning / re-creating the PPG Wave, and for
+making it affordable! So everybody can experience the magic of this
+legendary iconic influential synth now, for an extremely fair price. I
+couldn't be more happy with it - the build quality is excellent
+(enclosure is solid sheet metal!), the keyboard surprisingly good for
+the price, and it even has aftertouch. The sound is excellent as well,
+and it really reproduces the original sound quite faithfully as far as
+I can tell. I believe the recreated Curtis filter chip plays a key
+role here.
+
+I am super happy with the Behringer Wave, as it allows me to make
+music that sounds like Tangerine Dream and Depeche Mode from the early
+1980s. [This video features my first steps with it, using Tracker 1.95
+in song mode.](https://youtu.be/P_UCIXRl1cc)
+
 ### February 2025
 
 Thanks to [Jürgen Wich](https://homecomputerguy.de/en/), who created a [new batch tool](midibatchconv/) that makes bulk creation of MIDI song disks a breeze! Check out his awesome new [MIDI Conversion Tools for MIDI/80 and TRS-80](midibatchconv/README.md)! His software tool suite can be found [here](midibatchconv/).
