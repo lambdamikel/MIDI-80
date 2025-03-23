@@ -21,7 +21,7 @@ what he achieved and accomplished with so little - he didn't even have
 a C-compiler for software development. All the firmware / software for
 his synths was programmed in bare-metal 6809 assembly.
 
-![Behringer Wave](pics/wave.png)
+![Behringer Wave](pics/wave.jpg)
 
 Thanks to Behringer for cloning / re-creating the PPG Wave, and for
 making it affordable! So everybody can experience the magic of this
