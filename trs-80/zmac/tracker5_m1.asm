@@ -233,25 +233,25 @@ running:
 
 listenextclock:
 
-	in a, (M3_PRINTER_IO)	; Model III Printer Input
-	ld b, a
-	ld hl, lastextclockin1	
+	;; in a, (M3_PRINTER_IO)	; Model III Printer Input
+	;; ld b, a
+	;; ld hl, lastextclockin1	
+	;; ld a, (hl)
+	;; ld (hl), b 
+	
+	;; xor b 
+	;; jr nz, nextstep
+
+	; this KILLs the M3 
+	ld hl, M1_PRINTER_RAM	; MODEL 1 Printer Input 
+	ld a, (hl)
+	ld b, a 
+	ld hl, lastextclockin2
 	ld a, (hl)
 	ld (hl), b 
 	
-	xor b 
+	xor b
 	jr nz, nextstep
-
-	; this KILLs the M3 
-	;ld hl, M1_PRINTER_RAM	; MODEL 1 Printer Input 
-	;ld a, (hl)
-	;ld b, a 
-	;ld hl, lastextclockin2
-	;ld a, (hl)
-	;ld (hl), b 
-	
-	;xor b
-	;jr nz, nextstep
 
 	jr nostep
 
@@ -272,12 +272,12 @@ nextstep:
 	ld hl, extclockout
 	inc (hl) 
 
-	ld a, (hl) 
-	out (M3_PRINTER_IO), a
+	;; ld a, (hl) 
+	;; out (M3_PRINTER_IO), a
 
 	;; output external clock, MODEL I
 	;; this KILLS the M3... 
-	;; ld (M1_PRINTER_RAM), a
+	ld (M1_PRINTER_RAM), a
 
 	;;  inc note pointer
 	call nextnote
@@ -2060,11 +2060,11 @@ dly:	dec	bc
 
 clearextclockr:
 
-	in a, (M3_PRINTER_IO)	; Model III Printer Input
-	ld b, a
-	ld hl, lastextclockin1	
-	ld a, (hl)
-	ld (hl), b
+	;; in a, (M3_PRINTER_IO)	; Model III Printer Input
+	;; ld b, a
+	;; ld hl, lastextclockin1	
+	;; ld a, (hl)
+	;; ld (hl), b
 	
 	ld hl, M1_PRINTER_RAM	; MODEL 1 Printer Input 
 	ld a, (hl)
