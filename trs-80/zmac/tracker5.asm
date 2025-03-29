@@ -289,7 +289,6 @@ nextstep:
 	;; output external clock, MODEL III
 	ld hl, extclockout
 	inc (hl) 
-
 	ld a, (hl) 
 	out (M3_PRINTER_IO), a
 	jr nextstep1
@@ -297,6 +296,9 @@ nextstep:
  outputextclockm1:
  
 	;; output external clock, MODEL I
+	ld hl, extclockout
+	inc (hl) 
+	ld a, (hl) 
 	ld (M1_PRINTER_RAM), a
 
 nextstep1: 
