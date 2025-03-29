@@ -6,7 +6,7 @@
 ;; - record NOTE OFF messages, too? (new mode with GATE = *)
 ;; ... 
 
-	org $6000
+	org $5400
 
 DISPMIDINOTEOFFSET equ $61 ; 0 -> 'a' 
 
@@ -194,14 +194,23 @@ main:
 	ld	bc,1024
 	ldir
 
-	call initmem 
+	call initmem    
+
+	call getmodel
+	ld (trsversion), a
+	;add 64
+	;ld ($3c00), a
+	;call @KEY
+	;ret
+	
+	cp 1
+	jr z, main2
 
 	in  a,($ff)
 	or  a,$10 		; enable IO on Model III 
 	; and a,~$20 		; disable video wait states M III 
 	and a,~$40 		; slode mode M4 
 	out ($ec),a
-
 
 main2:
 
@@ -233,6 +242,10 @@ running:
 
 listenextclock:
 
+	ld a, (trsversion)
+	cp 1 ; Model 1? 
+	jr z, listenextclockm1 
+
 	in a, (M3_PRINTER_IO)	; Model III Printer Input
 	ld b, a
 	ld hl, lastextclockin1	
@@ -241,19 +254,20 @@ listenextclock:
 	
 	xor b 
 	jr nz, nextstep
+	jp nostep
 
-	; this KILLs the M3 
-	;ld hl, M1_PRINTER_RAM	; MODEL 1 Printer Input 
-	;ld a, (hl)
-	;ld b, a 
-	;ld hl, lastextclockin2
-	;ld a, (hl)
-	;ld (hl), b 
+listenextclockm1:
+
+	ld hl, M1_PRINTER_RAM	; MODEL 1 Printer Input 
+	ld a, (hl)
+	ld b, a 
+	ld hl, lastextclockin2
+	ld a, (hl)
+	ld (hl), b 
 	
-	;xor b
-	;jr nz, nextstep
-
-	jr nostep
+	xor b
+	jr nz, nextstep
+	jp nostep
 
 advanceclock: 
 
@@ -265,8 +279,13 @@ advanceclock:
 	ld a, (tempo) 
 	cp b
 	jp nz, nostep
+	jr nextstep1 
 
 nextstep:
+
+	ld a, (trsversion)
+	cp 1 ; Model 1? 
+	jr z, outputextclockm1 
 
 	;; output external clock, MODEL III
 	ld hl, extclockout
@@ -274,11 +293,14 @@ nextstep:
 
 	ld a, (hl) 
 	out (M3_PRINTER_IO), a
+	jr nextstep1
 
+ outputextclockm1:
+ 
 	;; output external clock, MODEL I
-	;; this KILLS the M3... 
-	;; ld (M1_PRINTER_RAM), a
+	ld (M1_PRINTER_RAM), a
 
+nextstep1: 
 	;;  inc note pointer
 	call nextnote
 	call showplaycursor
@@ -558,7 +580,7 @@ keyscan:
 	jp z,chgnumbars 
 
 	cp '0'
-	jp z,midipanic
+	jp z,midiflushpanic
 
 	cp '*'
 	jp z,chggatelength
@@ -1132,6 +1154,21 @@ help:
 
 	jp main2
 
+midiflush:
+
+	ret 
+	in a,(9)
+	or a
+	ret z
+
+	;;  byte available
+
+	in a,(8)
+	bit 7,a
+	ret z 
+	
+	jr midiflush 
+
 load:
 	call putpat
 
@@ -1397,7 +1434,8 @@ slower1:
 	call showtempo
 	jp cont	
 
-testsoundx macro n 
+testsoundx macro 
+        local playnoteon 
 	;; first, turn of previously played note
 	;; ONLY if in record mode!
 
@@ -1406,7 +1444,7 @@ testsoundx macro n
 
 	ld a,(record)
 	or a
-	jr z, playnoteon_&n
+	jr z, playnoteon
 
 	;; turn off currently held note
 
@@ -1425,7 +1463,7 @@ testsoundx macro n
 	call short_delay
 	call short_delay
 
-playnoteon_&n:
+playnoteon:
 
 	ld a, b
 	add $90 
@@ -1443,31 +1481,12 @@ playnoteon_&n:
 
 	endm 
 
-midipanic:
+midiflushpanic:
 
-	ld b, $10 
-
-channeloff:
-
-	ld a, b
-	dec a
-	add $b0	
-	out (8),a  		; MIDI CC for Channel in a 
-	call short_delay
-
-	ld a,123
-	out (8),a  		; MIDI NOTE OFF 
-	call short_delay
-
-	ld a,0
-	out (8),a  		; Don't Care 
-	call short_delay
-	
-	;;  repeat for all 16 Channels 
-	djnz channeloff
+	call midipanicr
+	call midiflush
 	
 	jp cont
-
 
 midipanicr:
 
@@ -1672,8 +1691,8 @@ gettrackvelocityx macro
 	endm
 
 setgridandsoundmidi:
-
-	testsoundx 1
+	
+	testsoundx 
 	setgridx 
 
 	jp cont 
@@ -1686,14 +1705,14 @@ setgridandsoundkey:
 	call gettrackvelocity
 	ld (curvelocity), a  
 
-	testsoundx 2
+	testsoundx 
 	setgridx 
 
 	jp cont 
 
 setgridandsoundr:
 	
-	testsoundx 3
+	testsoundx 
 	setgridx 
 
 	ret
@@ -1706,7 +1725,7 @@ setgridandsoundkeyr:
 	call gettrackvelocity
 	ld (curvelocity), a  
 
-	testsoundx 4
+	testsoundx 
 	setgridx 
 
 	ret
@@ -1865,7 +1884,7 @@ showplaysong:
 	
 	call midipanicr
 	call long_delay
-
+	
 	call setmiditrackinstruments
 	call long_delay
 
@@ -2060,12 +2079,20 @@ dly:	dec	bc
 
 clearextclockr:
 
+	ld a, (trsversion)
+	cp 1 ; Model 1? 
+	jr z, clearextclockm1r
+
 	in a, (M3_PRINTER_IO)	; Model III Printer Input
 	ld b, a
 	ld hl, lastextclockin1	
 	ld a, (hl)
 	ld (hl), b
-	
+
+	ret	
+
+clearextclockm1r:
+
 	ld hl, M1_PRINTER_RAM	; MODEL 1 Printer Input 
 	ld a, (hl)
 	ld b, a 
@@ -3061,6 +3088,34 @@ yesnoprompt:
 	cp 'Y'
 	call restorestatus
 	ret
+
+;;
+;; getmodel - return TRS-80 Model number in A (1, 3 or 4).
+;; Thanks to G. Phillips
+;; 	
+
+getmodel:
+	in	a,(0ffh)	; read OUTMOD latches
+	ld	b,a		; save original settings
+	ld	c,60h
+	xor	c		; invert CPU Fast, DISWAIT
+	out	(0ech),a	; set latches
+	in	a,(0ffh)	; read latches
+	xor	c		; flip to original value
+	xor	b		; compare against original
+	ld	c,0ech
+	out	(c),b		; restore original settings
+	rlca
+	rlca
+	jr	nc,.ism4		; CPU Fast unchanged, must be Model 4
+	rlca
+	ld	a,3
+	ret	nc		; DISWAIT same, Model III
+	ld	a,1		; otherwise, it's a Model I
+	ret
+.ism4:	ld	a,4
+	ret
+	
 ;;
 ;; setern by Frederic Vecoven and Tim Mann
 ;; https://github.com/veco/FreHDv1/blob/main/sw/z80/utils/import2.z80
@@ -3158,6 +3213,8 @@ wHL_16: dec     a               ;<0>  | <4>  loop away 16 for remaining count
 ;; 
 	
 	org $8000
+
+trsversion  byte 0
 
 datastart
 
