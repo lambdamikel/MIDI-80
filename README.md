@@ -10,6 +10,47 @@
 
 ### March 2025
 
+It is now possible to synchronize multiple Trackers running on
+different machines:
+
+![External Clock](pics/sync.jpg)
+
+Here is a [demo video](https://youtu.be/gPQqAGCHiV0). 
+
+The latest version of the Tracker, Version 1.96 (`tracker5/cmd` on the
+disk images) is now sending an external clock signal over the parallel
+port, on `Data 0`. Another TRS-80 Tracker can then be configured to
+latch on to this external clock by setting it into *external clock
+mode* with the `'` key. The receiving TRS-80 Tracker is called the
+secondary, and the clock generating Tracker the primary. Enable the
+external clock mode on the secondary with the '`' key. Then start
+playback as usual, in pattern (`P`) or song playback mode (`!`). As
+usual, you can always refer to the help page for key bindings (`H`).
+The secondary Tracker is frozen until it starts receiving the clock
+signal from the primary Tracker via the parallel port cable; the tempo
+setting of the secondary will be disregarded, as the tempo is
+determined by the external clock from the primary. External clock can
+be en- and disabled using the `'` at any time; also, with the
+exception of the tempo setting, recording and all the other Tracker
+operations and settings work identical as if the internal clock was
+used.
+
+To make the cable, simply connect the Centronic ports of the two
+machines as follows: `GND` to `GND` (e.g., Centronics pin 2; note that
+there are multiple options for `GND`), and the `Data 0` output
+(Centronics pin 3) of the primary TRS-80 Tracker to the `BUSY` input
+(Centronics pin 21) to the secondary TRS-80. And easy way to construct
+the cable is to cut two TRS-80 printer cables, and drill the wires
+together; soldering is advised:
+
+![Clock Cable](pics/cable.jpg)
+
+![Printer Port Model III](pics/parport.jpg)
+
+![Printer Port Model I](pics/printerport.jpg)
+
+### March 2025
+
 Since March 21st I am proud owner of a Behringer Wave! I always
 admired [the PPG Wave](https://en.wikipedia.org/wiki/PPG_Wave) created
 back in the day in 1981 by [Wolfgang
