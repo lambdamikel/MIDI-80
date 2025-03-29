@@ -279,7 +279,6 @@ advanceclock:
 	ld a, (tempo) 
 	cp b
 	jp nz, nostep
-	jr nextstep1 
 
 nextstep:
 
