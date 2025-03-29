@@ -38,10 +38,9 @@ used.
 To make the cable, simply connect the Centronic ports of the two
 machines as follows: `GND` to `GND` (e.g., Centronics pin 2; note that
 there are multiple options for `GND`), and the `Data 0` output
-(Centronics pin 3) of the primary TRS-80 Tracker to the `BUSY` input
-(Centronics pin 21) to the secondary TRS-80. And easy way to construct
-the cable is to cut two TRS-80 printer cables, and drill the wires
-together; soldering is advised:
+(Centronics pin 3) of the primary to the `BUSY` input (Centronics pin
+21) of the secondary. And easy way to construct the cable is to cut
+two TRS-80 printer cables in half, and solder the wires together: 
 
 ![Clock Cable](pics/cable.jpg)
 
