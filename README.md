@@ -23,7 +23,7 @@ port, on `Data 0`. Another TRS-80 Tracker can then be configured to
 latch on to this external clock by setting it into *external clock
 mode* with the `'` key. The receiving TRS-80 Tracker is called the
 secondary, and the clock generating Tracker the primary. Enable the
-external clock mode on the secondary with the '`' key. Then start
+external clock mode on the secondary with the `'` key. Then start
 playback as usual, in pattern (`P`) or song playback mode (`!`). As
 usual, you can always refer to the help page for key bindings (`H`).
 The secondary Tracker is frozen until it starts receiving the clock
