@@ -1,10 +1,7 @@
 ;; TRACKER Version 1.96
 ;; to do:
 ;; - mute tracks
-;; - MIDI start/stop different trackers 
-;; - MIDI sync different trackers 
 ;; - record NOTE OFF messages, too? (new mode with GATE = *)
-;; ... 
 
 	org $5400
 
