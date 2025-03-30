@@ -723,7 +723,7 @@ clrpat:
 
 	ld hl, clearm 
 	call yesnoprompt
-	jr nz, dontclrpat 
+	ret nz
 
 	ld	hl,data 
 	ld	de,tracks1
@@ -751,13 +751,6 @@ clrpat:
 	call setmiditrackinstruments
 	call screenupdate
 
-dontclrpat:
-	
-	call long_delay
-	call long_delay
-	call long_delay
-
-	ret 
 
 clrpat1:
 	ld	hl,data 
@@ -3100,6 +3093,14 @@ yesnoprompt:
 	call @KEY
 	cp 'Y'
 	call restorestatus
+
+	push af	
+	;; ensure enter doesn't register... 
+	call long_delay
+	call long_delay
+	call long_delay
+	pop af	
+
 	ret
 
 ;;
