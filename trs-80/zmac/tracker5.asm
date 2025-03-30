@@ -1,4 +1,4 @@
-;; TRACKER Version 1.96
+;; TRACKER Version 1.97
 ;; to do:
 ;; - mute tracks
 ;; - record NOTE OFF messages, too? (new mode with GATE = *)
@@ -67,7 +67,7 @@ savem:  ascii	'**** SAVE STATE - OVERWRITE EXISTING CORE DUMP FILE? Y/N: _ ****'
 
 loadm:  ascii	'***** LOAD STATE - LOAD CORE DUMP FILE INTO MEMORY? Y/N: _ *****'
 
-waitt:	ascii   '***** MIDI/80 TRACKER V1.96 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+waitt:	ascii   '***** MIDI/80 TRACKER V1.97 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
@@ -84,7 +84,7 @@ waitt:	ascii   '***** MIDI/80 TRACKER V1.96 - (C) 2024-2025 BY LAMBDAMIKEL *****
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	
-title:	ascii   '***** MIDI/80 TRACKER V1.96 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.97 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -723,7 +723,7 @@ clrpat:
 
 	ld hl, clearm 
 	call yesnoprompt
-	ret nz
+	jr nz, dontclrpat 
 
 	ld	hl,data 
 	ld	de,tracks1
@@ -749,7 +749,13 @@ clrpat:
 	call long_delay
 
 	call setmiditrackinstruments
-	call screenupdate	
+	call screenupdate
+
+dontclrpat:
+	
+	call long_delay
+	call long_delay
+	call long_delay
 
 	ret 
 
@@ -822,6 +828,9 @@ copypat2:
 
 copycleanup:
 	call restorestatus
+	call long_delay
+	call long_delay
+	call long_delay
 
 	jp main2  
 
@@ -932,7 +941,9 @@ cur3:
 
 quitsongeditor:
 	call restorestatus
-
+	call long_delay
+	call long_delay
+	call long_delay
 	jp cont
 
 songcurleft:
@@ -1149,6 +1160,10 @@ help:
 	ld	de,$3c00
 	ld	bc,1024
 	ldir
+
+	call long_delay
+	call long_delay
+	call long_delay
 
 	jp main2
 
