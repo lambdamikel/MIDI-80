@@ -1,4 +1,4 @@
-;; TRACKER Version 1.97
+;; TRACKER Version 1.98
 ;; to do:
 ;; - mute tracks
 ;; - record NOTE OFF messages, too? (new mode with GATE = *)
@@ -67,7 +67,7 @@ savem:  ascii	'**** SAVE STATE - OVERWRITE EXISTING CORE DUMP FILE? Y/N: _ ****'
 
 loadm:  ascii	'***** LOAD STATE - LOAD CORE DUMP FILE INTO MEMORY? Y/N: _ *****'
 
-waitt:	ascii   '***** MIDI/80 TRACKER V1.97 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+waitt:	ascii   '***** MIDI/80 TRACKER V1.98 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
@@ -84,7 +84,7 @@ waitt:	ascii   '***** MIDI/80 TRACKER V1.97 - (C) 2024-2025 BY LAMBDAMIKEL *****
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	ascii	'WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT WAIT'
 	
-title:	ascii   '***** MIDI/80 TRACKER V1.97 - (C) 2024-2025 BY LAMBDAMIKEL *****'
+title:	ascii   '***** MIDI/80 TRACKER V1.98 - (C) 2024-2025 BY LAMBDAMIKEL *****'
 	ascii   'PAT:A SF | TRACK:1 SPEED:-- | B:8 S:04 | C:0 I:01 N:24 V:7F G:04'
 	ascii	'1===-===+===-===2===-===+===-===3===-===+===-===4===-===+===-===' 
 data:	ascii   '!...-...+...-...!...-...+...-...!...-...+...-...!...-...+...-...'
@@ -243,7 +243,12 @@ listenextclock:
 	cp 1 ; Model 1? 
 	jr z, listenextclockm1 
 
-	in a, (M3_PRINTER_IO)	; Model III Printer Input
+	;; in a, (M3_PRINTER_IO)	; Model III Printer Input
+	;; note that that the above does ONLY work on the Model III, not the 4!
+	;; THIS works on both: 
+	ld hl, M1_PRINTER_RAM	; MODEL 1 Printer Input 
+	ld a, (hl)
+
 	ld b, a
 	ld hl, lastextclockin1	
 	ld a, (hl)
@@ -2089,7 +2094,11 @@ clearextclockr:
 	cp 1 ; Model 1? 
 	jr z, clearextclockm1r
 
-	in a, (M3_PRINTER_IO)	; Model III Printer Input
+	;; in a, (M3_PRINTER_IO)	; Model III Printer Input
+	;; note that that the above does ONLY work on the Model III, not the 4!
+	;; THIS works on both: 
+	ld hl, M1_PRINTER_RAM	; MODEL 1 Printer Input 
+	ld a, (hl)
 	ld b, a
 	ld hl, lastextclockin1	
 	ld a, (hl)
