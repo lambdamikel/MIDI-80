@@ -389,9 +389,9 @@ applies to you. Else, if you boot LDOS from Gotek / disk drive,
 you can ignore this section. 
 
 Thanks to **Matthew Boytim** for figuring out the following mystery:
-the MIDI/80 playback programs (e.g., `CANYON/CMD` demo song) runs
-about ~32 % faster if started and run from a FreHD LDOS, compared to
-an LDOS booted from disk / Gotek.
+the MIDI/80 playback programs (e.g., `CANYON/CMD` demo song) run about
+~32 % faster if started and run from a FreHD LDOS, compared to an LDOS
+booted from disk / Gotek.
 
 The reason is the keyboard driver; **to ensure equal playback speed,
 please enter `RESET *KI` before starting the playback program (e.g.,
