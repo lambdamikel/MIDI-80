@@ -389,17 +389,17 @@ applies to you. Else, if you boot LDOS from Gotek / disk drive,
 you can ignore this section. 
 
 Thanks to **Matthew Boytim** for figuring out the following mystery:
-the MIDI/80 playback programs (e.g., `CANYON\CMD` demo song) runs
+the MIDI/80 playback programs (e.g., `CANYON/CMD` demo song) runs
 about ~32 % faster if started and run from a FreHD LDOS, compared to
 an LDOS booted from disk / Gotek.
 
 The reason is the keyboard driver; **to ensure equal playback speed,
 please enter `RESET *KI` before starting the playback program (e.g.,
-`CANYON\CMD`) if a FreHD LDOS is used!** 
+`CANYON/CMD`) if a FreHD LDOS is used!** 
 
 Moreover, the FreHD ROM / image also loads certain drivers into high
 memory regions, which would be overwritten by large demo songs such as
-`TOCCATA\CMD`. This song causes a `SYS ERROR` if executed from FreHD
+`TOCCATA/CMD`. This song causes a `SYS ERROR` if executed from FreHD
 LDOS. Hence, it only runs from Gotek / floppy disk LDOS.
 
 ## Theory of Operation
