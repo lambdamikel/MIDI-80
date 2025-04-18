@@ -8,6 +8,17 @@
 
 ## News 
 
+### April 2025
+
+DOWNPOLY is using multiple Tracker 1.98 by now, synchronized over the
+parallel port cable - check out [his YouTube
+video!](https://youtu.be/Pxf6AB6l7uU)
+
+![Downpoly Mechanical Mix 1](pics/downpoly-mechanical.jpg)
+
+![Downpoly Mechanical Mix 2](pics/downpoly-mechanical2.jpg)
+
+
 ### March 2025
 
 It is now possible to synchronize multiple Trackers running on
@@ -369,6 +380,27 @@ BASIC) and are not guaranteed to work with the other BASIC dialects.
 
 All other programs are written in Z80 assembly using George Phillips'
 Zmac assembler and `trs80gp` emulator as development toolchain.
+
+### Important Notes for FreHD Users
+
+If you are using MIDI/80 and the provided example programs with a
+FreHD harddisk emulator, then the following important information
+applies to you. Else, if you boot LDOS from Gotek / disk drive,
+you can ignore this section. 
+
+Thanks to **Matthew Boytim** for figuring out the following mystery:
+the MIDI/80 playback programs (e.g., `CANYON\CMD` demo song) runs
+about ~32 % faster if started and run from a FreHD LDOS, compared to
+an LDOS booted from disk / Gotek.
+
+The reason is the keyboard driver; **to ensure equal playback speed,
+please enter `RESET *KI` before starting the playback program (e.g.,
+`CANYON\CMD`) if a FreHD LDOS is used!** 
+
+Moreover, the FreHD ROM / image also loads certain drivers into high
+memory regions, which would be overwritten by large demo songs such as
+`TOCCATA\CMD`. This song causes a `SYS ERROR` if executed from FreHD
+LDOS. Hence, it only runs from Gotek / floppy disk LDOS.
 
 ## Theory of Operation
 
