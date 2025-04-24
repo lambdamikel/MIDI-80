@@ -10,6 +10,12 @@
 
 ### April 2025
 
+As suggested by a recent customer, David, I have made a little
+[Tracker 1.98 tutorial](https://youtu.be/nm6d1EbCBgk), good enough for 
+first steps / getting your feet wet.
+
+![Tracker 1.98 Tutorial](pics/tutorial.jpg)
+
 DOWNPOLY is using multiple Tracker 1.98 by now, synchronized over the
 parallel port cable - check out [his YouTube
 video!](https://youtu.be/Pxf6AB6l7uU)
