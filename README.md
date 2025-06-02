@@ -8,6 +8,16 @@
 
 ## News 
 
+### June 2025
+
+Thanks to Hackaday (Levin Day) for covering [MIDI-80 on the front page:](https://hackaday.com/2025/06/01/its-midi-for-the-trs-80/):
+
+![Hackaday 1](pics/hackaday-frontpage.jpg)
+
+![Hackaday 2](pics/hackaday-side-a.jpg)
+
+![Hackaday 3](pics/hackaday-side-a.jpg)
+
 ### April 2025
 
 As suggested by a recent customer, David, I have made a little
