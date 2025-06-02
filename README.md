@@ -3,14 +3,20 @@
 
 #### Hardware & Firmware: [Michael Wessel](https://www.michael-wessel.info/) 
 #### Z80 Wizardry and TRS-80 Zmac Assembler Advisor: [George Phillips](http://48k.ca/) 
-#### Beta Testers: [Jürgen Wich](https://homecomputerguy.de/en/) (Model 1 Version), [Joel Hilliard (Model III / 4 Version)](https://www.youtube.com/@joelhilliard8298)
+#### Beta Testers: [JÃ¼rgen Wich](https://homecomputerguy.de/en/) (Model 1 Version), [Joel Hilliard (Model III / 4 Version)](https://www.youtube.com/@joelhilliard8298)
 #### License: GPL 3
 
 ## News 
 
 ### June 2025
 
-Thanks to Hackaday (Levin Day) for covering [MIDI-80 on the front page:](https://hackaday.com/2025/06/01/its-midi-for-the-trs-80/):
+- Thanks to Peter Kirn from the "cdm (create digital music)" blog for
+  writing a comprehensive article about MIDI-80, Downpoly's great
+  music, and the software that we wrote for it: ["Radio Shackâ€™s TRS-80
+  now has polyphonic MIDI and a
+  tracker"](https://cdm.link/radio-shack-trs-80-tracker/)
+
+- Thanks to Hackaday (Levin Day) for covering [MIDI-80 on the front page:](https://hackaday.com/2025/06/01/its-midi-for-the-trs-80/):
 
 ![Hackaday 1](pics/hackaday-frontpage.jpg)
 
@@ -107,16 +113,16 @@ in song mode.](https://youtu.be/P_UCIXRl1cc)
 
 ### February 2025
 
-Thanks to [Jürgen Wich](https://homecomputerguy.de/en/), who created a [new batch tool](midibatchconv/) that makes bulk creation of MIDI song disks a breeze! Check out his awesome new [MIDI Conversion Tools for MIDI/80 and TRS-80](midibatchconv/README.md)! His software tool suite can be found [here](midibatchconv/).
+Thanks to [JÃ¼rgen Wich](https://homecomputerguy.de/en/), who created a [new batch tool](midibatchconv/) that makes bulk creation of MIDI song disks a breeze! Check out his awesome new [MIDI Conversion Tools for MIDI/80 and TRS-80](midibatchconv/README.md)! His software tool suite can be found [here](midibatchconv/).
 
-Thanks much, Jürgen, great work!
+Thanks much, JÃ¼rgen, great work!
 
 
 ![MIDIBATCHCONV](pics/midibatchconv.png)
 
 ### January 2025
 
-Jürgen Wich has uploaded a demo video showcasing the MIDI/80 MIDI playback capabilities with his Model 1 - cool stuff!
+JÃ¼rgen Wich has uploaded a demo video showcasing the MIDI/80 MIDI playback capabilities with his Model 1 - cool stuff!
 
 https://youtu.be/vjVPdRUbgE4
 
@@ -133,8 +139,8 @@ https://www.youtube.com/watch?v=8xH_k91aPCo
 
 ### November 2024 
 
-- Jürgen Wich (the "Homecomputerguy.de") was one of the beta testers for
-the Model 1 version, and has just uploaded his review - thanks, Jürgen!
+- JÃ¼rgen Wich (the "Homecomputerguy.de") was one of the beta testers for
+the Model 1 version, and has just uploaded his review - thanks, JÃ¼rgen!
 
 ![Homecomputerguy 1](pics/homecomputerguy1.png)
 
@@ -145,7 +151,7 @@ https://homecomputerguy.de/en/2024/11/24/midi-80-trashy-spits-out-new-sounds/
 ![Hackaday features](pics/hackaday.png)
 
 - This Github goes online. Firmware, Gerbers, and sources released to the public.
-- The first beta tests were a success! Both JÃ¼rgen and Joel have successfully used MIDI/80 with their TRS-80s. 
+- The first beta tests were a success! Both JÃƒÂ¼rgen and Joel have successfully used MIDI/80 with their TRS-80s. 
 
 ### October 2024
 
@@ -720,7 +726,7 @@ a possibilty in the aforementioned book.
 
 - [George Phillips](http://48k.ca/)
 
-- [Jürgen Wich](https://homecomputerguy.de/en/)
+- [JÃ¼rgen Wich](https://homecomputerguy.de/en/)
 
 - [Joel Hilliard](https://www.youtube.com/@joelhilliard8298)
  
