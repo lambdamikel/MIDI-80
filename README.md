@@ -16,7 +16,7 @@ Thanks to Hackaday (Levin Day) for covering [MIDI-80 on the front page:](https:/
 
 ![Hackaday 2](pics/hackaday-side-a.jpg)
 
-![Hackaday 3](pics/hackaday-side-a.jpg)
+![Hackaday 3](pics/hackaday-side-b.jpg)
 
 ### April 2025
 
