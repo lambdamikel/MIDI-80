@@ -8,7 +8,7 @@
 
 ## News 
 
-### August 2026
+### August 2025
 
 - I demoed MIDI/80 and the MIDI tracker playing a DOWNPOLY track at
   this year's Vintage Computer Festival West in Mountain View. MIDI/80
