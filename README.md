@@ -8,6 +8,15 @@
 
 ## News 
 
+### August 2026
+
+- I demoed MIDI/80 and the MIDI tracker playing a DOWNPOLY track at
+  this year's Vintage Computer Festival West in Mountain View. MIDI/80
+  was primarily driven by [TRS-IO++,](https://github.com/apuder) but I
+  also had one connected to my Model III.  Also on display was
+  [Talker/80.](https://github.com/lambdamikel/Talker-80) Here is a
+  YouTube video showing [my table.](https://youtu.be/WiYWCjRBuf8)
+
 ### June 2025
 
 - Thanks to Peter Kirn from the "cdm (create digital music)" blog for
