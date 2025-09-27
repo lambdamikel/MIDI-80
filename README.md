@@ -87,10 +87,12 @@ exception of the tempo setting, recording and all the other Tracker
 operations and settings work identical as if the internal clock was
 used.
 
-External clock: 
+External clock:
+
 ![External Clock](pics/extclock.jpg)
 
-Internal clock: 
+Internal clock:
+
 ![Internal Clock](pics/intclock.jpg)
 
 To make the cable, simply connect the Centronic ports of the two
