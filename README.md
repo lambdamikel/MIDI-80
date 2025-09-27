@@ -8,6 +8,16 @@
 
 ## News 
 
+### September 2025
+
+- [Joel Hilliard aka DOWNPOLY](https://www.youtube.com/@downpoly)
+presented MIDI/80 and its software (Tracker, MIDORG, MIDI Playback
+etc.) at [Tandy Assembly 2025 in Springfield,
+Ohio.](https://www.youtube.com/live/VoPTrOpMQ2E?feature=shared) Great
+talk, Joel! Also, a [DOWNPOLY Live
+Performance](https://www.youtube.com/live/QNZUELyjySw?feature=shared)
+is scheduled as well.
+
 ### August 2025
 
 - I demoed MIDI/80 and the MIDI tracker playing a DOWNPOLY track at
@@ -20,12 +30,12 @@
 ### June 2025
 
 - Thanks to Peter Kirn from the "cdm (create digital music)" blog for
-  writing a comprehensive article about MIDI-80, Downpoly's great
+  writing a comprehensive article about MIDI/80, Downpoly's great
   music, and the software that we wrote for it: ["Radio Shack’s TRS-80
   now has polyphonic MIDI and a
   tracker"](https://cdm.link/radio-shack-trs-80-tracker/)
 
-- Thanks to Hackaday (Levin Day) for covering [MIDI-80 on the front page:](https://hackaday.com/2025/06/01/its-midi-for-the-trs-80/):
+- Thanks to Hackaday (Levin Day) for covering [MIDI/80 on the front page:](https://hackaday.com/2025/06/01/its-midi-for-the-trs-80/):
 
 ![Hackaday 1](pics/hackaday-frontpage.jpg)
 
