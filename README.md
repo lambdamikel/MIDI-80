@@ -10,6 +10,15 @@
 
 ### September 2025
 
+- Playback of large MIDI files is now possible: [X-MEM/80 makes this
+possible.](https://github.com/lambdamikel/x-mem-80) X-MEM/80 is a new
+512 KB (paged) RAM extensions for the Model 1 and Model III that is
+"plug & play", i.e., requires no hardware modifications.  Here is a
+[demo video (playback of a very large MIDI
+file)](https://www.youtube.com/watch?v=HZcZIu-G5TI). The details
+and software as well as disk images can be found [here, on
+the X-MEM/80 repo.](https://github.com/lambdamikel/x-mem-80?tab=readme-ov-file#midi80--x-mem80-software)
+
 - [Joel Hilliard aka DOWNPOLY](https://www.youtube.com/@downpoly)
 presented MIDI/80 and its software (Tracker, MIDORG, MIDI Playback
 etc.) at [Tandy Assembly 2025 in Springfield,
