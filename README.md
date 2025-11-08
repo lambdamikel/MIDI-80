@@ -8,6 +8,30 @@
 
 ## News 
 
+### October 2025
+
+- Playback of extremely large MIDI files is now possible - "Karn Evil
+9" by "Emerson Lake & Palmer" requires 15 16 KB segments. This
+requires a Gotek floppy emulator and some tricky 80-track disk
+images. Thanks to folks on the TRS-80 Discord for helping me with
+these. There is a new playback program
+[`BIGLOAD/CMD`](trs-80/zmac/zout/BIGLOAD.CMD) which loads `/MID` files
+with alphabetic suffixes (`A` - `Z`). Here are demo disks for the
+[Model 1](trs-80/model-1/dsk/elp.jv3) (and
+[`.HFE`](trs-80/model-1/hfe/elp.hfe) and [Model III
+version](trs-80/model-3/dsk/ELP.JV3) (and
+[`.HFE`](trs-80/model-3/hfe/ELP.HFE). An
+[X-MEM/80](https://github.com/lambdamikel/x-mem-80) is required; use
+the 16KB (X-MEM/80) mode. Enjoy!
+
+[Source code of `BIGLOAD/ASM`.](trs-80/zmac/bigload.asm)
+
+To create your own vers large MIDI song playback disk, just use these
+disk images as blueprints and exchange the `SONGA/MID` ...
+`SONGO/MID` files. The [MIDI converter](converter/) still creates
+`SONG0/BIN` to `SONG<n>/BIN` segments, so you need to rename them to
+be loaded by `BIGLOAD/CMD`.
+
 ### September 2025
 
 - Playback of large MIDI files is now possible: [X-MEM/80 makes this
