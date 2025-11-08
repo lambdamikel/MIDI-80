@@ -26,11 +26,11 @@ the 16KB (X-MEM/80) mode. Enjoy!
 
 [Source code of `BIGLOAD/ASM`.](trs-80/zmac/bigload.asm)
 
-To create your own vers large MIDI song playback disk, just use these
+To create your own very large MIDI song playback disk, just use these
 disk images as blueprints and exchange the `SONGA/MID` ...
-`SONGO/MID` files. The [MIDI converter](converter/) still creates
-`SONG0/BIN` to `SONG<n>/BIN` segments, so you need to rename them to
-be loaded by `BIGLOAD/CMD`.
+`SONGO/MID` files (you can go up to `SONGZ/MID`). The [MIDI
+converter](converter/) still creates `SONG0/BIN` to `SONG<n>/BIN`
+segments, so you need to rename them to be loaded with `BIGLOAD/CMD`.
 
 ### September 2025
 
