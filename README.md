@@ -18,9 +18,9 @@ these. There is a new playback program
 [`BIGLOAD/CMD`](trs-80/zmac/zout/BIGLOAD.CMD) which loads `/MID` files
 with alphabetic suffixes (`A` - `Z`). Here are demo disks for the
 [Model 1](trs-80/model-1/dsk/elp.jv3) (and
-[`.HFE`](trs-80/model-1/hfe/elp.hfe) and [Model III
-version](trs-80/model-3/dsk/ELP.JV3) (and
-[`.HFE`](trs-80/model-3/hfe/ELP.HFE). An
+[`.HFE`](trs-80/model-1/hfe/elp.hfe)) and the [Model
+III](trs-80/model-3/dsk/ELP.JV3) (and
+[`.HFE`](trs-80/model-3/hfe/ELP.HFE)). An
 [X-MEM/80](https://github.com/lambdamikel/x-mem-80) is required; use
 the 16KB (X-MEM/80) mode. Enjoy!
 
