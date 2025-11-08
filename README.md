@@ -22,7 +22,7 @@ with alphabetic suffixes (`A` - `Z`). Here are demo disks for the
 III](trs-80/model-3/dsk/ELP.JV3) (and
 [`.HFE`](trs-80/model-3/hfe/ELP.HFE)). An
 [X-MEM/80](https://github.com/lambdamikel/x-mem-80) is required; use
-the 16KB (X-MEM/80) mode. Enjoy!
+the 16KB (X-MEM/80) mode. Enjoy - here is a [YT video.](https://youtu.be/6bADL48qsmo)
 
 [Source code of `BIGLOAD/ASM`.](trs-80/zmac/bigload.asm)
 
