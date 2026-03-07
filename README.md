@@ -8,6 +8,29 @@
 
 ## News 
 
+### February 2026
+
+[Joel Hilliard aka DOWNPOLY](https://www.downpoly.com/)
+released his new album, `TETHER_`: 
+
+![Tether](pics/tether_.png)
+
+Unlike his previous ablum where MIDI/80 and TRACKER were 
+mainly used for drums (it couldn't do more back then!), 
+he is now increasingly utilizing it for full backing tracks 
+on his songs (for bass, melodies, chords, ...). 
+By now, TRACKER is a full-fledged 6channel multi-timbral
+MIDI sequencer (organized into 26 pages which can be 
+flexibly sequenced in song mode). 
+More MIDI channels can be realized by synchronizing
+multiple TRACKERs running on dedicated TRS-80s, 
+via the parallel port sync cable (see below). Joel
+is tpyically using 2 to 3 synchronized TRACKERS for his work. 
+See below for more details. 
+
+Please support [his work on Spotify](https://open.spotify.com/artist/7oj8N7mM6rrZCQnkTO5Ndb?si=y26EeWk6QDWjdPfHtQ730w) 
+if you like [his songs on YouTube](https://www.youtube.com/channel/UCPh03Dpo_xX-oRaOAVRYgyw) (also see [here.](https://www.youtube.com/@downpoly))
+
 ### October 2025
 
 - Playback of extremely large MIDI files is now possible - "Karn Evil
