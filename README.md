@@ -15,7 +15,7 @@ released his new album, `TETHER_`:
 
 ![Tether](pics/tether_.png)
 
-Unlike his previous ablum where MIDI/80 and TRACKER were 
+Unlike his previous album where MIDI/80 and TRACKER were 
 mainly used for drums (it couldn't do more back then!), 
 he is now increasingly utilizing it for full backing tracks 
 on his songs (for bass, melodies, chords, ...). 
