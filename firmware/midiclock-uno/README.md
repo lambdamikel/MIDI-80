@@ -8,12 +8,33 @@ groovebox can drive a TRS-80 running TRACKER.
 ![The clock module](clock-module.jpg)
 
 *The built module: an Arduino Uno clone with the MIDI shield stacked on
-top. The small slide switch beside the pushbutton is the one that must
-be **OFF** to upload a sketch and **ON** to receive MIDI — it gates the
-`D0`/`D1` UART lines that the bootloader also needs. MIDI from the
-master goes into the shield's IN socket; USB provides power and
-programming. The step output to the TRS-80 is taken from `D8` and `GND`
-on the headers, not yet fitted here.*
+top. MIDI from the master goes into the shield's **IN** socket; USB
+provides power and programming. The step output to the TRS-80 is taken
+from `D8` and `GND` on the headers, not yet fitted here.*
+
+![The LinkSprite shield in detail](board.jpg)
+
+*The shield close up (rotated). The slide switch is silkscreened
+**`RX(S2)`** with **`ON`/`OFF`** positions, and the pushbutton beside it
+is **`RESET(S1)`**. Three DIN sockets: **`IN`**, **`OUT`** and
+**`THRU`** — only `IN` is needed for this project.*
+
+### The RX(S2) switch
+
+The silkscreen explains a behaviour worth knowing: the switch is labelled
+**`RX`**, not "MIDI" — it gates the **receive** line only, leaving `TX`
+permanently connected to both the MIDI OUT socket and the USB converter.
+
+Two practical consequences:
+
+- **Uploading needs it OFF.** With it ON, the MIDI circuitry sits on the
+  bootloader's `RX` line and the upload fails.
+- **`TX` output reaches USB even with the switch ON.** That is what makes
+  the `TEST_ECHO` build usable for measurement while real MIDI is
+  connected — the board can report every step to a host over USB at the
+  same time as it receives clock from a synth. It is also why the
+  production build must be kept silent on `TX`: in normal use that line
+  is wired straight to the MIDI OUT jack.
 
 ## Why a separate box
 
