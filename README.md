@@ -141,6 +141,60 @@ the clock steady: jitter between consecutive `F8` bytes came down from
 28.75 ms in the first working version to **4.40 ms**, with a standard
 deviation of 0.94 ms.
 
+#### Measured improvements
+
+All figures from the trs80gp cycle-accurate bus trace, Model III at
+2.02752 MHz, empty pattern, `SPEED:$2A`. **Emulator measurements, not
+yet confirmed on real hardware** (the clock box table below is the
+exception - that one is hardware).
+
+**Timing stability**
+
+| | 1.98 | 2.00 | |
+| --- | --- | --- | --- |
+| Step period jitter (std dev) | 1.96 ms | **0.46 ms** | **4.3x steadier** |
+| MIDI clock jitter (peak-to-peak) | 28.75 ms * | **4.40 ms** | **6.5x tighter** |
+| MIDI clock jitter (std dev) | — | 0.94 ms | |
+| Clocks per step | — | **exactly 6.00** | drift free by construction |
+| Tempo shift when sync enabled | 17.9% | **0.1%** | **179x better** |
+| BPM readout error | no readout | **0.17%** | 236 shown vs 236.4 measured |
+
+\* the first working version of the feature, before the time weighted rewrite
+
+**Raw speed**
+
+| | 1.98 | 2.00 | |
+| --- | --- | --- | --- |
+| `@KBD` keyboard scan, per step | 55,836 T | **19,068 T** | **2.9x** (-66%) |
+| `showplaycursor`, per step | 16,259 T | **2,818 T** | **5.8x** (-83%) |
+| `LDIR`, per byte | 128 T | **21 T** | **6.1x** (-84%) |
+| Work per step | 63.53 ms | **41.40 ms** | **1.5x** (-35%) |
+
+The tracker does the same work in 65% of the time, which is what pays
+for a real time based tempo while still leaving roughly 22 ms of slack
+per step at 236 BPM. Total cost: **+808 bytes** (8325 -> 9133, +9.7%),
+leaving about 2200 bytes before the data region.
+
+**The external clock box** (hardware verified against a Korg microKORG)
+
+| | |
+| --- | --- |
+| Jitter over 276 consecutive steps | **0.096 ms** peak-to-peak, **std dev 17 microseconds** |
+| versus TRACKER's own clock output | **46x tighter** |
+| versus TRACKER's 27 ms blind window | **281x tighter** |
+
+**Two caveats on the numbers.** The "4.3x steadier" step period comes
+from a six step sample in the profiling trace - the strongest claim in
+the table and also the thinnest data; the clock jitter figures come from
+runs of 130 to 280 steps and are solid. And every tracker figure is
+emulator measured: cycle accurate, but still an emulator.
+
+The two findings worth more than the table: the full screen `LDIR`
+redraw that looked like the obvious suspect was **0.5% of a step** and
+innocent all along, while a single commented out `and a,~$20` was
+costing **6x on every video write** and the ROM keyboard call was eating
+**41% of the machine**.
+
 #### Bootable disk images
 
 Ready-to-run LDOS images containing `TRACKER5/CMD` (1.98),
