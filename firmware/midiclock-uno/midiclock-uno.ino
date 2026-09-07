@@ -101,6 +101,20 @@ uint8_t  clockCount   = 0;
 bool     running      = false;
 bool     clockLevel   = false;
 
+/* Some masters free-run: they stream F8 from an internal clock and never
+ * send FA/FB/FC at all. A Korg microKORG on INT clock does exactly this -
+ * measured here as 55 F8 per second (~138 BPM) with zero transport bytes
+ * in 45 seconds. Waiting for a Start would ignore a perfectly good clock.
+ *
+ * So: if the master has NEVER sent a transport message, treat a steady
+ * run of clocks as "running". Once any transport byte has been seen we
+ * obey transport strictly for the rest of the session, which keeps
+ * proper start/stop behaviour with sequencers that do send it. */
+const uint8_t FREERUN_CLOCKS = 24;   /* one quarter note before assuming */
+
+bool     seenTransport = false;
+uint8_t  freeRunCount  = 0;
+
 bool     inSysex      = false;
 uint8_t  sysexBuf[8];
 uint8_t  sysexLen     = 0;
@@ -152,7 +166,9 @@ void handleSysex()
   {
     switch (sysexBuf[3]) {
       case MMC_STOP:
-        running = false;
+        running       = false;
+        seenTransport = true;
+        freeRunCount  = 0;
         break;
       case MMC_PLAY:
       case MMC_DEFERRED_PLAY:
@@ -162,7 +178,9 @@ void handleSysex()
         clockCount = 0;
         break;
       case MMC_PAUSE:
-        running = false;
+        running       = false;
+        seenTransport = true;
+        freeRunCount  = 0;
         break;
       default:
         break;
@@ -183,6 +201,14 @@ void handleByte(uint8_t b)
     switch (b) {
 
       case MIDI_CLOCK:
+        if (!running && !seenTransport) {
+          if (++freeRunCount >= FREERUN_CLOCKS) {
+            running       = true;      /* free-running master detected */
+            freeRunCount  = 0;
+            clockCount    = 0;
+            TESTLOG("F");
+          }
+        }
         if (running) {
           /* Toggle on counts 0, div, 2*div ... so that the first step
            * after FA lands on the downbeat rather than a division later. */
@@ -192,18 +218,22 @@ void handleByte(uint8_t b)
         break;
 
       case MIDI_START:
-        running    = true;
-        clockCount = 0;          /* next F8 is the downbeat */
+        running       = true;
+        clockCount    = 0;       /* next F8 is the downbeat */
+        seenTransport = true;
         TESTLOG("S");
         break;
 
       case MIDI_CONTINUE:
-        running = true;          /* resume, keep the phase */
+        running       = true;    /* resume, keep the phase */
+        seenTransport = true;
         TESTLOG("C");
         break;
 
       case MIDI_STOP:
-        running = false;
+        running       = false;
+        seenTransport = true;
+        freeRunCount  = 0;
         TESTLOG("X");
         break;
 

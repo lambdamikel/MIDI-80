@@ -66,6 +66,24 @@ one step; the level itself carries no meaning and never needs resetting.
 `D13` blinks once per tracker step, so you can confirm the box is
 receiving clock before connecting anything to the TRS-80.
 
+### Free-running masters
+
+Many devices with an internal clock stream `F8` continuously and never
+send `FA`/`FB`/`FC` at all. A **Korg microKORG** on `INT` clock does
+exactly this - measured here as 55 `F8` per second (~138 BPM) with
+**zero** transport bytes in 45 seconds, and the clock keeps running
+whether or not the arpeggiator is playing.
+
+Waiting for a Start would ignore a perfectly good clock, so:
+
+> If the master has **never** sent a transport message, 24 steady clocks
+> (one quarter note) are taken to mean "running". Once *any*
+> `FA`/`FB`/`FC` or MMC transport byte has been seen, transport is
+> obeyed strictly for the rest of the session.
+
+That way free-running gear works out of the box, while a sequencer that
+does send start/stop still gets proper transport control.
+
 ### Divisor jumpers
 
 MIDI clock is 24 ppqn and a TRACKER step is a 16th note, so the default
@@ -92,6 +110,15 @@ shared with the USB converter, so the bootloader cannot be reached while
 MIDI is connected. The symptom is `avrdude: not in sync: resp=0x00`.
 Switch back ON afterwards or the sketch receives nothing.
 
+Note that `arduino-cli upload` without `--input-dir` can pick up a stale
+cached artifact. If you have built both variants, build to an explicit
+directory and upload from it:
+
+```sh
+arduino-cli compile --fqbn arduino:avr:uno --clean --output-dir /tmp/build .
+arduino-cli upload -p /dev/ttyUSB0 --fqbn arduino:avr:uno --input-dir /tmp/build .
+```
+
 For the same reason there is **no USB serial debugging** available in
 normal use: `Serial.print()` would corrupt the MIDI line, since TX goes
 to the MIDI OUT jack. Debug via the LED.
@@ -114,8 +141,34 @@ every step back to the host for machine counting:
 | MMC Play re-arms | PASS |
 | 48 steps: mean 124.99 ms, **sd 0.15 ms** | expected 125.00 ms at 120 BPM |
 
-The timing figure is an *upper bound* — it includes host scheduling and
-USB buffering jitter that do not exist on a real MIDI cable.
+That synthetic timing figure is an *upper bound* — it includes host
+scheduling and USB buffering jitter that do not exist on a real MIDI
+cable.
+
+### Against real gear
+
+Driven by a **Korg microKORG** on `INT` clock over an actual MIDI cable,
+276 consecutive steps:
+
+| | |
+| --- | --- |
+| Mean step interval | **108.729 ms** |
+| Standard deviation | **0.017 ms** (17 microseconds) |
+| Peak-to-peak jitter | **0.096 ms** |
+| Implied tempo | 137.96 BPM |
+
+For comparison, on the TRS-80 side:
+
+| | Jitter |
+| --- | --- |
+| TRACKER 2.00's own MIDI clock output | 4.4 ms |
+| TRACKER's per-step blind window | ~27 ms |
+| **This box** | **0.096 ms** |
+
+Roughly 45x tighter than TRACKER's own clock output and 280x tighter
+than the window in which TRACKER cannot observe incoming bytes. This
+run also had **no transport bytes at all** - it is simultaneously the
+proof that free-run detection works.
 
 That test run caught a real bug: `F0` and `F7` are not buffered, so a
 minimal MMC message leaves **four** payload bytes, not five, and the
