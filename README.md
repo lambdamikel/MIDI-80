@@ -84,10 +84,15 @@ Sending rather than receiving is deliberate. Receiving MIDI clock would
 mean polling the MIDI/80 FIFO fast enough never to miss an `F8`, from a
 main loop whose pass duration varies by two orders of magnitude - the
 tracker simply cannot observe an incoming clock precisely enough. It
-*can* say exactly when its own step happened. (For clock **input**, the
-better answer is a dedicated device that does nothing but poll MIDI IN
-and generate parallel port sync pulses - see the external clock section
-below.)
+*can* say exactly when its own step happened.
+
+For the opposite direction - driving a TRS-80 **from** an external MIDI
+master - there is now a companion
+[**external clock box**](firmware/midiclock-uno/): an Arduino Uno with a
+MIDI shield that converts incoming MIDI beat clock into the parallel
+port step pulses TRACKER already understands in external clock mode.
+Being dedicated, it timestamps every byte within microseconds instead
+of missing clocks inside TRACKER's ~27 ms per-step blind window.
 
 **Note:** MIDI beat clock slaving is uneven across DAWs. Hardware
 (drum machines, grooveboxes, most synths) follows it reliably. Ableton
