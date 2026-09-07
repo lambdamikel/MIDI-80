@@ -141,6 +141,25 @@ the clock steady: jitter between consecutive `F8` bytes came down from
 28.75 ms in the first working version to **4.40 ms**, with a standard
 deviation of 0.94 ms.
 
+#### Bootable disk images
+
+Ready-to-run LDOS images containing `TRACKER5/CMD` (1.98),
+`TRACKER6/CMD` (1.99) and `TRACKER7/CMD` (2.00) side by side, so the old
+and new versions can be compared on the same machine:
+
+| Model | Disk image | Gotek / HxC |
+| --- | --- | --- |
+| III / 4 | [`TRACKER.DSK`](trs-80/model-3/dsk/TRACKER.DSK) (JV3) | [`TRACKER_DSK.hfe`](trs-80/model-3/hfe/TRACKER_DSK.hfe) |
+| I | [`tracker.dsk`](trs-80/model-1/dsk/tracker.dsk) (JV1) | [`tracker_dsk.hfe`](trs-80/model-1/hfe/tracker_dsk.hfe) |
+
+Boot, then just type `TRACKER7` (or `TRACKER6`, or `TRACKER5`).
+
+These were built with [`tools/ldoswrite.py`](tools/), a small LDOS image
+writer added for the purpose — the usual tool for this, `trswrite.exe`
+from TRSTOOLS, is a Windows binary whose original download site is now a
+parked domain. The `.hfe` files were produced from the `.dsk` images with
+`hxcfe`, exactly as in the [midibatchconv](midibatchconv/) workflow.
+
 Two versions are provided:
 
 - [`TRACKER7/CMD`](trs-80/zmac/zout/tracker7.cmd) (**V2.00**,
