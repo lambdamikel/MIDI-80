@@ -5,6 +5,16 @@ clock** into the **parallel port step pulses** TRACKER already
 understands in external clock mode (`'`), so a DAW, drum machine or
 groovebox can drive a TRS-80 running TRACKER.
 
+![The clock module](clock-module.jpg)
+
+*The built module: an Arduino Uno clone with the MIDI shield stacked on
+top. The small slide switch beside the pushbutton is the one that must
+be **OFF** to upload a sketch and **ON** to receive MIDI — it gates the
+`D0`/`D1` UART lines that the bootloader also needs. MIDI from the
+master goes into the shield's IN socket; USB provides power and
+programming. The step output to the TRS-80 is taken from `D8` and `GND`
+on the headers, not yet fitted here.*
+
 ## Why a separate box
 
 TRACKER cannot recover an incoming MIDI clock itself. Profiling its main

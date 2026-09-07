@@ -99,6 +99,8 @@ real hardware**: driven by a Korg microKORG over an actual MIDI cable it
 tracked 276 consecutive steps with 17 microseconds of standard deviation
 and 0.096 ms peak-to-peak jitter.
 
+![The clock module](firmware/midiclock-uno/clock-module.jpg)
+
 **Note:** MIDI beat clock slaving is uneven across DAWs. Hardware
 (drum machines, grooveboxes, most synths) follows it reliably. Ableton
 Live and Bitwig are solid; Logic and Pro Tools are MTC oriented and are
