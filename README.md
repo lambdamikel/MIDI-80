@@ -43,16 +43,37 @@ faster tracker core.**
 TRACKER can now act as a **MIDI master**: it transmits MIDI beat clock,
 transport messages and MMC (MIDI Machine Control) over MIDI OUT, so a
 DAW, drum machine or groovebox can follow the TRS-80 instead of the
-other way round. Press `R` to toggle MIDI sync; an `M` appears in the
-status row while it is armed.
+other way round.
 
-What gets sent:
+**The `R` key cycles through four modes**, shown as a single character
+in the status row:
+
+| Status | Mode | What is transmitted |
+| --- | --- | --- |
+| (blank) | off | nothing |
+| `C` | clock | `F8` timing clock + `FA`/`FC` transport |
+| `B` | both | clock + transport + MMC |
+| `M` | MMC only | MMC transport messages only, **no timing clock** |
+
+The modes are separated because the two things are not equally
+harmless. MMC is simply ignored by gear that does not speak it, but a
+timing clock is not: anything set to external sync will start following
+this machine's tempo the moment the clock appears. `M` is therefore the
+mode to use when something else is the timing master and you only want
+the `P` key to roll the other device's transport. (`FA`/`FC` are
+suppressed in `M` as well - they are meaningless to a receiver that is
+getting no clock from us.)
+
+What gets sent, by event:
 
 | Event | Bytes on MIDI OUT |
 | --- | --- |
 | Start playback (`P` or `!`) | `FA`, then `F0 7F 7F 06 02 F7` (MMC Play) |
 | While playing | `F8` timing clock, 24 ppqn (6 per tracker step) |
 | Stop | `FC`, then `F0 7F 7F 06 01 F7` (MMC Stop) |
+
+MMC is addressed to device id `7F` (all call), so it reaches any
+listening device without configuration.
 
 A tracker step is a 16th note, so a quarter note is four steps and
 exactly **six MIDI clocks are emitted per step**. The clock count is

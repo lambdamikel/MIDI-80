@@ -192,7 +192,7 @@ helpt:	ascii   '************************** HELP PAGE ***************************
 	ascii   'CHANGE BAR COUNT, JUMP TO BAR POS    : B, 1 2 3 4 5 6 7 8       '
 	ascii   'NEXT / PREV GRID POS, CHANGE GRID    : ARROW-UP ARROW-DOWN, G   '
 	ascii   'SET GRID, SOUND, CLEAR               : SPACE, ENTER, CLEAR      '
-	ascii   "PAT/SONG PLAY, EXT CLOCK, MIDI SYNC  : P !, ', R                "
+	ascii   "PAT/SONG PLAY, EXTCLK, MIDISYNC C/B/M: P !, ', R                "
 	ascii   'ALL NOTES OFF (MIDI PANIC)           : 0                        '
 	ascii   'TOGGLE RECORD, TOGGLE TRACKING       : #, T                     ' 
 	ascii   'PAT +/-, PAT CLEAR, COPY, SONG EDITOR: / ?, =, ", &             '
@@ -1633,7 +1633,9 @@ midiclkadd:
 
 	ld a,(usemidisync)
 	or a
-	ret z
+	ret z			; mode 0: off
+	cp 3
+	ret z			; mode 3: MMC only, no timing clock
 	ld a,(status)
 	or a
 	ret z			; only clock while playing
@@ -1684,8 +1686,10 @@ midiclkadd4:
 ;; Latch the step length at each step boundary and start a new one.
 
 steplatch:
-	ld a,(usemidisync)	; charge the clock generator's own cost
-	or a
+	ld a,(usemidisync)	; charge the clock generator's own cost,
+	or a			; but only in the modes that run the clock
+	jr z,steplatch0
+	cp 3
 	jr z,steplatch0
 	ld hl,(steptime)
 	ld de,SYNCCOST_U
@@ -1735,7 +1739,10 @@ sendrt:
 	ld b,a
 	ld a,(usemidisync)
 	or a
-	ret z
+	ret z			; off
+	cp 3
+	ret z			; MMC only: FA/FC are meaningless to a
+				; receiver that is getting no clock from us
 	ld a,b
 	out (8),a
 	ret
@@ -1745,7 +1752,9 @@ midiclkupd:
 	ld hl,WHLNORM
 	ld a,(usemidisync)
 	or a
-	jr z,midiclkupd1
+	jr z,midiclkupd1	; off
+	cp 3
+	jr z,midiclkupd1	; MMC only: no clock overhead to compensate
 	ld hl,WHLSYNC
 midiclkupd1:
 	ld (whlslicecur),hl
@@ -1770,8 +1779,8 @@ midibusyoff:
 sendmmc:
 	ld c,a			; c = command, survives short_delay
 	ld a,(usemidisync)
-	or a
-	ret z
+	cp 2			; MMC goes out in mode 2 (both) and 3 (MMC)
+	ret c
 	call midibusyon
 
 	ld a,$f0
@@ -1825,31 +1834,47 @@ midisyncstopr:
 
 ;; Toggle, bound to the R key -------------------------------------
 
+;; R cycles through four modes rather than a plain on/off, because the
+;; two things it sends are not equally harmless. MMC is ignored by gear
+;; that does not speak it, but a timing clock is not: anything set to
+;; external sync will start following this machine's tempo the moment
+;; the clock appears. So "MMC only" is a real and useful setting when
+;; something else is the timing master and you just want the P key to
+;; roll the other device's transport.
+;;
+;;   0  ' '  off
+;;   1  'C'  clock + FA/FC transport
+;;   2  'B'  both: clock + FA/FC + MMC
+;;   3  'M'  MMC transport only, no timing clock
+
 midisyncstatus:
 	ld a,(usemidisync)
-	xor 1
+	inc a
+	and 3
 	ld (usemidisync), a
 	call midiclkupd
+
 	ld a,(usemidisync)
 	or a
 	jr nz, showmidisyncstatus
 
-	;; turning sync off while running: stop the downstream gear too
+	;; leaving sync entirely: stop the downstream gear too
 	ld a,MIDI_STOP
 	out (8),a
 
-	ld hl,$3c00 + 64 + 10
-	ld a, ' '
-	ld (hl), a
-
-	jp cont
-
 showmidisyncstatus:
+	ld hl,midisyncchars
+	ld a,(usemidisync)
+	ld e,a
+	ld d,0
+	add hl,de
+	ld a,(hl)
 	ld hl,$3c00 + 64 + 10
-	ld a, midisyncs
 	ld (hl), a
 
 	jp cont
+
+midisyncchars:	byte ' ','C','B','M'
 
 midiflushpanic:
 
