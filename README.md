@@ -8,6 +8,128 @@
 
 ## News 
 
+### September 2026
+
+**TRACKER 1.99 and 2.00: MIDI clock & MMC transport output, and a much
+faster tracker core.**
+
+> ⚠️ **EXPERIMENTAL - NOT YET TESTED ON REAL HARDWARE.**
+>
+> Everything below was developed and measured entirely in the
+> [trs80gp](https://48k.ca/trs80gp.html) emulator, using its cycle
+> accurate bus trace. It assembles cleanly, runs correctly under
+> emulation on both Model I and Model III, and the timing figures are
+> real measurements rather than estimates - but **no part of it has yet
+> been run on an actual TRS-80, and no MIDI byte has yet reached actual
+> MIDI hardware.** Treat 1.99 and 2.00 as unverified until somebody has
+> tried them on a real machine with a real synth attached.
+>
+> Two things in particular need hardware confirmation:
+> - **Video wait states are disabled in 2.00 on the Model III / 4.**
+>   This can cause visible hash or "snow" on a real CRT during screen
+>   writes. The emulator shows none, but that proves little. If you see
+>   artifacts, use 1.99 instead.
+> - **The ROM keyboard scan was replaced** in 2.00 by a direct matrix
+>   scan. It behaves correctly under emulation, but real keyboards have
+>   contact bounce that an emulator does not reproduce.
+>
+> `TRACKER5/CMD` (V1.98) remains the known good, road tested version and
+> is unchanged. It is still the one to use for actual music work until
+> these have been validated.
+>
+> That said: this is a major step forward, and the measurements behind
+> it are solid.
+
+TRACKER can now act as a **MIDI master**: it transmits MIDI beat clock,
+transport messages and MMC (MIDI Machine Control) over MIDI OUT, so a
+DAW, drum machine or groovebox can follow the TRS-80 instead of the
+other way round. Press `R` to toggle MIDI sync; an `M` appears in the
+status row while it is armed.
+
+What gets sent:
+
+| Event | Bytes on MIDI OUT |
+| --- | --- |
+| Start playback (`P` or `!`) | `FA`, then `F0 7F 7F 06 02 F7` (MMC Play) |
+| While playing | `F8` timing clock, 24 ppqn (6 per tracker step) |
+| Stop | `FC`, then `F0 7F 7F 06 01 F7` (MMC Stop) |
+
+A tracker step is a 16th note, so a quarter note is four steps and
+exactly **six MIDI clocks are emitted per step**. The clock count is
+drift free by construction: the downstream tempo cannot slowly walk
+away from the tracker's own.
+
+Sending rather than receiving is deliberate. Receiving MIDI clock would
+mean polling the MIDI/80 FIFO fast enough never to miss an `F8`, from a
+main loop whose pass duration varies by two orders of magnitude - the
+tracker simply cannot observe an incoming clock precisely enough. It
+*can* say exactly when its own step happened. (For clock **input**, the
+better answer is a dedicated device that does nothing but poll MIDI IN
+and generate parallel port sync pulses - see the external clock section
+below.)
+
+**Note:** MIDI beat clock slaving is uneven across DAWs. Hardware
+(drum machines, grooveboxes, most synths) follows it reliably. Ableton
+Live and Bitwig are solid; Logic and Pro Tools are MTC oriented and are
+poor or unsupported beat clock slaves. Check your own DAW before
+relying on it.
+
+#### TRACKER 2.00: tempo is now a real tempo
+
+Until now `SPEED` counted main loop passes, so the step period was
+whatever the work happened to cost - it changed with note density and
+with anything that made the loop faster or slower. In 2.00 `SPEED` names
+an actual period, and the status row shows a **real BPM readout**
+instead of the raw hex delay count:
+
+```
+PAT:A SF | TRACK:1 BPM:236  | B:8 S:04 | C:0 I:01 N:24 V:7F G:08
+```
+
+The measured step period holds to a standard deviation of **0.46 ms**,
+and the displayed BPM is within **0.2%** of the real playback rate.
+Tempo range is roughly **60 to 550 BPM** counted in 16ths, with
+`SPEED:$2A` landing at 236 BPM - about where stock 1.98 sat, so
+existing songs play close to as before.
+
+2.00 is also substantially faster, from two changes found by profiling
+the step in the trs80gp bus trace:
+
+- **Video wait states are now disabled on the Model III / 4.** They were
+  costing **128 T-states per `LDIR` byte instead of 21** - a 6x penalty
+  on every screen write. `showplaycursor` alone dropped from 8.02 ms to
+  1.39 ms. (The Model I never executed that path.)
+- **The ROM `@KBD` keyboard scan was replaced by a direct matrix scan.**
+  `@KBD` was 55,836 T-states per step - about 41% of the entire step.
+  The replacement costs roughly a third of that.
+
+Together with the time based tempo these left enough headroom to hold
+the clock steady: jitter between consecutive `F8` bytes came down from
+28.75 ms in the first working version to **4.40 ms**, with a standard
+deviation of 0.94 ms.
+
+Two versions are provided:
+
+- [`TRACKER7/CMD`](trs-80/zmac/zout/tracker7.cmd) (**V2.00**,
+  [source](trs-80/zmac/tracker7.asm)) - everything described above.
+- [`TRACKER6/CMD`](trs-80/zmac/zout/tracker6.cmd) (**V1.99**,
+  [source](trs-80/zmac/tracker6.asm)) - MIDI clock and MMC output only,
+  keeping the 1.98 core: ROM keyboard scan, video wait states enabled,
+  and the original `SPEED` delay count. Use this one if the Model III
+  display shows hash with wait states disabled, or if you want the
+  smallest possible change from 1.98.
+
+**Please test 2.00 on real Model III hardware before relying on it.**
+Disabling video wait states can produce visible hash or "snow" when
+writing to the screen during active display; the emulator renders it
+correctly, but that is not the same as a real CRT. If you see artifacts,
+use 1.99.
+
+The keyboard scan deliberately has **no typematic repeat**: a repeating
+toggle key such as `P` would flip playback on and off many times a
+second. Cursor keys therefore need a tap per step.
+
+
 ### February 2026
 
 [Joel Hilliard aka DOWNPOLY](https://www.downpoly.com/)
@@ -577,6 +699,12 @@ scanning and self-modifying key handler code.
 
 - `TRACKER/CMD`, `TREACKER1/CMD`: A drum pattern sequencer for your TRS-80. `TRACKER1/CMD` allows realtime tracking / recording over the MIDI drum channel (10) from a
   connected MIDI keyboard / synthesizer (via MIDI IN). 
+
+  `TRACKER5/CMD` (V1.98), `TRACKER6/CMD` (V1.99) and `TRACKER7/CMD`
+  (V2.00) are the current 6 channel multitimbral versions. 1.99 adds
+  MIDI clock and MMC transport output (`R` key); 2.00 additionally
+  makes the tempo time based, shows a real BPM readout, and runs a
+  faster core. See the September 2026 news entry above. 
 
   ![TRACKER](pics/tracker.gif) 
 
