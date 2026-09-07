@@ -34,17 +34,65 @@ The Uno is **5 V**, so it drives the TRS-80's TTL printer-port input
 directly with no level shifting. A 3.3 V board would work
 (TTL V<sub>IH</sub> is 2.0 V) but is less comfortable.
 
+## Pin assignment
+
+Every GPIO the sketch touches. All pin numbers are constants at the top
+of `midiclock-uno.ino`, so they are easy to move if your shield differs.
+
+| Pin | Dir | Function | Connects to |
+| --- | --- | --- | --- |
+| `D0` / RX | in | **MIDI IN** (hardware UART) | shield's MIDI IN socket |
+| `D1` / TX | out | MIDI OUT — unused, kept silent | shield's MIDI OUT socket |
+| `D8` | out | **step clock**, one toggle per step | TRS-80 Centronics pin 21 (`BUSY`), **via 220–470 Ω** |
+| `D9` | in, pull-up | divisor jumper A | `GND` or leave open |
+| `D10` | in, pull-up | divisor jumper B | `GND` or leave open |
+| `D13` | out | step indicator | on-board LED |
+| `GND` | — | ground reference | TRS-80 Centronics pin 2 (`GND`) |
+
+`D0`/`D1` are dictated by the shield. `D8`–`D10` and `D13` were chosen
+to stay clear of `D2`–`D4` (buttons) and `D6`/`D7` (LEDs), which shields
+of this family often claim — **check your board's silkscreen** before
+wiring, and move the constants if they collide.
+
 ## Wiring
 
 Mirrors the TRS-80-to-TRS-80 sync cable described in the main README,
 with the Arduino standing in for the primary machine:
 
-| Arduino | | TRS-80 Centronics |
-| --- | --- | --- |
-| `GND` | → | pin 2 (`GND`) |
-| `D8` | →  220–470 Ω  → | pin 21 (`BUSY`) |
+```
+   Arduino Uno                              TRS-80 Centronics
+   -----------                              -----------------
+   D8  o---------[ 220-470 ohm ]---------o  pin 21   BUSY   (input)
+   GND o---------------------------------o  pin  2   GND
+```
 
-The series resistor is cheap insurance against a mis-wire. TRACKER
+### About the series resistor
+
+**Fit it.** It is not optional decoration:
+
+- `D8` is a push-pull output that can source or sink ~20 mA. If the
+  TRS-80 pin it lands on ever turns out to be an *output* — a mis-count
+  on the connector, a different machine's pinout, a bent pin shorting to
+  a neighbour — two outputs fight each other directly. 220–470 Ω limits
+  that to a few milliamps instead of enough to damage either side.
+- It costs nothing in signal integrity here. The TRS-80 input is TTL and
+  draws essentially no current, so the resistor drops almost no voltage;
+  5 V still arrives comfortably above the 2.0 V TTL threshold.
+
+Anything in the 220–470 Ω range is fine. Higher values also work but
+start to slow the edge on long cables.
+
+The Uno being a **5 V** board is what makes this direct connection
+possible at all — no level shifter is needed for a TTL input. A 3.3 V
+board would still clear V<sub>IH</sub> but with far less margin.
+
+**Shortcut:** if you already built the TRS-80-to-TRS-80 sync cable, just
+reuse it. Leave the end that plugs into the TRS-80 alone, and take the
+two wires that used to run to the *primary* machine to the Arduino
+instead — `Data 0` to `D8`, `GND` to `GND`. That way you never have to
+identify pins on the TRS-80 side, since that half is already proven.
+
+TRACKER
 edge-detects the whole printer status byte:
 
 ```
@@ -109,6 +157,12 @@ shields of this family use the hardware UART on `D0`/`D1`, which is
 shared with the USB converter, so the bootloader cannot be reached while
 MIDI is connected. The symptom is `avrdude: not in sync: resp=0x00`.
 Switch back ON afterwards or the sketch receives nothing.
+
+**Also stop the master's clock before uploading.** A live MIDI stream
+reaching `D0` corrupts the bootloader handshake even so; the symptom is
+a *different* not-in-sync response, `resp=0xc0` — garbage arriving
+rather than silence. Stop the arpeggiator, set the source back to
+external clock, or unplug the MIDI IN cable while flashing.
 
 Note that `arduino-cli upload` without `--input-dir` can pick up a stale
 cached artifact. If you have built both variants, build to an explicit
@@ -179,6 +233,36 @@ looked perfectly correct.
 `TEST_ECHO` is compiled out of the production build, which is byte for
 byte identical before and after it was added (2606 bytes), and was
 confirmed silent on TX.
+
+## Using a Korg microKORG
+
+The microKORG is a convenient test master and can play either role:
+
+| Its `MIDI Clock` setting | Role | Use |
+| --- | --- | --- |
+| `INT` | **master** — free-runs `F8`, sends no transport | drives this box, which drives TRACKER |
+| `EXT` | **slave** — follows incoming clock | driven *by* TRACKER 1.99/2.00 over MIDI/80's OUT socket |
+
+On `INT` it streams clock continuously whether or not the arpeggiator is
+playing; the arp only gates the notes. Turning its TEMPO knob drags the
+whole chain with it, since TRACKER ignores its own `SPEED` while in
+external clock mode.
+
+## Diagnostics
+
+[`midisniff/`](midisniff/) is a throwaway sketch that reports what is
+actually arriving on the MIDI input, once a second, as counts per byte
+type plus a hex dump of the first bytes seen:
+
+```
+F8=55 FA=0 FB=0 FC=0 FE=0 other=0 total=55  -> 137.5 BPM
+first bytes: F8 F8 F8 F8 F8 F8 F8 F8 ...
+```
+
+It exists because "the master sends clock but no Start" and "nothing is
+connected" are otherwise indistinguishable — both simply produce no
+steps. It is what identified the microKORG's free-running behaviour, and
+it is worth reaching for before assuming a cable or setting is wrong.
 
 ## Known limitation
 
