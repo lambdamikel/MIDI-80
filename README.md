@@ -801,6 +801,20 @@ externally connected GM expander with your TRS-80 keyboard. This is
 joint-work with George Phillips, as the program uses his keyboard
 scanning and self-modifying key handler code. 
 
+  V1.1 lights up the on-screen keyboard as you play: a held key fills
+  its box on the virtual keyboard, and releasing it restores the note
+  name. Neither the Model I nor the Model III has a reverse-video
+  attribute for text - `$C0`-`$FF` is a symbol set on the III and a
+  second copy of the block graphics on the I - so the highlight is
+  drawn with solid graphics blocks, which is as close to inverse video
+  as the hardware gets. The `*` markers that used to sit permanently
+  in each key box are now what tells the program where the boxes are:
+  at startup it scans the artwork for them, records each box position
+  and width, and blanks them. Adding or moving a key in the artwork
+  therefore needs no table changes, only a marker and its id. The idea
+  and the marker-scanning approach are George Phillips', from his
+  STORCH Orchestra-90 organ program.
+
   ![MIDORG](pics/midorg.gif)
 
 - `TRACKER/CMD`, `TREACKER1/CMD`: A drum pattern sequencer for your TRS-80. `TRACKER1/CMD` allows realtime tracking / recording over the MIDI drum channel (10) from a

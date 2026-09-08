@@ -6,7 +6,7 @@
 @EXIT		equ	$402d
 @KEY    	equ 	$0049 
 
-title:	ascii   "**** MIDI/80 ORGAN V1.0 - (C) 2024 G.PHILLIPS & LAMBDAMIKEL ****"
+title:	ascii   "** MIDI/80 ORGAN V1.1 - (C)2026 G.PHILLIPS+LAMBDAMIKEL+CLAUDE **"
 	ascii   "----------------------------------------------------------------"
 	ascii   "   _____ _____       _____ _____ _____       _____ _____        "
 	ascii   "   |*c'# |*d'#|    |*f'# |*g'# |*a'# |     |*c''#|*d''#|        "
@@ -110,12 +110,25 @@ key	macro	addrmask,st,down
 	call	nz,down
 	endm
 
-key_l	macro	addrmask,st
-	key	addrmask,st,key_down_lower
+; Note keys work like the plain ones but also carry the id of their '*'
+; marker in C, so the down/up handlers know which key box to light up.
+; The call stays the last three bytes so the (iy-3) self-modification below
+; is unaffected.
+
+notekey	macro	addrmask,st,down,id
+	ld	b,st
+	ld	c,id
+	ld	a,(addrmask >> 8)
+	and	addrmask % $100
+	call	nz,down
 	endm
 
-key_r	macro	addrmask,st
-	key	addrmask,st,key_down_upper
+key_l	macro	addrmask,st,id
+	notekey	addrmask,st,key_down_lower,id
+	endm
+
+key_r	macro	addrmask,st,id
+	notekey	addrmask,st,key_down_upper,id
 	endm
 
 ; Model 1 keyboard matrix.
@@ -191,47 +204,48 @@ k_shift	equ	$388001
 
 init:
 
+	call scanmarkers
 	call screenupdate
 	call setinstrument_lower
 	call setinstrument_upper
 	
 main:	
-	key_l	k_Z,st_c0
-	key_l	k_S,st_c0@
-	key_l	k_X,st_d0
-	key_l	k_D,st_d0@
-	key_l	k_C,st_e0
-	key_l	k_V,st_f0
-	key_l	k_G,st_f0@
-	key_l	k_B,st_g0
-	key_l	k_H,st_g0@
-	key_l	k_N,st_a0
-	key_l	k_J,st_a0@
-	key_l	k_M,st_b0
-	key_l	k_comma,st_c1
-	key_l	k_L,st_c1@
-	key_l	k_dot,st_d1
-	key_l	k_semi,st_d1@
-	key_l	k_slash,st_e1
+	key_l	k_Z,st_c0,25
+	key_l	k_S,st_c0@,18
+	key_l	k_X,st_d0,26
+	key_l	k_D,st_d0@,19
+	key_l	k_C,st_e0,27
+	key_l	k_V,st_f0,28
+	key_l	k_G,st_f0@,20
+	key_l	k_B,st_g0,29
+	key_l	k_H,st_g0@,21
+	key_l	k_N,st_a0,30
+	key_l	k_J,st_a0@,22
+	key_l	k_M,st_b0,31
+	key_l	k_comma,st_c1,32
+	key_l	k_L,st_c1@,23
+	key_l	k_dot,st_d1,33
+	key_l	k_semi,st_d1@,24
+	key_l	k_slash,st_e1,34
 
-	key_r	k_Q,st_c1
-	key_r	k_2,st_c1@
-	key_r	k_W,st_d1
-	key_r	k_3,st_d1@
-	key_r	k_E,st_e1
-	key_r	k_R,st_f1
-	key_r	k_5,st_f1@
-	key_r	k_T,st_g1
-	key_r	k_6,st_g1@
-	key_r	k_Y,st_a1
-	key_r	k_7,st_a1@
-	key_r	k_U,st_b1
-	key_r	k_I,st_c2
-	key_r	k_9,st_c2@
-	key_r	k_O,st_d2
-	key_r	k_0,st_d2@
-	key_r	k_P,st_e2
-	key_r	k_@,st_f2
+	key_r	k_Q,st_c1,7
+	key_r	k_2,st_c1@,0
+	key_r	k_W,st_d1,8
+	key_r	k_3,st_d1@,1
+	key_r	k_E,st_e1,9
+	key_r	k_R,st_f1,10
+	key_r	k_5,st_f1@,2
+	key_r	k_T,st_g1,11
+	key_r	k_6,st_g1@,3
+	key_r	k_Y,st_a1,12
+	key_r	k_7,st_a1@,4
+	key_r	k_U,st_b1,13
+	key_r	k_I,st_c2,14
+	key_r	k_9,st_c2@,5
+	key_r	k_O,st_d2,15
+	key_r	k_0,st_d2@,6
+	key_r	k_P,st_e2,16
+	key_r	k_@,st_f2,17
 
 	key	k_space,0,swap_channel_down
 	
@@ -266,7 +280,10 @@ key_down_lower:
 	ld	(iy-2),low(key_up_lower)
 	ld	(iy-1),high(key_up_lower)
 
+	push	bc		; note_on clobbers BC; C still holds our marker id
 	call note_on_lower
+	pop	bc
+	call	keyhilite
 
 	jp	(iy)		; return to main key scan loop
 
@@ -276,7 +293,10 @@ key_up_lower:
 	ld	(iy-2),low(key_down_lower)
 	ld	(iy-1),high(key_down_lower)
 
+	push	bc
 	call note_off_lower 
+	pop	bc
+	call	keyrestore
 
 	jp	(iy)		
 
@@ -287,7 +307,10 @@ key_down_upper:
 	ld	(iy-2),low(key_up_upper)
 	ld	(iy-1),high(key_up_upper)
 
+	push	bc		; note_on clobbers BC; C still holds our marker id
 	call note_on_upper
+	pop	bc
+	call	keyhilite
 
 	jp	(iy)		; return to main key scan loop
 
@@ -297,7 +320,10 @@ key_up_upper:
 	ld	(iy-2),low(key_down_upper)
 	ld	(iy-1),high(key_down_upper)
 
+	push	bc
 	call note_off_upper
+	pop	bc
+	call	keyrestore
 
 	jp	(iy)		
 
@@ -1033,5 +1059,125 @@ setinstrument_upper:
 	call short_delay
  
 	ret
+
+
+;
+; ---- On-screen key highlighting -------------------------------------------
+;
+; Each key box in the artwork carries a '*' marker.  scanmarkers walks the
+; art once at startup, notes where every marker sits on screen and how wide
+; its box is, then blanks the marker.  Pressing a key fills that box with
+; solid graphics blocks; releasing it copies the original text back out of
+; the title image, which is still sitting untouched in RAM at "title".
+;
+; The TRS-80 has no reverse-video attribute for text on either the Model I
+; or the Model III - $C0-$FF is a symbol set on the III and a copy of the
+; graphics blocks on the I - so a filled block is as close to inverse video
+; as the hardware gets.
+;
+
+NKEYS	 equ	35		; '*' markers in the artwork, one per note key
+KBROW	 equ	3		; first row of art carrying markers
+KBROWS	 equ	8		; rows of art to scan (3..10)
+MAXFIELD equ	8		; widest box we are willing to light up
+HILITE	 equ	128+63		; all six graphics blocks set = solid cell
+
+scanmarkers:
+	ld	hl,$3c00+KBROW*64
+	ld	ix,keytab
+	ld	bc,KBROWS*64
+scan1:
+	ld	a,(hl)
+	cp	'*'
+	jr	nz,scan5
+
+	push	bc
+	ld	(hl),' '	; blank the marker on screen ...
+	ld	bc,title-$3c00
+	push	hl
+	add	hl,bc
+	ld	(hl),' '	; ... and in the copy keyrestore reads back
+	pop	hl
+
+	ld	(ix),l		; where this box starts
+	ld	(ix+1),h
+
+	push	hl		; how wide it is: marker up to the next '|'
+	ld	b,0
+scan2:
+	inc	hl
+	inc	b
+	ld	a,b
+	cp	MAXFIELD
+	jr	nc,scan3	; runaway guard
+	ld	a,(hl)
+	cp	'|'
+	jr	nz,scan2
+scan3:
+	ld	(ix+2),b
+	pop	hl
+
+	ld	bc,3
+	add	ix,bc
+	pop	bc
+scan5:
+	inc	hl
+	dec	bc
+	ld	a,b
+	or	c
+	jr	nz,scan1
+	ret
+
+; Entry: C = marker id.  Exit: HL = screen address, B = width (0 = no box).
+
+keyaddr:
+	ld	a,c
+	add	a,a
+	add	a,c		; 3 bytes per entry; id <= 34, so this stays 8-bit
+	ld	e,a
+	ld	d,0
+	ld	hl,keytab
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	inc	hl
+	ld	b,(hl)
+	ex	de,hl
+	ret
+
+keyhilite:
+	call	keyaddr
+	ld	a,b
+	or	a
+	ret	z
+	ld	a,HILITE
+keyhi1:
+	ld	(hl),a
+	inc	hl
+	djnz	keyhi1
+	ret
+
+keyrestore:
+	call	keyaddr
+	ld	a,b
+	or	a
+	ret	z
+	ld	d,h		; screen is the destination
+	ld	e,l
+	push	de
+	ld	de,title-$3c00
+	add	hl,de		; the original text is this far along
+	pop	de
+	ld	c,a
+	ld	b,0
+	ldir
+	ret
+
+keytab:				; screen address + width, per marker
+	rept	NKEYS
+	defw	0
+	defb	0
+	endm
 
   end start
