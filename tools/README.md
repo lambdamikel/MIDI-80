@@ -8,7 +8,13 @@ and the mirror at trs-80.com blocks scripted downloads.
 
 ```sh
 python3 tools/ldoswrite.py IN.DSK OUT.DSK  path/to/file.cmd=NAME/EXT  [more...]
+python3 tools/ldoswrite.py IN.DSK OUT.DSK  -OLDFILE/CMD   # delete, to free granules
 ```
+
+A `-NAME/EXT` argument deletes that file first: it clears the directory
+entry and HIT byte and releases the file's granules in the GAT. That is
+how the Model I song disks are built, since that image had only one free
+granule left and a song needs eighteen.
 
 Example — the disks in this repository were built with:
 
@@ -67,3 +73,58 @@ image byte-for-byte against the source (identical, including a
 fragmented 4-extent case), listed correctly by LDOS's own `DIR` with the
 right record counts and dates, and actually **run** on both a Model III
 and a Model I under emulation — including from the converted `.hfe`.
+
+
+---
+
+# Writing songs: `mksong.py`, `demosongs.py`, `midi2wav.py`
+
+TRACKER saves its entire data segment verbatim, so a song file is a byte
+image of `datastart`..`dataend` from `tracker7.asm` — 22645 bytes, always
+called `DUMP`. Offsets, taken from the assembler symbol table:
+
+| offset | size | field |
+|-------:|-----:|-------|
+| 0 | 20 | `START-OF-FILE-MARKER` |
+| 20 | 128 | `statusbuffer` (transient, redrawn after load) |
+| 148 | 6 | `instrumenttracks` — GM program per track, **global** |
+| 1012 | 64 | `songdata` — pattern letters, `.` stops, `*` loops |
+| 1078 | 1 | `curpat` |
+| 1081 | 798 | the working page (must equal `pages[curpat]`) |
+| 1879 | 26×798 | `pages`, patterns A..Z |
+| 22627 | 18 | `END-OF-FILE-MARKER` |
+
+and inside one 798 byte page:
+
+| offset | size | field |
+|-------:|-----:|-------|
+| 1 | 1 | `tempo` |
+| 2,3 | 1,1 | `numbars`, `numticks` (`numbars*16`) |
+| 6,12,18,24 | 6 each | `drumnostracks`, `channeltracks`, `velocitytracks`, `gatetracks` |
+| 30 | 384 | `tracks1` — 6 tracks × 64 steps, steps 0..63 |
+| 414 | 384 | `tracks2` — steps 64..127 |
+
+A cell holds a character, which is exactly what the grid shows: a note is
+`chr(midi_note + 0x61)`, and anything `<= 'a'` is a rest, drawn as the ruler
+character for that column (`!...-...+...-...`). Steps are 16th notes.
+
+Two traps worth knowing. The working page at 1081 must match `pages[curpat]`,
+because starting playback calls `putpat` first and would otherwise overwrite
+that pattern with whatever the working page holds. And the loader reads only
+88 records of 256 bytes, so the last 117 bytes of the image never come back —
+patterns past Y are unsafe.
+
+```sh
+python3 tools/demosongs.py out/          # writes the three DUMPs and .MIDs
+python3 tools/midi2wav.py song.mid song.wav [seconds]
+```
+
+`midi2wav.py` is a small built-in synth for when no soundfont is installed.
+With fluidsynth available you will get a far better rendering:
+
+```sh
+fluidsynth -F out.wav /usr/share/sounds/sf2/FluidR3_GM.sf2 songs/BOOGIE.mid
+```
+
+See [`songs/README.md`](../songs/README.md) for the songs themselves and for
+the measured tempo calibration, which differs from TRACKER's own BPM formula.

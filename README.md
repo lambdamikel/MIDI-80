@@ -208,6 +208,34 @@ and new versions can be compared on the same machine:
 
 Boot, then just type `TRACKER7` (or `TRACKER6`, or `TRACKER5`).
 
+#### Demo songs
+
+Three demo songs ship as ready-to-play disks that also carry `TRACKER7/CMD`
+— boot, type `TRACKER7`, press `L` then `Y`:
+
+| song | style | plays at |
+| --- | --- | --- |
+| `BOOGIE` | 12 bar blues shuffle in C — bass, two organ voices, lead, drums | 140 BPM |
+| `SEQUENCE` | Berlin school 16th note sequencer in A minor, builds over 5 patterns | 120 BPM |
+| `DRUMS` | six voice drum machine, all six tracks on channel 10 | 125 BPM |
+
+| Model | Disk images | Gotek / HxC |
+| --- | --- | --- |
+| III / 4 | [`BOOGIE.DSK`](trs-80/model-3/dsk/BOOGIE.DSK), [`SEQUENCE.DSK`](trs-80/model-3/dsk/SEQUENCE.DSK), [`DRUMS.DSK`](trs-80/model-3/dsk/DRUMS.DSK) | [`BOOGIE_DSK.hfe`](trs-80/model-3/hfe/BOOGIE_DSK.hfe), [`SEQUENCE_DSK.hfe`](trs-80/model-3/hfe/SEQUENCE_DSK.hfe), [`DRUMS_DSK.hfe`](trs-80/model-3/hfe/DRUMS_DSK.hfe) |
+| I | [`boogie.dsk`](trs-80/model-1/dsk/boogie.dsk), [`sequence.dsk`](trs-80/model-1/dsk/sequence.dsk), [`drums.dsk`](trs-80/model-1/dsk/drums.dsk) | [`boogie_dsk.hfe`](trs-80/model-1/hfe/boogie_dsk.hfe), [`sequence_dsk.hfe`](trs-80/model-1/hfe/sequence_dsk.hfe), [`drums_dsk.hfe`](trs-80/model-1/hfe/drums_dsk.hfe) |
+
+The raw song files and `.MID` renderings are in [`songs/`](songs/), including
+`*-TRS80.mid`, captured from the emulated machine's actual port 8 output by
+tracing every `out (8),a` — so those files are literally what the TRS-80 put
+on the wire. All 817 note-ons across the three songs matched the composition
+on channel, note, velocity and timing.
+
+Songs are written with [`tools/mksong.py`](tools/); the format is documented
+in [`tools/README.md`](tools/). One caveat worth reading before trusting the
+`BPM:` display: the readout is accurate at fast tempos but reads up to ~10%
+slow at the slow end, so these songs play faster than the number on screen
+says. [`songs/README.md`](songs/README.md) has the measurements.
+
 These were built with [`tools/ldoswrite.py`](tools/), a small LDOS image
 writer added for the purpose — the usual tool for this, `trswrite.exe`
 from TRSTOOLS, is a Windows binary whose original download site is now a

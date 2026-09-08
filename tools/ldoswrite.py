@@ -51,6 +51,40 @@ def free_granules(img):
             if not (gat[t]>>g)&1: out.append((t,g))
     return out
 
+def find_entry(img, name, ext):
+    """-> (dir_sector, entry_index, entry) for a file, or None."""
+    name=name.upper().ljust(8)[:8]; ext=ext.upper().ljust(3)[:3]
+    for s in range(2,2+16):
+        if (img.dirtrack,s) not in img.sectors: break
+        blk=img.rd(img.dirtrack,s)
+        for e in range(8):
+            ent=blk[e*32:(e+1)*32]
+            if not (ent[0] and ent[0]&0x10): continue
+            if ent[5:13].decode('latin-1')==name and ent[13:16].decode('latin-1')==ext:
+                return s,e,bytearray(ent)
+    return None
+
+def delete_file(img, name, ext):
+    """Free a file's granules and release its directory slot and HIT byte."""
+    hit_ = find_entry(img, name, ext)
+    if not hit_: raise SystemExit("no such file: %s/%s"%(name,ext))
+    s,e,ent = hit_
+    gat=bytearray(img.rd(img.dirtrack,0))
+    freed=0; i=22
+    while i<32 and ent[i]!=0xFF:
+        t,g,c = ent[i], (ent[i+1]>>5)&7, (ent[i+1]&0x1f)+1
+        for k in range(c):
+            tt,gg=t,g+k
+            while gg>=img.gpt: gg-=img.gpt; tt+=1
+            gat[tt] &= ~(1<<gg) & 0xFF; freed+=1
+        i+=2
+    img.wr(img.dirtrack,0,bytes(gat))
+    blk=bytearray(img.rd(img.dirtrack,s)); blk[e*32:(e+1)*32]=bytes(32)
+    img.wr(img.dirtrack,s,bytes(blk))
+    hit=bytearray(img.rd(img.dirtrack,1)); hit[e*32+(s-2)]=0
+    img.wr(img.dirtrack,1,bytes(hit))
+    print("  - %s/%s  freed %d granule(s)"%(name.strip(),ext.strip(),freed))
+
 def add_file(img, name, ext, data, month=9, day=7, year=1985):
     name=name.upper().ljust(8)[:8]; ext=ext.upper().ljust(3)[:3]
     nm=(name+ext).encode('latin-1')
@@ -134,6 +168,10 @@ if __name__=="__main__":
     print("%s: %s, dir track %d, %d sectors/granule, %d free granules"
           %(os.path.basename(src),img.kind,img.dirtrack,img.spg,len(free_granules(img))))
     for spec in sys.argv[3:]:
+        if spec.startswith('-'):                 # -NAME/EXT deletes
+            n,x = spec[1:].split('/')
+            delete_file(img,n,x)
+            continue
         hostpath,trsname = spec.split('=')
         n,x = trsname.split('/')
         add_file(img,n,x,open(hostpath,'rb').read())
