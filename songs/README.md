@@ -85,11 +85,15 @@ is harmed - the MIDI clock output is self-normalising at exactly 6 clocks per
 step, so anything synced to it follows the real tempo - but the number on
 screen is optimistic. Correcting it would mean changing `TEMPOBASE` from 3346
 to about 3893 and the multiplier from 112 to 97. **That change has not been
-made**: the whole calibration was measured under emulation only. V2.00 itself
-has since been confirmed on a real Model III, but nobody has yet timed a song
-against a stopwatch there, which is what it would take to justify moving those
-constants. If a song ever sounds off-tempo on real hardware, this is the first
-thing to re-check - eight bars of `BOOGIE` should take about 13.7 seconds.
+made** - it would alter the actual tempo, not just the display, since
+`steptarget` is what the step accumulator is compared against. Fixing the
+readout honestly means deriving the displayed BPM from the measured relation
+while leaving `steptarget` alone.
+
+The calibration itself has since been **confirmed on real hardware**: eight
+bars of `BOOGIE` pattern A timed at 13 to 14 seconds on a real Model III,
+against 13.73 s predicted here and 14.69 s predicted by the tracker's own
+`BPM:130` readout. The window contains the first and excludes the second.
 
 Note also that the step period varies by only 1.6% between a pattern with one
 note per two steps and one with all six tracks firing on every step, so the

@@ -37,10 +37,11 @@ faster tracker core.**
 > has not been built yet - the clock box itself is verified against a
 > real Korg microKORG.
 >
-> One measurement remains emulator-only: the tempo calibration behind the
-> BPM readout note in [`songs/README.md`](songs/README.md). The demo song
-> tempos are derived from it, so if a song ever sounds off-tempo on iron,
-> start there.
+> The tempo calibration behind the BPM readout note in
+> [`songs/README.md`](songs/README.md) has since been confirmed on hardware
+> too - eight bars of `BOOGIE` timed at 13 to 14 seconds on a real Model
+> III, against 13.73 s predicted and 14.69 s if the `BPM:` field were
+> telling the truth. So that readout really does read about 7% slow.
 >
 > `TRACKER5/CMD` (V1.98) remains the known good, road tested version and
 > is unchanged. It is still the one to use for actual music work until
