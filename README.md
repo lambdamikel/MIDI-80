@@ -44,17 +44,33 @@ faster tracker core.**
 > The `BPM:` field would have implied 58.8 s for the same passage, nearly
 > four seconds out, so it really does read about 7% slow.
 >
-> `TRACKER5/CMD` (V1.98) remains the known good, road tested version and
-> is unchanged. It is still the one to use for actual music work until
-> these have been validated.
->
-> That said: this is a major step forward, and the measurements behind
-> it are solid.
+> `TRACKER5/CMD` (V1.98) is unchanged and still on the disks as a
+> fallback, but **2.00 is now the one to use** - it has been validated on
+> real hardware, and it is the only version with MIDI clock output, the
+> faster core and the time based tempo.
 
 TRACKER can now act as a **MIDI master**: it transmits MIDI beat clock,
 transport messages and MMC (MIDI Machine Control) over MIDI OUT, so a
 DAW, drum machine or groovebox can follow the TRS-80 instead of the
 other way round.
+
+### What this means if you play live
+
+Until now a TRS-80 running TRACKER was an island on stage: it kept its own
+time, and nothing else could lock to it. With clock output it becomes the
+master of the rig - press `P` and the drum machine, the groovebox and the
+DAW all start with it and hold tempo with it. The `M` mode does the
+reverse for setups where something else is the timing master and you only
+want the TRS-80's transport to roll the other device.
+
+The timing work matters here more than the numbers suggest. Step jitter
+dropped from 1.96 ms to 0.46 ms and MIDI clock jitter from 28.75 ms to
+4.40 ms, which nobody hears as such - but it is the difference between a
+machine that stays locked to a drum machine across a four minute track and
+one that drifts audibly out of it. The
+[external clock module](firmware/midiclock-uno/) closes the loop the other
+way, letting a MIDI master drive TRACKER's step clock at 0.096 ms
+peak-to-peak.
 
 **The `R` key cycles through four modes**, shown as a single character
 in the status row:
