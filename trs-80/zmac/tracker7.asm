@@ -2189,6 +2189,7 @@ startstop:
 
 showstartstop:
 	call midisyncstopr
+	call midipanicr		; stopping must silence whatever is still sounding
 	ld hl,$3c00 + 64 + 6
 	ld a,stoppeds
 	ld (hl), a
@@ -2273,6 +2274,7 @@ stopsong:
 	ld hl, status
 	ld (hl), 0
 	call midisyncstopr
+	call midipanicr		; stopping must silence whatever is still sounding
 	ld hl,$3c00 + 64 + 6
 	ld a,stoppeds
 	ld (hl), a

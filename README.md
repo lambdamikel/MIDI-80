@@ -222,6 +222,24 @@ it replaced, so the step timing is unchanged — measured 139.68 BPM against
 139.80 before, with jitter slightly improved. `datalength` is unchanged, so
 existing `DUMP` files still load.
 
+#### Stopping now silences the notes
+
+Reported from real hardware: stop a song and notes hang until the sound
+module is reset. This one is not the module's fault and not a MIDI panic
+problem — the panic (the `0` key, `ALL NOTES OFF`) works fine. Stopping
+simply never sent any note offs.
+
+Both stop paths, `showstartstop` (the `P` and `!` keys) and `stopsong` (the
+end of a song), sent only the `FC` MIDI Stop transport byte and set the
+status flag. Any note whose note off was scheduled for a later step never
+got one, so it sounded forever. Starting playback *did* call `midipanicr`,
+which is why the notes cleared as soon as you started again.
+
+Both paths now send the panic on the way out, so a stop is silent. Fixed in
+1.99 and 2.00 alike; verified on the MIDI stream captured from the emulated
+machine, which now shows a second 16-channel All Notes Off at the stop and
+leaves nothing sounding.
+
 #### Bootable disk images
 
 Ready-to-run LDOS images containing `TRACKER5/CMD` (1.98),
