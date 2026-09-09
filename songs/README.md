@@ -10,6 +10,15 @@ and reads back with `L` - together with a `.MID` rendering of the same music.
 | `SEQUENCE` | Berlin school 16th note sequencer in A minor | two sequences, synth bass, pad, lead, drums | 120 BPM | builds over 5 patterns |
 | `DRUMS`    | six voice drum machine | all six tracks on channel 10 | 125 BPM | 4 bar patterns chained |
 
+Playing on a Model III, left to right: the boogie grid, the 16th note
+sequence, and the drum machine.
+
+![BOOGIE](../pics/song-boogie.gif)
+
+![SEQUENCE](../pics/song-sequence.gif)
+
+![DRUMS](../pics/song-drums.gif)
+
 `BOOGIE` plays once and stops; `SEQUENCE` and `DRUMS` loop (`*` in the song
 row). `DRUMS` sets `channeltracks` to channel 10 on every track, which turns
 TRACKER back into the six voice drum machine it started life as.
