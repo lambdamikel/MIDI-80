@@ -33,6 +33,12 @@ faster tracker core.**
 > **MIDORG V1.1**'s key highlighting, and the **`.hfe` images** booted from
 > a Gotek on both machines.
 >
+> Each image format is verified where it is actually used: the `.hfe` files
+> on real hardware, and the `.dsk` (JV3 / JV1) files under emulation, which
+> is what they are for - a Gotek or HxC does not read them. Since the
+> `.hfe` is produced from the `.dsk` by `hxcfe`, the filesystem inside is
+> the same one either way, and booting the `.hfe` exercises it.
+>
 > One thing remains unverified: the **external clock cable** from the
 > Arduino clock box into the TRS-80 parallel port, which has not been built
 > yet. The clock box itself is verified against a real Korg microKORG.
