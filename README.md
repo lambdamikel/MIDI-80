@@ -360,19 +360,25 @@ Two versions are provided:
 - [`TRACKER6/CMD`](trs-80/zmac/zout/tracker6.cmd) (**V1.99**,
   [source](trs-80/zmac/tracker6.asm)) - MIDI clock and MMC output only,
   keeping the 1.98 core: ROM keyboard scan, video wait states enabled,
-  and the original `SPEED` delay count. Use this one if the Model III
-  display shows hash with wait states disabled, or if you want the
-  smallest possible change from 1.98.
+  and the original `SPEED` delay count. Kept as a fallback and for the
+  smallest possible change from 1.98, though the concern that motivated
+  it did not materialise - see below.
 
-**Please test 2.00 on real Model III hardware before relying on it.**
-Disabling video wait states can produce visible hash or "snow" when
-writing to the screen during active display; the emulator renders it
-correctly, but that is not the same as a real CRT. If you see artifacts,
-use 1.99.
+**2.00 has now been tested on real hardware**, on a Model III and a
+Model I. The worry recorded here previously was that disabling video wait
+states might produce visible hash or "snow" on a real CRT, where an
+emulator would show none. It does not: the display is clean, and 2.00 is
+the version to use. A **Model 4** has not been tried, and the wait state
+bit is a Model III/4 thing, so if you run one and see artifacts, 1.99 is
+still there.
 
 The keyboard scan deliberately has **no typematic repeat**: a repeating
 toggle key such as `P` would flip playback on and off many times a
-second. Cursor keys therefore need a tap per step.
+second. Cursor keys therefore need a tap per step. It also waits for the
+contacts to stay open for about 20 ms before accepting the same key
+again - without that the scan is quick enough to catch a bouncing contact
+re-closing and count one press several times, which made command keys
+feel hair triggered on real hardware.
 
 
 ### February 2026
