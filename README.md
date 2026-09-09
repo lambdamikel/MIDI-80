@@ -37,12 +37,12 @@ faster tracker core.**
 > has not been built yet - the clock box itself is verified against a
 > real Korg microKORG.
 >
-> The tempo calibration behind the BPM readout note in
-> [`songs/README.md`](songs/README.md) has since been confirmed on hardware
-> too: 32 bars of `BOOGIE` timed at **55.0 s** by stopwatch on a real Model
-> III against **54.94 s** predicted, agreeing to within stopwatch accuracy.
-> The `BPM:` field would have implied 58.8 s for the same passage, nearly
-> four seconds out, so it really does read about 7% slow.
+> The tempo calibration behind the BPM readout has since been confirmed on
+> hardware too: 32 bars of `BOOGIE` timed at **55.0 s** by stopwatch on a
+> real Model III against **54.94 s** predicted, agreeing to within stopwatch
+> accuracy. The old `BPM:` field would have implied 58.8 s for the same
+> passage, nearly four seconds out - **that readout has now been corrected**
+> (see below), and `BOOGIE` reads `BPM:140` rather than `BPM:130`.
 >
 > `TRACKER5/CMD` (V1.98) is unchanged and still on the disks as a
 > fallback, but **2.00 is now the one to use** - it has been validated on
@@ -266,6 +266,35 @@ Both paths now send the panic on the way out, so a stop is silent. Fixed in
 1.99 and 2.00 alike; verified on the MIDI stream captured from the emulated
 machine, which now shows a second 16-channel All Notes Off at the stop and
 leaves nothing sounding.
+
+#### The BPM readout now tells the truth
+
+2.00's `BPM:` field used to be derived from `steptarget`, the value
+`advanceclock` compares the step accumulator against. But the accumulator
+over-counts idle main loop passes, so the real step is shorter than the
+target by an amount that grows with tempo: the readout was honest around
+tempo 40 and read up to 10% slow at tempo 200.
+
+It is now derived from the measured step period instead:
+
+```
+divisor = 3893 + 97 * tempo        (16 T-state units)
+BPM     = 1900800 / divisor        Model III;  1646800 Model I
+```
+
+good to within 0.3% across the whole tempo range, with the result rounded
+rather than truncated. `BOOGIE` reads `BPM:140` against a true 139.8.
+
+**`steptarget` is deliberately untouched**, so this is a display change
+only - the playback timing is bit-for-bit what it was, verified as an
+identical 217733 T-state step period before and after. Changing
+`TEMPOBASE` would have been the wrong fix: it would have shifted the
+actual tempo and de-tuned every existing song along with the demo songs.
+
+The Model I runs about 1% slower per step in T-states than the Model III -
+same code, slightly different per-model branches - which is absorbed into
+the Model I constant rather than needing a second slope. 1.99 has no BPM
+readout, so nothing changed there.
 
 #### Bootable disk images
 

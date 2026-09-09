@@ -4,8 +4,8 @@ Each builds a "DUMP" file (what TRACKER's L key loads) plus a matching .MID
 rendered with the tracker's own tempo formula, so the two should agree.
 
 Tempo bytes come from mksong.tempo_for(), which uses the MEASURED step
-period rather than TRACKER's own BPM formula - the readout reads up to ~10%
-slow at the slow end, so a song written to the formula would play sharp.
+period. TRACKER's BPM readout now uses the same relation, so what a song
+displays and what it plays finally agree.
 Gates use only the values the UI can produce: 1, 2, 4, 8, 16.
 
   usage: python3 demosongs.py <output-dir>
@@ -194,7 +194,7 @@ if __name__ == "__main__":
         bars = sum(s.patterns[c].numbars for c in s.arrangement if c not in '.*')
         p0 = s.patterns[pats[0]]
         print("%-9s %d bytes  patterns %s  arrangement %-14s %3d bars  "
-              "plays %.1f BPM (M3) / %.1f (M1), readout shows %.0f"
+              "plays %.1f BPM (M3) / %.1f (M1), reads BPM:%d"
               % (name, len(dump), ",".join(pats), s.arrangement, bars,
                  p0.real_bpm(3), p0.real_bpm(1), p0.bpm(3)))
         for w in warn:

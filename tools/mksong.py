@@ -142,9 +142,14 @@ class Pattern:
         return self
 
     def bpm(self, model=3):
-        """What TRACKER's own BPM readout will show for this tempo byte."""
-        k = 1900800 if model == 3 else 1663200
-        return k / (3346 + self.tempo * 112)
+        """The integer TRACKER's BPM field will show for this tempo byte.
+
+        Mirrors the tracker's own arithmetic since the readout fix: same
+        divisor, same constants, same round-to-nearest.
+        """
+        k = 1900800 if model == 3 else 1646800
+        d = 3893 + 97 * self.tempo
+        return (k + d // 2) // d
 
     def real_bpm(self, model=3):
         """What the machine actually plays, from CAL_A/CAL_B (see above)."""

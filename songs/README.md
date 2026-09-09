@@ -50,59 +50,48 @@ clock is 1.774 MHz against the Model III's 2.028 MHz, so everything plays
 12.5% slower there. That is why TRACKER carries two BPM constants. The three
 songs land at 140/120/125 BPM on a Model III and 122/105/109 BPM on a Model I.
 
-## A note on the BPM readout
+## The BPM readout
 
-These songs are written to the tempo they *actually play at*, which is not
-what TRACKER's `BPM:` field reports. `BOOGIE` plays at 140 BPM but the
-readout shows 130.
+These songs are written to the tempo they actually play at, and as of the
+readout fix the `BPM:` field agrees: `BOOGIE` shows `BPM:140` and plays at
+139.8.
 
-V2.00's tempo is time based: a step ends once an accumulator of estimated
-elapsed time reaches `steptarget = (3346 + tempo*112) * 16` T-states. The
-estimate is assembled from fixed per-call costs (`PASS_U`, `SHORTDLY_U`,
-`WHLSLICE_U` ...), and the one covering idle main loop passes runs high, so
-the accumulator reaches the target before that much time has really passed.
+That was not always so. 2.00's readout used to be derived from
+`steptarget`, the value `advanceclock` compares the step accumulator
+against, and the accumulator over-counts idle main loop passes - so the
+real step came out shorter than the target by an amount that grew with
+tempo. The readout was honest around tempo 40 and up to 10% slow at tempo
+200; `BOOGIE` displayed 130 while playing 140.
 
-Measured in trs80gp by tracing the port 8 writes of a reference voice at
-tempo 40/80/120/160/200, the real step period is linear in tempo to within
-0.08%:
+The true step period was measured in trs80gp by tracing the port 8 writes
+of a reference voice at tempo 40/80/120/160/200, and is linear in tempo to
+within 0.08%:
 
 ```
-actual   = 62778 + 1547.9 * tempo   T-states     (measured)
-steptarget = 53536 + 1792.0 * tempo T-states     (what TRACKER assumes)
+actual = 62778 + 1547.9 * tempo   T-states     (measured)
 ```
 
-| tempo | assumed T | actual T | ratio | BPM shown | BPM real |
-|------:|----------:|---------:|------:|----------:|---------:|
+| tempo | old assumption T | actual T | ratio | old BPM shown | true BPM |
+|------:|-----------------:|---------:|------:|--------------:|---------:|
 |  40 | 125216 | 124724 | 0.996 | 242.9 | 243.8 |
 |  80 | 196896 | 186690 | 0.948 | 154.5 | 162.9 |
 | 120 | 268576 | 248444 | 0.925 | 113.2 | 122.4 |
 | 160 | 340256 | 310236 | 0.912 |  89.4 |  98.0 |
 | 200 | 411936 | 372528 | 0.904 |  73.8 |  81.6 |
 
-So the readout is honest around tempo 40 and reads up to ~10% slow at tempo
-200; the machine always plays at or faster than it claims. Nothing downstream
-is harmed - the MIDI clock output is self-normalising at exactly 6 clocks per
-step, so anything synced to it follows the real tempo - but the number on
-screen is optimistic. Correcting it would mean changing `TEMPOBASE` from 3346
-to about 3893 and the multiplier from 112 to 97. **That change has not been
-made** - it would alter the actual tempo, not just the display, since
-`steptarget` is what the step accumulator is compared against. Fixing the
-readout honestly means deriving the displayed BPM from the measured relation
-while leaving `steptarget` alone.
+Confirmed on real hardware: four repeats of `BOOGIE` pattern A - 32 bars,
+512 steps - timed at **55.0 s** by stopwatch on a real Model III against
+**54.94 s** predicted. Allowing a few tenths of reaction time at each end
+that is agreement to within about half a percent. The old readout implied
+58.8 s for the same passage, nearly four seconds out and excluded outright.
 
-The calibration itself has since been **confirmed on real hardware**. Four
-repeats of `BOOGIE` pattern A - 32 bars, 512 steps - timed at **55.0 s** by
-stopwatch on a real Model III, against **54.94 s** predicted here. Allowing a
-few tenths of reaction time at each end, that is agreement to within about
-half a percent, and it implies ~139.6 BPM against 139.8 predicted.
+The readout is now computed from that relation directly, leaving
+`steptarget` alone so the playback timing is unchanged. See the main
+README for the constants.
 
-The tracker's own `BPM:130` readout implies **58.8 s** for the same passage.
-That is nearly four seconds away, far outside any stopwatch error, so it is
-excluded outright: the readout is about 7% low.
-
-Note also that the step period varies by only 1.6% between a pattern with one
-note per two steps and one with all six tracks firing on every step, so the
-hand tuning that equalises busy and empty steps is holding up well.
+Note also that the step period varies by only 1.6% between a pattern with
+one note per two steps and one with all six tracks firing on every step, so
+the hand tuning that equalises busy and empty steps is holding up well.
 
 ## Verification
 

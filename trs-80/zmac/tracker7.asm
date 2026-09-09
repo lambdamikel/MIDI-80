@@ -17,6 +17,25 @@ CURSYM 	equ	'X'
 ;; makes command keys feel hair triggered. ~20 ms of quiet settles it and is
 ;; far below anything a player can type. Set to 1 to disable.
 KBDSETTLE equ	24
+
+;; ---- BPM readout ---------------------------------------------------
+;; The BPM display must NOT be derived from steptarget. steptarget is what
+;; advanceclock compares the step accumulator against, and the accumulator
+;; over-counts idle main loop passes, so the real step is shorter than the
+;; target by an amount that grows with tempo -- the readout used to be
+;; honest around tempo 40 and ~10% slow at tempo 200.
+;;
+;; Measured in trs80gp by tracing the port 8 writes of a reference voice at
+;; tempo 40/80/120/160/200, and confirmed on real hardware (32 bars of a
+;; 140 BPM song timed at 55.0 s against 54.94 s predicted), the true step
+;; period is linear in tempo. In the 16 T units used here:
+;;
+;;   step = BPMBASE + 97 * tempo      to within 0.3% over the whole range
+;;
+;; The Model I runs about 1% slower per step in T-states than the Model III
+;; -- same code, slightly different per model branches -- which is absorbed
+;; into bpmk1 rather than needing a second slope.
+BPMBASE	  equ	3893
 ENTER	equ	$0d ; @DSPLY with newline
 
 KCURLEFT	equ 8
@@ -2835,6 +2854,34 @@ calcbpm1:
 	ld bc,4
 	ldir
 
+	ld a,(tempo)		; divisor = BPMBASE + 97*tempo
+	ld l,a
+	ld h,0
+	ld d,h
+	ld e,l
+	add hl,hl		; 2t
+	add hl,de		; 3t
+	add hl,hl		; 6t
+	add hl,hl		; 12t
+	add hl,hl		; 24t
+	add hl,hl		; 48t
+	add hl,hl		; 96t
+	add hl,de		; 97t
+	ld de,BPMBASE
+	add hl,de
+	ld (bpmdiv),hl
+
+	srl h			; round to nearest instead of truncating:
+	rr l			; bias the dividend by half the divisor
+	ld de,(dvnd)
+	add hl,de
+	ld (dvnd),hl
+	jr nc,calcbpm0
+	ld hl,(dvnd+2)
+	inc hl
+	ld (dvnd+2),hl
+calcbpm0:
+
 	ld hl,0			; remainder
 	ld b,32
 calcbpm2:
@@ -2853,7 +2900,7 @@ calcbpm2:
 	ld (dvnd+3),a
 
 	adc hl,hl		; bring that bit into the remainder
-	ld de,(steptarget)
+	ld de,(bpmdiv)
 	or a
 	sbc hl,de
 	jr nc,calcbpm3
@@ -2895,7 +2942,8 @@ bpmdigit1:
 	ret
 
 bpmk3:	byte $00,$01,$1d,$00	; 1900800, little endian
-bpmk1:	byte $e0,$60,$19,$00	; 1663200, little endian
+bpmk1:	byte $d0,$20,$19,$00	; 1646800, little endian -- 1663200 scaled
+				; by the Model I's ~1% longer step in T states
 
 gettracknr:
 	ld a,(memcursory)
@@ -3912,6 +3960,7 @@ dvnd		defs 4		; scratch dividend for the BPM division
 midiclkbusy	byte 0		; re-entrancy guard while sending a message
 lastkey		byte 0		; debounce latch for the direct key scan
 kbdsettlec	byte 0		; scans of quiet still needed before a new key
+bpmdiv		word 0		; divisor behind the BPM readout, NOT the step period
 kbdshift	byte 0		; shift state of the current scan
 passdivc	byte 1		; main loop call divider
 shortdivc	byte 1		; short_delay call divider
