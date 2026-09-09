@@ -13,25 +13,34 @@
 **TRACKER 1.99 and 2.00: MIDI clock & MMC transport output, and a much
 faster tracker core.**
 
-> ⚠️ **EXPERIMENTAL - NOT YET TESTED ON REAL HARDWARE.**
+> ✅ **TESTED ON REAL HARDWARE.** TRACKER 2.00 has been run on an actual
+> Model III driving a real MIDI/80 S2 Waveblaster module: playback,
+> realtime MIDI recording, the MIDI panic and the disk prompts all work,
+> and it "runs rock solid".
 >
-> Everything below was developed and measured entirely in the
-> [trs80gp](https://48k.ca/trs80gp.html) emulator, using its cycle
-> accurate bus trace. It assembles cleanly, runs correctly under
-> emulation on both Model I and Model III, and the timing figures are
-> real measurements rather than estimates - but **no part of it has yet
-> been run on an actual TRS-80, and no MIDI byte has yet reached actual
-> MIDI hardware.** Treat 1.99 and 2.00 as unverified until somebody has
-> tried them on a real machine with a real synth attached.
+> The two concerns that were flagged here while this was emulator-only
+> both came out fine, though the hardware did earn its keep:
+> - **Video wait states, disabled in 2.00 on the Model III / 4** - no
+>   visible hash or snow on a real CRT.
+> - **The direct matrix keyboard scan** replacing the ROM call - fast and
+>   pleasant for realtime note entry, and the reason recording feels
+>   responsive. It did expose two real bugs that no emulator would have
+>   found on its own, both since fixed: `@KEY` racing the scan (see
+>   below), and command keys needing a release settle against contact
+>   bounce.
 >
-> Two things in particular need hardware confirmation:
-> - **Video wait states are disabled in 2.00 on the Model III / 4.**
->   This can cause visible hash or "snow" on a real CRT during screen
->   writes. The emulator shows none, but that proves little. If you see
->   artifacts, use 1.99 instead.
-> - **The ROM keyboard scan was replaced** in 2.00 by a direct matrix
->   scan. It behaves correctly under emulation, but real keyboards have
->   contact bounce that an emulator does not reproduce.
+> Still unverified, in decreasing order of confidence: the **Model I**
+> builds and disk images (same code, and the Model I path is unchanged,
+> but not actually run); the **`.hfe` images** on a Gotek; **MIDORG
+> V1.1**; the **demo songs** on real hardware; and the **external clock
+> cable** from the Arduino clock box into the TRS-80 parallel port, which
+> has not been built yet - the clock box itself is verified against a
+> real Korg microKORG.
+>
+> One measurement remains emulator-only: the tempo calibration behind the
+> BPM readout note in [`songs/README.md`](songs/README.md). The demo song
+> tempos are derived from it, so if a song ever sounds off-tempo on iron,
+> start there.
 >
 > `TRACKER5/CMD` (V1.98) remains the known good, road tested version and
 > is unchanged. It is still the one to use for actual music work until

@@ -85,8 +85,11 @@ is harmed - the MIDI clock output is self-normalising at exactly 6 clocks per
 step, so anything synced to it follows the real tempo - but the number on
 screen is optimistic. Correcting it would mean changing `TEMPOBASE` from 3346
 to about 3893 and the multiplier from 112 to 97. **That change has not been
-made**: V2.00 is still waiting on its first real-hardware test, and this was
-measured under emulation only.
+made**: the whole calibration was measured under emulation only. V2.00 itself
+has since been confirmed on a real Model III, but nobody has yet timed a song
+against a stopwatch there, which is what it would take to justify moving those
+constants. If a song ever sounds off-tempo on real hardware, this is the first
+thing to re-check - eight bars of `BOOGIE` should take about 13.7 seconds.
 
 Note also that the step period varies by only 1.6% between a pattern with one
 note per two steps and one with all six tracks firing on every step, so the
