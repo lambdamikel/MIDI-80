@@ -195,6 +195,33 @@ innocent all along, while a single commented out `and a,~$20` was
 costing **6x on every video write** and the ROM keyboard call was eating
 **41% of the machine**.
 
+#### Keyboard: `@KEY` no longer races the direct scan
+
+Reported from real hardware: pressing `H` would flash the help page for a
+fraction of a second and then lose it. It looked like contact bounce, but it
+reproduces exactly under emulation, where there is no bounce at all — a press
+held longer than about 130 ms always loses the page, a quick tap never does.
+
+2.00's direct matrix scan reacts to a key in roughly a millisecond, while the
+interrupt-driven DOS keyboard driver only scans every 25 ms or so. Any press
+held longer than one DOS scan therefore also lands in the DOS type-ahead
+buffer, and the `call @KEY` that waits to dismiss the help page reads that
+buffer — finding the very `H` that opened it. The same race auto-answered the
+`Y/N` prompts on load, save and quit, and the copy-pattern and disk-error
+prompts.
+
+All four `@KEY` calls now use `waitkey`, which waits on the tracker's own
+scan and so never consults the DOS buffer. It first insists the keyboard is
+fully released, so the keystroke that opened a prompt cannot answer it.
+
+`kbdscan` also gained a release settle (`KBDSETTLE`, ~20 ms of quiet before
+the same key may be reported again), which does address genuine contact
+bounce: without it the scan is fast enough to see a bouncing contact re-close
+and count one press several times. The settled path costs 28 T against the 27
+it replaced, so the step timing is unchanged — measured 139.68 BPM against
+139.80 before, with jitter slightly improved. `datalength` is unchanged, so
+existing `DUMP` files still load.
+
 #### Bootable disk images
 
 Ready-to-run LDOS images containing `TRACKER5/CMD` (1.98),

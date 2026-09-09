@@ -10,6 +10,13 @@ DISPMIDINOTEOFFSET equ $61 ; 0 -> 'a'
 POSMARKSYM equ	$aa
 SETSYM 	equ	$8f
 CURSYM 	equ	'X'
+
+;; Consecutive empty scans required before the same key may be reported
+;; again. The direct scan runs about once a millisecond, fast enough to see
+;; a bouncing contact re-close and report one press several times, which
+;; makes command keys feel hair triggered. ~20 ms of quiet settles it and is
+;; far below anything a player can type. Set to 1 to disable.
+KBDSETTLE equ	24
 ENTER	equ	$0d ; @DSPLY with newline
 
 KCURLEFT	equ 8
@@ -900,7 +907,7 @@ copypat1:
 	inc hl
 	ld (hl), '?'
 
-	call @KEY
+	call waitkey
 	cp ENTER
 	jp z, copypat2 
 
@@ -1258,7 +1265,7 @@ help:
 	ld	bc,1024 
 	ldir
 
-	call @KEY
+	call waitkey
 
 	ld a,'*'
 
@@ -3525,8 +3532,21 @@ kbdrow:
 	sla c
 	djnz kbdrow
 
-	xor a			; nothing held: release the latch so the
-	ld (lastkey),a		; same key can be pressed again
+	;; Nothing held. Let the latch go, but only once the contacts have
+	;; stayed open for KBDSETTLE scans running, so bounce cannot turn one
+	;; press into several. A is already 0 here, and the settled case -- by
+	;; far the common one -- costs 28 T against the 27 T this used to be,
+	;; so the step timing calibration is unaffected.
+	ld a,(kbdsettlec)
+	or a
+	ret z			; already settled, latch is clear, A = 0
+	dec a
+	ld (kbdsettlec),a
+	jr nz,kbdstl		; still settling: hold the latch
+	ld (lastkey),a		; settled: A is 0, release the latch
+	ret
+kbdstl:
+	xor a
 	ret
 
 kbdfound:
@@ -3538,6 +3558,8 @@ kbdbit:
 	jr kbdbit
 
 kbdgot:
+	ld a,KBDSETTLE		; contacts closed: restart the settle timer
+	ld (kbdsettlec),a
 	ld a,e			; index = row*8 + column
 	add a,a
 	add a,a
@@ -3564,6 +3586,30 @@ kbdplain:
 	ret
 kbdheld:
 	xor a
+	ret
+
+;; waitkey -- wait for a keypress using our own matrix scan.
+;;
+;; @KEY reads the DOS type ahead buffer, and that is a race we now lose:
+;; kbdscan reacts to a key in about a millisecond, while the interrupt
+;; driven DOS keyboard driver only scans every 25 ms or so. Any keypress
+;; held longer than that gets queued by the DOS as well, so the next @KEY
+;; returns that same key immediately -- the help page is dismissed by the
+;; very H that opened it, and a Y/N prompt answers itself.
+;;
+;; Waiting on kbdscan instead sidesteps the DOS buffer completely. The
+;; first loop also insists the keyboard is fully released and settled, so
+;; the press that got us here cannot be read a second time.
+
+waitkey:
+	call kbdscan		; drain the press that brought us here
+	ld a,(lastkey)
+	or a
+	jr nz,waitkey
+waitkey1:
+	call kbdscan		; now wait for a fresh one
+	or a
+	jr z,waitkey1
 	ret
 
 kbdtab:				; unshifted
@@ -3700,7 +3746,7 @@ diskerror:
 	ld	de,$3c00+64
 	ld	bc,64
 	ldir
-	call @KEY
+	call waitkey
 	call restorestatus
 	ret
 
@@ -3711,7 +3757,7 @@ yesnoprompt:
 	ld	de,$3c00+64
 	ld	bc,64
 	ldir
-	call @KEY
+	call waitkey
 	cp 'Y'
 	call restorestatus
 
@@ -3863,6 +3909,7 @@ bpmdigits	byte '-','-','-'
 dvnd		defs 4		; scratch dividend for the BPM division
 midiclkbusy	byte 0		; re-entrancy guard while sending a message
 lastkey		byte 0		; debounce latch for the direct key scan
+kbdsettlec	byte 0		; scans of quiet still needed before a new key
 kbdshift	byte 0		; shift state of the current scan
 passdivc	byte 1		; main loop call divider
 shortdivc	byte 1		; short_delay call divider
