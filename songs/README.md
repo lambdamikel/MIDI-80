@@ -90,10 +90,15 @@ made** - it would alter the actual tempo, not just the display, since
 readout honestly means deriving the displayed BPM from the measured relation
 while leaving `steptarget` alone.
 
-The calibration itself has since been **confirmed on real hardware**: eight
-bars of `BOOGIE` pattern A timed at 13 to 14 seconds on a real Model III,
-against 13.73 s predicted here and 14.69 s predicted by the tracker's own
-`BPM:130` readout. The window contains the first and excludes the second.
+The calibration itself has since been **confirmed on real hardware**. Four
+repeats of `BOOGIE` pattern A - 32 bars, 512 steps - timed at **55.0 s** by
+stopwatch on a real Model III, against **54.94 s** predicted here. Allowing a
+few tenths of reaction time at each end, that is agreement to within about
+half a percent, and it implies ~139.6 BPM against 139.8 predicted.
+
+The tracker's own `BPM:130` readout implies **58.8 s** for the same passage.
+That is nearly four seconds away, far outside any stopwatch error, so it is
+excluded outright: the readout is about 7% low.
 
 Note also that the step period varies by only 1.6% between a pattern with one
 note per two steps and one with all six tracks firing on every step, so the
