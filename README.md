@@ -829,7 +829,11 @@ externally connected GM expander with your TRS-80 keyboard. This is
 joint-work with George Phillips, as the program uses his keyboard
 scanning and self-modifying key handler code. 
 
-  V1.1 lights up the on-screen keyboard as you play: a held key fills
+  V1.1 is on [`MIDI.DSK`](trs-80/model-3/dsk/MIDI.DSK) /
+  [`MIDI_DSK.hfe`](trs-80/model-3/hfe/MIDI_DSK.hfe) (Model III) and
+  [`midi.dsk`](trs-80/model-1/dsk/midi.dsk) /
+  [`midi_dsk.hfe`](trs-80/model-1/hfe/midi_dsk.hfe) (Model I), replacing the
+  V1.0 build that was there before. It lights up the on-screen keyboard as you play: a held key fills
   its box on the virtual keyboard, and releasing it restores the note
   name. Neither the Model I nor the Model III has a reverse-video
   attribute for text - `$C0`-`$FF` is a symbol set on the III and a
