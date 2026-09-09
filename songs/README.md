@@ -79,11 +79,19 @@ actual = 62778 + 1547.9 * tempo   T-states     (measured)
 | 160 | 340256 | 310236 | 0.912 |  89.4 |  98.0 |
 | 200 | 411936 | 372528 | 0.904 |  73.8 |  81.6 |
 
-Confirmed on real hardware: four repeats of `BOOGIE` pattern A - 32 bars,
-512 steps - timed at **55.0 s** by stopwatch on a real Model III against
-**54.94 s** predicted. Allowing a few tenths of reaction time at each end
-that is agreement to within about half a percent. The old readout implied
-58.8 s for the same passage, nearly four seconds out and excluded outright.
+Confirmed on real hardware, on both machines. Four repeats of `BOOGIE`
+pattern A - 32 bars, 512 steps:
+
+| | predicted | measured | old readout implied |
+|---|---|---|---|
+| Model III | 54.94 s | **55.0 s** | 58.8 s |
+| Model I | 63.4 s | **63.0 s** | 67.2 s |
+
+Allowing a few tenths of reaction time at each end of a stopwatch run, that
+is agreement to well within a percent on both, and the old readout's figure
+is excluded outright in each case. The Model I plays the same song slower
+purely because of its 1.774 MHz clock against the Model III's 2.028 MHz;
+in T-states the two differ by only about 1%.
 
 The readout is now computed from that relation directly, leaving
 `steptarget` alone so the playback timing is unchanged. See the main

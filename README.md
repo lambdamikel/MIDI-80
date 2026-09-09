@@ -293,8 +293,12 @@ actual tempo and de-tuned every existing song along with the demo songs.
 
 The Model I runs about 1% slower per step in T-states than the Model III -
 same code, slightly different per-model branches - which is absorbed into
-the Model I constant rather than needing a second slope. 1.99 has no BPM
-readout, so nothing changed there.
+the Model I constant rather than needing a second slope. Both are confirmed
+on real hardware: 32 bars of `BOOGIE` timed at 55.0 s on a Model III
+(54.94 s predicted) and 63.0 s on a Model I (63.4 s predicted), reading
+`BPM:140` and `BPM:121` against true values of 139.6 and 121.9.
+
+1.99 has no BPM readout, so nothing changed there.
 
 #### Bootable disk images
 
