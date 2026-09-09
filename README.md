@@ -29,13 +29,13 @@ faster tracker core.**
 >   below), and command keys needing a release settle against contact
 >   bounce.
 >
-> **Model I** has since been confirmed too, and so have the keyboard fixes
-> and **MIDORG V1.1**'s key highlighting.
+> **Model I** has since been confirmed too, along with the keyboard fixes,
+> **MIDORG V1.1**'s key highlighting, and the **`.hfe` images** booted from
+> a Gotek on both machines.
 >
-> Two things are still unverified: the **`.hfe` images** on a Gotek, and
-> the **external clock cable** from the Arduino clock box into the TRS-80
-> parallel port, which has not been built yet - the clock box itself is
-> verified against a real Korg microKORG.
+> One thing remains unverified: the **external clock cable** from the
+> Arduino clock box into the TRS-80 parallel port, which has not been built
+> yet. The clock box itself is verified against a real Korg microKORG.
 >
 > The tempo calibration behind the BPM readout has since been confirmed on
 > hardware too: 32 bars of `BOOGIE` timed at **55.0 s** by stopwatch on a
