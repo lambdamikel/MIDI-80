@@ -2814,9 +2814,21 @@ convnibble:
 ;; Now that tempo names an actual period this is a genuine tempo and
 ;; not an opaque delay count. A step is a 16th note, so a quarter is
 ;; four steps and
-;;      BPM = 60 * F / (4 * steptarget * TSCALE)
-;;          = 1900800 / steptarget   (Model III / 4 at 2.02752 MHz)
-;;          = 1663200 / steptarget   (Model I at 1.774080 MHz)
+;;      BPM = 60 * F / (4 * period * TSCALE)
+;;
+;; The period here is NOT steptarget. steptarget is the intended step, and
+;; the accumulator that chases it over-counts idle loop passes, so the real
+;; step falls short of it by a margin that grows with tempo. bpmdiv holds
+;; the measured period instead -- see the BPMBASE block at the top -- which
+;; makes the readout honest to within 0.3% on both machines:
+;;          BPM = 1900800 / bpmdiv    (Model III / 4 at 2.02752 MHz)
+;;          BPM = 1646800 / bpmdiv    (Model I, incl. its ~1% longer step)
+;;
+;; The MIDI clock divisor in midiclkadd deliberately still uses steptarget:
+;; the step boundary and the clock both run off the same biased time base,
+;; so the bias cancels and exactly 6 clocks land per step whatever the
+;; calibration says. That one must not be "fixed".
+;;
 ;; Recomputed only when tempo actually changes, so the 32/16 division
 ;; never lands in the playback path.
 ;; ---------------------------------------------------------------
