@@ -29,13 +29,13 @@ faster tracker core.**
 >   below), and command keys needing a release settle against contact
 >   bounce.
 >
-> Still unverified, in decreasing order of confidence: the **Model I**
-> builds and disk images (same code, and the Model I path is unchanged,
-> but not actually run); the **`.hfe` images** on a Gotek; **MIDORG
-> V1.1**; the **demo songs** on real hardware; and the **external clock
-> cable** from the Arduino clock box into the TRS-80 parallel port, which
-> has not been built yet - the clock box itself is verified against a
-> real Korg microKORG.
+> **Model I** has since been confirmed too, and so have the keyboard fixes
+> and **MIDORG V1.1**'s key highlighting.
+>
+> Two things are still unverified: the **`.hfe` images** on a Gotek, and
+> the **external clock cable** from the Arduino clock box into the TRS-80
+> parallel port, which has not been built yet - the clock box itself is
+> verified against a real Korg microKORG.
 >
 > The tempo calibration behind the BPM readout has since been confirmed on
 > hardware too: 32 bars of `BOOGIE` timed at **55.0 s** by stopwatch on a
@@ -934,7 +934,8 @@ externally connected GM expander with your TRS-80 keyboard. This is
 joint-work with George Phillips, as the program uses his keyboard
 scanning and self-modifying key handler code. 
 
-  V1.1 is on [`MIDI.DSK`](trs-80/model-3/dsk/MIDI.DSK) /
+  V1.1 is hardware tested, and is on
+  [`MIDI.DSK`](trs-80/model-3/dsk/MIDI.DSK) /
   [`MIDI_DSK.hfe`](trs-80/model-3/hfe/MIDI_DSK.hfe) (Model III) and
   [`midi.dsk`](trs-80/model-1/dsk/midi.dsk) /
   [`midi_dsk.hfe`](trs-80/model-1/hfe/midi_dsk.hfe) (Model I), replacing the
