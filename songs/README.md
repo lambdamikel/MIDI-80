@@ -9,6 +9,7 @@ and reads back with `L` - together with a `.MID` rendering of the same music.
 | `BOOGIE`   | 12 bar blues shuffle in C | bass, two organ voices, lead guitar, 2 drum tracks | 140 BPM | A+B is one 12 bar chorus |
 | `SEQUENCE` | Berlin school 16th note sequencer in A minor | two sequences, synth bass, pad, lead, drums | 120 BPM | builds over 5 patterns |
 | `DRUMS`    | six voice drum machine | all six tracks on channel 10 | 125 BPM | 4 bar patterns chained |
+| `AURORA`   | Berlin school, Tangerine Dream style, in D minor | sequence, counter-sequence, bass, pad, lead, drums | 116 BPM | 11 patterns, 96 bars, loops |
 
 Playing on a Model III, left to right: the boogie grid, the 16th note
 sequence, and the drum machine.
@@ -134,6 +135,20 @@ refuses to confirm the `Y/N` prompt, suspect lowercase and try `SHIFT-Y`.
 | `../tools/mksong.py` | the song format and a small composing API |
 | `../tools/demosongs.py` | these three songs, as source |
 | `../tools/midi2wav.py` | rough offline renderer, for when there is no synth |
+
+`AURORA` is built by its own script, `tools/aurora.py`, rather than living
+in `demosongs.py` - it is long enough to be worth keeping separate:
+
+```sh
+python3 tools/aurora.py songs/
+```
+
+Its shape is the genre's: a sequencer that never stops, a second one on a
+five step cycle against a sixteen step bar so the two drift apart and meet
+again every five bars, harmony that waits four bars before it moves at all,
+and everything else arriving over the top. The layers enter at bars 1
+(sequence), 17 (bass), 33 (counter-sequence and pad), 41 (drums) and 57
+(lead), and leave again before the end.
 
 To write your own, edit `tools/demosongs.py` and run it; see
 `tools/README.md` for the layout of the `DUMP` file.
