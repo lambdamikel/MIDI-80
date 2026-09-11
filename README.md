@@ -398,7 +398,7 @@ flexibly sequenced in song mode).
 More MIDI channels can be realized by synchronizing
 multiple TRACKERs running on dedicated TRS-80s, 
 via the parallel port sync cable (see below). Joel
-is tpyically using 2 to 3 synchronized TRACKERS for his work. 
+is typically using 2 to 3 synchronized TRACKERS for his work. 
 See below for more details. 
 
 Please support [his work on Spotify](https://open.spotify.com/artist/7oj8N7mM6rrZCQnkTO5Ndb?si=y26EeWk6QDWjdPfHtQ730w) 
@@ -524,7 +524,7 @@ Internal clock:
 
 ![Internal Clock](pics/intclock.jpg)
 
-To make the cable, simply connect the Centronic ports of the two
+To make the cable, simply connect the Centronics ports of the two
 machines as follows: `GND` to `GND` (e.g., Centronics pin 2; note that
 there are multiple options for `GND`), and the `Data 0` output
 (Centronics pin 3) of the primary to the `BUSY` input (Centronics pin
@@ -607,13 +607,13 @@ https://homecomputerguy.de/en/2024/11/24/midi-80-trashy-spits-out-new-sounds/
 ![Hackaday features](pics/hackaday.png)
 
 - This Github goes online. Firmware, Gerbers, and sources released to the public.
-- The first beta tests were a success! Both JÃ¼rgen and Joel have successfully used MIDI/80 with their TRS-80s. 
+- The first beta tests were a success! Both Jürgen and Joel have successfully used MIDI/80 with their TRS-80s. 
 
 ### October 2024
 
 [MatrixSynth](https://www.matrixsynth.com/search?updated-max=2024-10-31T14:06:00-07:00&max-results=10) posted about MIDI/80 - thanks! 
 
-![Maxtrixsynth](pics/matrixsynth.jpg)
+![Matrixsynth](pics/matrixsynth.jpg)
 
 
 ## About
@@ -644,7 +644,7 @@ MIDI/80 offers:
 
   GM sound is either produced by a Waveblaster-compatible soundmodule
   that plugs onto MIDI/80's Waveblaster header, or via a GM expander
-  (such as the Roland Sound Canvas SC-55 or Roland MT-32) conntected
+  (such as the Roland Sound Canvas SC-55 or Roland MT-32) connected
   to MIDI/80's MIDI OUT DIN socket. MIDI data can be sent to
   either or both of these devices. Both the Waveblaster module as well
   as the MIDI DIN sockets are optional, but in order to act as a soundcard,
@@ -803,7 +803,7 @@ Please note the following:
      - **DATA-IN**: Data is received from the TRS-80 via IO port `8`. 
      - **MIDI-IN**: MIDI data is received via the MIDI IN DIN socket. 
      - **DATA-OUT**: Data is sent from the BluePill microcontroller
-       to the TRS-80. The repective
+       to the TRS-80. The respective
        IO ports are `8` and `9` (see below). 
      - **S2-OUT**:  MIDI data is sent from the BluePill microcontroller
         to the internal Waveblaster connector. 
@@ -830,7 +830,7 @@ Please note the following:
       This is a function
       of the MIDI/80 firmware, i.e., the BluePill is doing this autonomously,
       without TRS-80 involvement. You only need a 5V power supply and an external
-      amplifier, and can use MIDI/80 as a very capabale GM expander module
+      amplifier, and can use MIDI/80 as a very capable GM expander module
       for your Waveblaster sound module with this mode. 
    - **IN --> OUT**: Determines if data received
       over the MIDI IN DIN socket is automatically forwarded to the
@@ -899,9 +899,9 @@ the MIDI OUT DIN socket.
 
 MIDI data bytes received by MIDI/80 from the TRS-80 via port `8` will
 not be buffered, but, depending on the settings of DIP switches `1` and
-`2`, immediately be forwarded to either the Waveblaster pluging module,
+`2`, immediately be forwarded to either the Waveblaster plug-in module,
 and/or the MIDI OUT DIN socket, or both or none. Both routes can be
-turned on or off individually, and independendly of each other.
+turned on or off individually, and independently of each other.
 
 MIDI/80 is implemented using 4 ISR (Interrupt Service Routines).
 There is a pair of ISRs for handling reads and write to TRS-80 IO port
@@ -967,7 +967,7 @@ scanning and self-modifying key handler code.
 
   ![MIDORG](pics/midorg.gif)
 
-- `TRACKER/CMD`, `TREACKER1/CMD`: A drum pattern sequencer for your TRS-80. `TRACKER1/CMD` allows realtime tracking / recording over the MIDI drum channel (10) from a
+- `TRACKER/CMD`, `TRACKER1/CMD`: A drum pattern sequencer for your TRS-80. `TRACKER1/CMD` allows realtime tracking / recording over the MIDI drum channel (10) from a
   connected MIDI keyboard / synthesizer (via MIDI IN). 
 
   `TRACKER5/CMD` (V1.98), `TRACKER6/CMD` (V1.99) and `TRACKER7/CMD`
@@ -1001,7 +1001,7 @@ scanning and self-modifying key handler code.
   LBASIC. Simply forwards any MIDI byte received via MIDI IN DIN
   socket to either the Waveblaster, to the external MIDI OUT DIN
   socket, both, or neither, depending on the DIP switch settings (1
-  and 2). Also demonstates how to query the FIFO buffer from LBASIC,
+  and 2). Also demonstrates how to query the FIFO buffer from LBASIC,
   and how to send MIDI data from BASIC.
 
 - `BASDRUM/BAS`: The LBASIC version of the simple drum program above, but
@@ -1134,7 +1134,7 @@ Waveblaster module; add another ~40 USD for the S2, but prices vary).
 - GAL16V8 + DIP socket (and ability to program it, e.g., using TL-866 MiniPro Programmer) 
 - 74LS244 + DIP socket
 - 74LS374 + DIP socket 
-- 5 (5mm) LEDs of your liking and matching current limiting resitors (1 or 2 kOhm)
+- 5 (5mm) LEDs of your liking and matching current limiting resistors (1 or 2 kOhm)
 - 4-position DIP switch 
 - **C1** in the schematics (and on the PCB) is actually not a capacitor, but a cable / wire bridge
 - [L Type Mounting Feet](https://www.amazon.com/gp/product/B07DHHS1Q8)
@@ -1197,7 +1197,7 @@ make flash
 ```
 
 from the command line. I am using Linux for this, even though CYGWIN is mentioned as
-a possibilty in the aforementioned book. 
+a possibility in the aforementioned book. 
 
 ## Acknowledgements
 

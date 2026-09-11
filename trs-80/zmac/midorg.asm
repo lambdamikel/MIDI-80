@@ -6,7 +6,7 @@
 @EXIT		equ	$402d
 @KEY    	equ 	$0049 
 
-title:	ascii   "** MIDI/80 ORGAN V1.1 - (C)2026 G.PHILLIPS+LAMBDAMIKEL+CLAUDE **"
+title:	ascii   "** MIDI/80 ORGAN V1.1 - (C)2026 LAMBDAMIKEL+G.PHILLIPS+CLAUDE **"
 	ascii   "----------------------------------------------------------------"
 	ascii   "   _____ _____       _____ _____ _____       _____ _____        "
 	ascii   "   |*c'# |*d'#|    |*f'# |*g'# |*a'# |     |*c''#|*d''#|        "
