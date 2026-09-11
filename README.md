@@ -6,7 +6,7 @@
 #### Beta Testers: [Jürgen Wich](https://homecomputerguy.de/en/) (Model 1 Version), [Joel Hilliard (Model III / 4 Version)](https://www.youtube.com/@joelhilliard8298)
 #### License: GPL 3
 
-## News 
+## Latest News
 
 ### September 2026
 
