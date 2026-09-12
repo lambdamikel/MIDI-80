@@ -309,7 +309,7 @@ on real hardware: 32 bars of `BOOGIE` timed at 55.0 s on a Model III
 #### Bootable disk images
 
 Ready-to-run LDOS images containing `TRACKER5/CMD` (1.98),
-`TRACKER6/CMD` (1.99) and `TRACKER7/CMD` (2.00) side by side, so the old
+`TRACKER6/CMD` (1.99) and `TRACKER7/CMD` (2.10) side by side, so the old
 and new versions can be compared on the same machine:
 
 | Model | Disk image | Gotek / HxC |
@@ -355,7 +355,7 @@ parked domain. The `.hfe` files were produced from the `.dsk` images with
 
 Two versions are provided:
 
-- [`TRACKER7/CMD`](trs-80/zmac/zout/tracker7.cmd) (**V2.00**,
+- [`TRACKER7/CMD`](trs-80/zmac/zout/tracker7.cmd) (**V2.10**,
   [source](trs-80/zmac/tracker7.asm)) - everything described above.
 - [`TRACKER6/CMD`](trs-80/zmac/zout/tracker6.cmd) (**V1.99**,
   [source](trs-80/zmac/tracker6.asm)) - MIDI clock and MMC output only,
@@ -971,7 +971,7 @@ scanning and self-modifying key handler code.
   connected MIDI keyboard / synthesizer (via MIDI IN). 
 
   `TRACKER5/CMD` (V1.98), `TRACKER6/CMD` (V1.99) and `TRACKER7/CMD`
-  (V2.00) are the current 6 channel multitimbral versions. 1.99 adds
+  (V2.10) are the current 6 channel multitimbral versions. 1.99 adds
   MIDI clock and MMC transport output (`R` key); 2.00 additionally
   makes the tempo time based, shows a real BPM readout, and runs a
   faster core. See the September 2026 news entry above. 
