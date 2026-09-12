@@ -976,6 +976,21 @@ scanning and self-modifying key handler code.
   makes the tempo time based, shows a real BPM readout, and runs a
   faster core. See the September 2026 news entry above. 
 
+  **A note on realtime recording (all TRACKER versions, and the CPC port
+  as well):** TRACKER reads MIDI NOTE ON from MIDI IN and ignores MIDI
+  NOTE OFF - a recorded note gets its length from the track's Gate Time
+  setting, not from how long you held the key. While recording, what you
+  play is echoed to MIDI OUT, but the NOTE OFF for a note is only sent
+  once the *next* note arrives, so the note you played last keeps
+  sounding. Record with a decaying sound such as a piano, where this is
+  inaudible; with an organ, strings or a pad the last note drones until
+  you play another one. Playback is unaffected - there TRACKER generates
+  the NOTE OFFs itself from the Gate Time.
+
+  Like `MIDORCM/CMD` below, TRACKER also wants a proper MIDI NOTE OFF:
+  keyboards that send NOTE ON with velocity 0 instead have their key
+  releases recorded as extra notes.
+
   ![TRACKER](pics/tracker.gif) 
 
   ![TRACKER2](pics/tracker2.gif) 
