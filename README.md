@@ -134,6 +134,27 @@ and 0.096 ms peak-to-peak jitter.
 
 ![The clock module](firmware/midiclock-uno/clock-module.jpg)
 
+**Wiring it is two wires**, and the series resistor is not decoration:
+`D8` is a push-pull output, so if the pin it lands on ever turns out to be
+an output too - a miscount on the connector, a bent pin touching a
+neighbour - 220-470 Ω keeps the fight down to a few milliamps. It costs
+nothing in signal integrity, since the TRS-80 input is TTL and draws
+essentially no current.
+
+```
+   Arduino Uno                              TRS-80 Centronics
+   -----------                              -----------------
+   D8  o---------[ 220-470 ohm ]---------o  pin 21   BUSY   (input)
+   GND o---------------------------------o  pin  2   GND
+```
+
+If you already built the TRS-80-to-TRS-80 sync cable, reuse it: leave the
+end that plugs into the TRS-80 alone and take the two wires that went to
+the *primary* machine to the Arduino instead - `Data 0` to `D8`, `GND` to
+`GND`. That way you never have to identify pins on the TRS-80 side, since
+that half is already proven. The [full pinout, the divisor jumpers and the
+shield caveats](firmware/midiclock-uno/) are with the firmware.
+
 **Note:** MIDI beat clock slaving is uneven across DAWs. Hardware
 (drum machines, grooveboxes, most synths) follows it reliably. Ableton
 Live and Bitwig are solid; Logic and Pro Tools are MTC oriented and are
