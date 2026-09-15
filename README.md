@@ -10,6 +10,35 @@
 
 ### September 2026
 
+**#septandy 2026: the external clock box drives TRACKER from a real
+synthesizer.**
+
+> ✅ **TESTED ON REAL HARDWARE.** The last unproven path in the system is
+> proven. A Korg microKORG sends MIDI beat clock into the clock box, the
+> box turns it into parallel port step pulses, and TRACKER on a real
+> Model I follows it.
+
+[**#septandy 2026 - MIDI/80 TRACKER Updates - External MIDI Clock
+etc.**](https://youtu.be/hMu7oSfEjDg) shows all of it: the external clock
+running the Tracker from the microKORG, the new demo songs, and MIDORG's
+visual feedback.
+
+MIDI clock and MMC are dense, and decoding them on the TRS-80 while it is
+already scanning for note-ons is not affordable. So that work moved off the
+machine: an Arduino Uno with a standard MIDI shield does nothing else but
+turn the incoming clock into the TTL step pulses on the parallel port that
+TRACKER has understood since last year - two wires and a series resistor
+into the Centronics socket.
+
+![The clock box driving TRACKER on a Model I from a microKORG](pics/clockbox-microkorg.jpg)
+
+![The MIDI/80 card, the X-MEM/80 and the Arduino clock box](pics/clockbox-boards.jpg)
+
+The disks also carry new demo songs written with
+[`tools/mksong.py`](tools/) - `BOOGIE`, `SEQUENCE`, `DRUMS` and the newest,
+[`AURORA`](songs/), a Berlin school piece in D minor - and MIDORG now
+lights up the keys on screen as they sound.
+
 **TRACKER 1.99 and 2.00: MIDI clock & MMC transport output, and a much
 faster tracker core.**
 
@@ -39,9 +68,9 @@ faster tracker core.**
 > `.hfe` is produced from the `.dsk` by `hxcfe`, the filesystem inside is
 > the same one either way, and booting the `.hfe` exercises it.
 >
-> One thing remains unverified: the **external clock cable** from the
-> Arduino clock box into the TRS-80 parallel port, which has not been built
-> yet. The clock box itself is verified against a real Korg microKORG.
+> The **external clock cable** from the Arduino clock box into the TRS-80
+> parallel port has since been built, and it works: see the #septandy 2026
+> entry above. Every path through the system is now hardware-verified.
 >
 > The tempo calibration behind the BPM readout has since been confirmed on
 > hardware too: 32 bars of `BOOGIE` timed at **55.0 s** by stopwatch on a
@@ -127,10 +156,11 @@ port step pulses TRACKER already understands in external clock mode.
 Being dedicated, it timestamps every byte within microseconds instead
 of missing clocks inside TRACKER's ~27 ms per-step blind window.
 
-Unlike TRACKER 1.99 / 2.00 above, **the clock box has been verified on
-real hardware**: driven by a Korg microKORG over an actual MIDI cable it
-tracked 276 consecutive steps with 17 microseconds of standard deviation
-and 0.096 ms peak-to-peak jitter.
+**The clock box is verified on real hardware**, on the bench and now in
+place: driven by a Korg microKORG over an actual MIDI cable it tracked 276
+consecutive steps with 17 microseconds of standard deviation and 0.096 ms
+peak-to-peak jitter, and it has since been wired into a Model I and used to
+drive TRACKER from that same microKORG.
 
 ![The clock module](firmware/midiclock-uno/clock-module.jpg)
 
@@ -737,6 +767,7 @@ MIDI/80 offers:
 
 You can get a better understanding of MIDI/80's capabilities and features by watching some of these YouTube demo videos: 
 
+- [#septandy 2026 - MIDI/80 TRACKER Updates - External MIDI Clock etc.](https://youtu.be/hMu7oSfEjDg)
 - ["MIDORG/CMD" - MIDI/80 TRS-80 synthesizer demo](https://youtu.be/PCqYC7ioWr4)
 - [Playback of some complex GM songs from Model III RAM](https://youtu.be/CnN0iCrYn2c) 
 - ["TRACKER/CMD" - MIDI/80 drum tracker demo](https://youtu.be/1idltIlOM_4)

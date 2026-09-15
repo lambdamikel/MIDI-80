@@ -97,6 +97,13 @@ with the Arduino standing in for the primary machine:
    GND o---------------------------------o  pin  2   GND
 ```
 
+Built and working - a microKORG driving TRACKER on a Model I through the
+box and the parallel port:
+
+![The clock box driving TRACKER on a Model I from a microKORG](../../pics/clockbox-microkorg.jpg)
+
+![The MIDI/80 card, the X-MEM/80 and the Arduino clock box](../../pics/clockbox-boards.jpg)
+
 ### About the series resistor
 
 **Fit it.** It is not optional decoration:
